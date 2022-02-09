@@ -49,7 +49,7 @@ public class OverlayUtil
 
 	public static void renderPolygon(Graphics2D graphics, Shape poly, Color color)
 	{
-		renderPolygon(graphics, poly, color, new BasicStroke(2));
+		renderPolygon(graphics, poly, color, new BasicStroke(5));
 	}
 
 	public static void renderPolygon(Graphics2D graphics, Shape poly, Color color, Stroke borderStroke)
@@ -59,6 +59,7 @@ public class OverlayUtil
 
 	public static void renderPolygon(Graphics2D graphics, Shape poly, Color color, Color fillColor, Stroke borderStroke)
 	{
+		//System.out.println(graphics.);
 		graphics.setColor(color);
 		final Stroke originalStroke = graphics.getStroke();
 		graphics.setStroke(borderStroke);

@@ -24,6 +24,7 @@
  */
 package net.runelite.client.plugins.agility;
 
+import net.runelite.api.Client;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.time.Duration;
@@ -32,6 +33,8 @@ import javax.inject.Inject;
 import static net.runelite.api.MenuAction.RUNELITE_OVERLAY;
 import static net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG;
 import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
+
+import net.runelite.api.Skill;
 import net.runelite.client.ui.overlay.OverlayMenuEntry;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
@@ -56,6 +59,9 @@ class LapCounterOverlay extends OverlayPanel
 		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Agility overlay"));
 		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY, AGILITY_RESET, "Agility overlay"));
 	}
+
+	@Inject
+	Client client;
 
 	@Override
 	public Dimension render(Graphics2D graphics)
@@ -100,6 +106,11 @@ class LapCounterOverlay extends OverlayPanel
 				.right(Integer.toString(session.getLapsPerHour()))
 				.build());
 		}
+
+		panelComponent.getChildren().add(LineComponent.builder()
+				.left("Agil XP:")
+				.right(Integer.toString(client.getSkillExperience(Skill.AGILITY)))
+				.build());
 
 		return super.render(graphics);
 	}

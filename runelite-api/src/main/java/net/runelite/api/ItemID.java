@@ -2807,6 +2807,7 @@ public final class ItemID
 	public static final int STATUETTE = 4618;
 	public static final int STRANGE_IMPLEMENT = 4619;
 	public static final int BLACK_MUSHROOM = 4620;
+	public static final int BLACK_MUSHROOM_INK = 4622;
 	public static final int PHOENIX_FEATHER = 4621;
 	public static final int BLACK_DYE = 4622;
 	public static final int PHOENIX_QUILL_PEN = 4623;
