@@ -6,9 +6,6 @@ import com.google.inject.Provides;
 import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.events.GameTick;
-import net.runelite.api.events.InteractingChanged;
-import net.runelite.api.events.ItemContainerChanged;
-import net.runelite.api.events.StatChanged;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetItem;
@@ -17,24 +14,15 @@ import net.runelite.client.game.FishingSpot;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.api.InventoryID;
-import net.runelite.client.events.ConfigChanged;
-import net.runelite.client.plugins.autobot.AutoBotFishingConfig;
 import net.runelite.client.config.ConfigManager;
 
-import net.runelite.client.plugins.boosts.BoostsConfig;
 import okhttp3.*;
 import javax.inject.Inject;
 import java.awt.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.awt.Robot;
-import java.util.Objects;
 import java.util.Set;
-import java.awt.event.InputEvent;
-import java.util.concurrent.ThreadLocalRandom;
-
-import static net.runelite.client.plugins.statussocket.StatusSocketEndpoints.LOG_ENDPOINT;
 
 @PluginDescriptor(
         name = "AutoBotFishing",

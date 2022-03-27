@@ -6,7 +6,6 @@ import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.api.events.GameObjectSpawned;
 import net.runelite.api.events.GameTick;
 
 import net.runelite.api.widgets.Widget;
@@ -15,7 +14,6 @@ import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.autobot.AutoBotPlugin;
 import okhttp3.*;
 
 import javax.inject.Inject;
@@ -28,7 +26,8 @@ import java.util.List;
 @PluginDescriptor(
         name = "AutoBotQuest",
         description = "Does some stuff with fishing data",
-        tags = {"quest", "bot"}
+        tags = {"quest", "bot"},
+        enabledByDefault = false
 )
 
 public class AutoBotQuestPlugin extends Plugin {
@@ -78,6 +77,7 @@ public class AutoBotQuestPlugin extends Plugin {
     {
         int x;
         int y;
+        int z;
         String type;
     }
 
@@ -186,8 +186,8 @@ public class AutoBotQuestPlugin extends Plugin {
         objectsToClick = objectsToClickTemp;
         WorldPoint wp = client.getLocalPlayer().getWorldLocation();
         LocalPoint lp = client.getLocalPlayer().getLocalLocation();
-        playerLocation world = new playerLocation(wp.getX(), wp. getY(), "world");
-        playerLocation local = new playerLocation(lp.getX(), lp. getY(), "local");
+        playerLocation world = new playerLocation(wp.getX(), wp. getY(), wp.getPlane(), "world");
+        playerLocation local = new playerLocation(lp.getX(), lp. getY(), 99, "local");
         List<NPC> npcs = client.getNpcs();
         ArrayList<targetToClick> npcsToClickTemp = new ArrayList<targetToClick>();
         for (NPC npc : npcs) {
