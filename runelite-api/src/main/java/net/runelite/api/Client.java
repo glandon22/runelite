@@ -24,6 +24,7 @@
  */
 package net.runelite.api;
 
+import com.jagex.oldscape.pub.OAuthApi;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.util.EnumSet;
@@ -50,7 +51,7 @@ import org.intellij.lang.annotations.MagicConstant;
 /**
  * Represents the RuneScape client.
  */
-public interface Client extends GameEngine
+public interface Client extends OAuthApi, GameEngine
 {
 	/**
 	 * The injected client invokes these callbacks to send events to us
@@ -163,10 +164,13 @@ public interface Client extends GameEngine
 	void stopNow();
 
 	/**
+	 * DEPRECATED. See getAccountHash instead.
 	 * Gets the current logged in username.
 	 *
 	 * @return the logged in username
+	 * @see OAuthApi#getAccountHash()
 	 */
+	@Deprecated
 	String getUsername();
 
 	/**
@@ -396,6 +400,20 @@ public interface Client extends GameEngine
 	 */
 	@Nullable
 	SpritePixels createItemSprite(int itemId, int quantity, int border, int shadowColor, @MagicConstant(valuesFromClass = ItemQuantityMode.class) int stackable, boolean noted, int scale);
+
+	/**
+	 * Get the item model cache. These models are used for drawing widgets of type {@link net.runelite.api.widgets.WidgetType#MODEL}
+	 * and inventory item icons
+	 * @return
+	 */
+	NodeCache getItemModelCache();
+
+	/**
+	 * Get the item sprite cache. These are 2d SpritePixels which are used to raster item images on the inventory and
+	 * on widgets of type {@link net.runelite.api.widgets.WidgetType#GRAPHIC}
+	 * @return
+	 */
+	NodeCache getItemSpriteCache();
 
 	/**
 	 * Loads and creates the sprite images of the passed archive and file IDs.
@@ -1868,6 +1886,18 @@ public interface Client extends GameEngine
 	 * Sets if a widget is in target mode
 	 */
 	void setSpellSelected(boolean selected);
+
+	/**
+	 * Get if an item is selected with "Use"
+	 * @return 1 if selected, else 0
+	 */
+	int getSelectedItem();
+
+	/**
+	 * If an item is selected, this is the item index in the inventory.
+	 * @return
+	 */
+	int getSelectedItemIndex();
 
 	/**
 	 * Returns client item composition cache
