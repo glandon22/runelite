@@ -47,7 +47,7 @@ public class AutoBotCookerPlugin extends Plugin {
     }
 
     private static final Set<Integer> RELEVANT_OBJECTS = ImmutableSet.of(
-            ObjectID.FIRE_26185
+            ObjectID.FIRE_43475
     );
 
     private OkHttpClient okClient = new OkHttpClient();

@@ -1,23 +1,16 @@
 package net.runelite.client.plugins.autodecepticon;
 
-import com.google.gson.Gson;
 import com.google.inject.Provides;
 import net.runelite.api.Client;
-import net.runelite.api.GameObject;
 import net.runelite.api.Tile;
 import net.runelite.api.WallObject;
-import net.runelite.api.coords.LocalPoint;
-import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.*;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import okhttp3.*;
 
 import javax.inject.Inject;
-import java.awt.*;
-import java.io.IOException;
 import java.util.*;
 
 @PluginDescriptor(

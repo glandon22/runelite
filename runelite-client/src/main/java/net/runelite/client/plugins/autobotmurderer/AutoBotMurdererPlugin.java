@@ -7,8 +7,11 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
 import net.runelite.api.*;
+import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.events.InteractingChanged;
+import net.runelite.api.events.ItemDespawned;
+import net.runelite.api.events.ItemSpawned;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetItem;
@@ -18,12 +21,15 @@ import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import okhttp3.*;
 
+import net.runelite.api.Player;
 import javax.inject.Inject;
 import java.awt.*;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 @PluginDescriptor(
         name = "AutoBotMurderer",
@@ -63,6 +69,14 @@ public class AutoBotMurdererPlugin extends Plugin {
     }
 
     @Value
+    private static class groundItemPacket
+    {
+        int x;
+        int y;
+        int id;
+    }
+
+    @Value
     private static class GameInfoPacket
     {
         ArrayList<InvSlot> inv;
@@ -71,7 +85,10 @@ public class AutoBotMurdererPlugin extends Plugin {
         int unboostedHpLevel;
         String interactingWith;
         boolean canAttack;
+        ArrayList<groundItemPacket> groundItems;
     }
+
+    Hashtable<Tile, TileItem> tilesWithItem = new Hashtable<>();
 
     private static WidgetItem getWidgetItem(Widget parentWidget, int idx)
     {
@@ -118,7 +135,6 @@ public class AutoBotMurdererPlugin extends Plugin {
 
     @Subscribe
     public void onGameTick(GameTick event) {
-
         boolean canAttack = false;
         if (client.getMenuEntries() != null) {
             MenuEntry[] mn = client.getMenuEntries();
@@ -176,14 +192,52 @@ public class AutoBotMurdererPlugin extends Plugin {
         if (p != null) {
            interactingWith = p.getName();
         }
+
+        ArrayList<groundItemPacket> algp = new ArrayList<>();
+        Set<Tile> tt = tilesWithItem.keySet();
+        for (Tile t : tt) {
+            if (t.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()) > 10) {
+                continue;
+            }
+            final LocalPoint location = LocalPoint.fromWorld(client, t.getWorldLocation());
+            final Polygon poly = Perspective.getCanvasTilePoly(client, location);
+            Rectangle r = poly.getBounds();
+            double x = r.getX();
+            double y = r.getY();
+            double w = r.getWidth();
+            double h = r.getHeight();
+            int cx = (int)(x + (w/2));
+            int cy = (int)(y + 23 + (h /2));
+            groundItemPacket gp = new groundItemPacket(cx, cy, tilesWithItem.get(t).getId());
+            algp.add(gp);
+        }
+
         GameInfoPacket gip = new GameInfoPacket(
                 drop,
                 alnp,
                 client.getBoostedSkillLevel(Skill.HITPOINTS),
                 client.getRealSkillLevel(Skill.HITPOINTS),
                 interactingWith,
-                canAttack
+                canAttack,
+                algp
         );
         post(gip);
+    }
+
+    @Subscribe
+    public void onItemSpawned(ItemSpawned itemSpawned)
+    {
+        TileItem item = itemSpawned.getItem();
+        Tile tile = itemSpawned.getTile();
+        tilesWithItem.put(tile, item);
+        System.out.println("item");
+        System.out.println(item);
+    }
+
+    @Subscribe
+    public void onItemDespawned(ItemDespawned itemDespawned)
+    {
+        Tile tile = itemDespawned.getTile();
+        tilesWithItem.remove(tile);
     }
 }

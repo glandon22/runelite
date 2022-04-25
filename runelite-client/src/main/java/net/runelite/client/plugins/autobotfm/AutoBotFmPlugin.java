@@ -12,6 +12,7 @@ import net.runelite.api.widgets.WidgetItem;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
+import net.runelite.client.plugins.autobotquest.AutoBotQuestPlugin;
 import okhttp3.*;
 
 import javax.inject.Inject;
@@ -75,6 +76,7 @@ public class AutoBotFmPlugin extends Plugin {
         ArrayList<InvSlot> bank;
         int fmLevel;
         int fmXp;
+        WorldPoint worldPoint;
     }
 
     private static WidgetItem getWidgetItem(Widget parentWidget, int idx)
@@ -214,7 +216,9 @@ public class AutoBotFmPlugin extends Plugin {
         int cy1 = (int)(y1 + 23 + (h1 /2));
         altp.add(new TilePacket(cx1, cy1, "s2"));
         int fmxp = client.getSkillExperience(Skill.FIREMAKING);
-        GameInfoPacket gip = new GameInfoPacket(drop, alnp, altp, bankStuff, client.getRealSkillLevel(Skill.FIREMAKING), fmxp);
+        WorldPoint playerWorldPoint = client.getLocalPlayer().getWorldLocation();
+        //(wp.getX(), wp. getY(), wp.getPlane(), "world")
+        GameInfoPacket gip = new GameInfoPacket(drop, alnp, altp, bankStuff, client.getRealSkillLevel(Skill.FIREMAKING), fmxp, playerWorldPoint);
         post(gip);
     }
 }
