@@ -402,4 +402,16 @@ public final class ScriptID
 	 */
 	@ScriptArguments(integer = 4)
 	public static final int QUEST_FILTER = 3238;
+
+	@ScriptArguments(integer = 7)
+	public static final int GROUP_IRONMAN_STORAGE_BUILD = 5269;
+
+	@ScriptArguments(integer = 6)
+	public static final int INVENTORY_DRAWITEM = 6011;
+
+	/**
+	 * Initializes the trade interface
+	 */
+	@ScriptArguments(integer = 6)
+	public static final int TRADE_MAIN_INIT = 755;
 }
