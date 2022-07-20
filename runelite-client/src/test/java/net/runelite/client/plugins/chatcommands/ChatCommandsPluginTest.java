@@ -66,12 +66,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import org.mockito.Mock;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -615,7 +618,7 @@ public class ChatCommandsPluginTest
 
 		HiscoreResult hiscoreResult = new HiscoreResult();
 		hiscoreResult.setPlayer(PLAYER_NAME);
-		hiscoreResult.setZulrah(new Skill(10, 1000, -1));
+		hiscoreResult.setChambersOfXericChallengeMode(new Skill(10, 1000, -1));
 
 		when(hiscoreClient.lookup(eq(PLAYER_NAME), nullable(HiscoreEndpoint.class))).thenReturn(hiscoreResult);
 
@@ -625,9 +628,9 @@ public class ChatCommandsPluginTest
 		chatMessage.setType(ChatMessageType.PUBLICCHAT);
 		chatMessage.setName(PLAYER_NAME);
 		chatMessage.setMessageNode(messageNode);
-		chatCommandsPlugin.playerSkillLookup(chatMessage, "!lvl zulrah");
+		chatCommandsPlugin.playerSkillLookup(chatMessage, "!lvl cox cm");
 
-		verify(messageNode).setRuneLiteFormatMessage("<colNORMAL>Level <colHIGHLIGHT>Zulrah: 1000<colNORMAL> Rank: <colHIGHLIGHT>10");
+		verify(messageNode).setRuneLiteFormatMessage("<colNORMAL>Level <colHIGHLIGHT>Chambers of Xeric: Challenge Mode: 1000<colNORMAL> Rank: <colHIGHLIGHT>10");
 	}
 
 	@Test
@@ -1087,6 +1090,10 @@ public class ChatCommandsPluginTest
 			"Theatre of Blood",
 			"Fastest Room time (former): <col=ffffff>18:45</col>",
 			"Fastest Wave time (former): <col=ffffff>22:01</col>",
+			"Fastest Room time - (Team size: (1 player): <col=ffffff>1:01:57.00</col>",
+			"Fastest Overall time - (Team size: 1 player): <col=ffffff>1:06:40.20</col>",
+			"Fastest Room time - (Team size: (2 player): <col=ffffff>22:43.80</col>",
+			"Fastest Overall time - (Team size: 2 player): <col=ffffff>27:36.60</col>",
 			"Fastest Room time - (Team size: (3 player): <col=ffffff>19:50</col>",
 			"Fastest Overall time - (Team size: 3 player): <col=ffffff>22:47</col>",
 			"Fastest Room time - (Team size: (4 player): <col=ffffff>17:38</col>",
@@ -1138,7 +1145,10 @@ public class ChatCommandsPluginTest
 
 		verify(configManager).setRSProfileConfiguration("personalbest", "tztok-jad", 2033.0);
 		verify(configManager).setRSProfileConfiguration("personalbest", "tempoross", 234.0);
-		verify(configManager).setRSProfileConfiguration("personalbest", "chambers of xeric", 1360.0); // the lowest time
+		verify(configManager).setRSProfileConfiguration("personalbest", "chambers of xeric solo", 60 * 28 + 7.);
+		verify(configManager).setRSProfileConfiguration("personalbest", "chambers of xeric 2 players", 60 * 24 + 40.);
+		verify(configManager).setRSProfileConfiguration("personalbest", "theatre of blood solo", 3600 + 60 + 57.);
+		verify(configManager).setRSProfileConfiguration("personalbest", "theatre of blood 3 players", 19 * 60 + 50.);
 	}
 
 	@Test
@@ -1148,5 +1158,14 @@ public class ChatCommandsPluginTest
 		chatCommandsPlugin.onChatMessage(chatMessage);
 
 		verify(configManager).setRSProfileConfiguration("killcount", "guardians of the rift", 167);
+	}
+
+	@Test
+	public void testReward()
+	{
+		ChatMessage chatMessage = new ChatMessage(null, GAMEMESSAGE, "", "Your reward is: <col=ff0000>1</col> x <col=ff0000>Kebab</col>.", null, 0);
+		chatCommandsPlugin.onChatMessage(chatMessage);
+
+		verify(configManager, never()).setRSProfileConfiguration(anyString(), anyString(), anyInt());
 	}
 }

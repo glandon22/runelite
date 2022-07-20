@@ -24,6 +24,7 @@
  */
 package net.runelite.client.plugins.menuentryswapper;
 
+import lombok.RequiredArgsConstructor;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
@@ -65,6 +66,14 @@ public interface MenuEntrySwapperConfig extends Config
 		closedByDefault = true
 	)
 	String uiSection = "ui";
+
+	@ConfigSection(
+		name = "Ground Item Swaps",
+		description = "All options that swap ground item menu entries",
+		position = 4,
+		closedByDefault = true
+	)
+	String groundItemSection = "groundItems";
 
 	enum ArdougneCloakMode
 	{
@@ -140,25 +149,49 @@ public interface MenuEntrySwapperConfig extends Config
 	@ConfigItem(
 		position = -2,
 		keyName = "objectLeftClickCustomization",
-		name = "Customizable left-click",
+		name = "Customizable left and shift click",
 		description = "Allows customization of left-clicks on objects",
 		section = objectSection
 	)
-	default boolean objectLeftClickCustomization()
+	default boolean objectCustomization()
 	{
 		return true;
 	}
 
 	@ConfigItem(
 		position = -2,
+		keyName = "objectShiftClickWalkHere",
+		name = "Shift click Walk here",
+		description = "Swaps Walk here on shift click on all objects",
+		section = objectSection
+	)
+	default boolean objectShiftClickWalkHere()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		position = -3,
 		keyName = "npcLeftClickCustomization",
-		name = "Customizable left-click",
+		name = "Customizable left and shift click",
 		description = "Allows customization of left-clicks on NPCs",
 		section = npcSection
 	)
-	default boolean npcLeftClickCustomization()
+	default boolean npcCustomization()
 	{
 		return true;
+	}
+
+	@ConfigItem(
+		position = -2,
+		keyName = "npcShiftClickWalkHere",
+		name = "Shift click Walk here",
+		description = "Swaps Walk here on shift click on all NPCs",
+		section = npcSection
+	)
+	default boolean npcShiftClickWalkHere()
+	{
+		return false;
 	}
 
 	@ConfigItem(
@@ -612,10 +645,38 @@ public interface MenuEntrySwapperConfig extends Config
 		return true;
 	}
 
+	@RequiredArgsConstructor
+	enum HouseTeleportMode
+	{
+		CAST("Cast"),
+		OUTSIDE("Outside"),
+		GROUP_CHOOSE("Group: Choose"),
+		GROUP_PREVIOUS("Group: Previous");
+
+		private final String name;
+
+		@Override
+		public String toString()
+		{
+			return name;
+		}
+	}
+
+	@ConfigItem(
+		keyName = "swapHouseTeleportSpell",
+		name = "House teleport",
+		description = "Swap house teleport spell to a different destination on shift",
+		section = uiSection
+	)
+	default HouseTeleportMode swapHouseTeleportSpell()
+	{
+		return HouseTeleportMode.OUTSIDE;
+	}
+
 	@ConfigItem(
 		keyName = "swapTeleportSpell",
 		name = "Shift-click teleport spells",
-		description = "Swap teleport spells that have a second destination on shift",
+		description = "Swap teleport spells that have a second destination, except for teleport to house, on shift",
 		section = uiSection
 	)
 	default boolean swapTeleportSpell()
@@ -659,8 +720,7 @@ public interface MenuEntrySwapperConfig extends Config
 	@ConfigItem(
 		keyName = "swapGEAbort",
 		name = "GE Abort",
-		description = "Swap abort offer on Grand Exchange offers when shift-clicking"
-		,
+		description = "Swap abort offer on Grand Exchange offers when shift-clicking",
 		section = uiSection
 	)
 	default boolean swapGEAbort()
@@ -847,6 +907,29 @@ public interface MenuEntrySwapperConfig extends Config
 		section = npcSection
 	)
 	default boolean swapTemporossLeave()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		keyName = "removeDeadNpcMenus",
+		name = "Remove dead npc menus",
+		description = "Remove menu options such as Attack and Talk-to from dead npcs",
+		section = npcSection
+	)
+	default boolean removeDeadNpcMenus()
+	{
+		return false;
+	}
+
+	@ConfigItem(
+		position = -1,
+		keyName = "groundItemShiftClickWalkHere",
+		name = "Shift click Walk here",
+		description = "Swaps Walk here on shift click on all ground items",
+		section = groundItemSection
+	)
+	default boolean groundItemShiftClickWalkHere()
 	{
 		return false;
 	}

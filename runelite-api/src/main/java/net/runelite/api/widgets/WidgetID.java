@@ -355,19 +355,19 @@ public final class WidgetID
 
 	static class Minimap
 	{
-		static final int XP_ORB = 1;
-		static final int HEALTH_ORB = 2;
-		static final int PRAYER_ORB = 13;
-		static final int QUICK_PRAYER_ORB = 15; // Has the "Quick-prayers" name
-		static final int PRAYER_ORB_TEXT = 16;
-		static final int RUN_ORB = 21;
-		static final int TOGGLE_RUN_ORB = 23; // Has the "Toggle run" name
-		static final int RUN_ORB_TEXT = 24;
-		static final int SPEC_ORB = 29;
-		static final int WORLDMAP_ORB = 43;
-		static final int WIKI_BANNER_PARENT = 44;
-		static final int WIKI_BANNER = 45;
-		static final int WORLDMAP_OPTIONS = 48;
+		static final int XP_ORB = 5;
+		static final int HEALTH_ORB = 6;
+		static final int PRAYER_ORB = 17;
+		static final int QUICK_PRAYER_ORB = 19; // Has the "Quick-prayers" name
+		static final int PRAYER_ORB_TEXT = 20;
+		static final int RUN_ORB = 25;
+		static final int TOGGLE_RUN_ORB = 27; // Has the "Toggle run" name
+		static final int RUN_ORB_TEXT = 28;
+		static final int SPEC_ORB = 33;
+		static final int WORLDMAP_ORB = 48;
+		static final int WIKI_BANNER_PARENT = 49;
+		static final int WIKI_BANNER = 50;
+		static final int WORLDMAP_OPTIONS = 53;
 	}
 
 	static class LoginClickToPlayScreen
@@ -452,6 +452,8 @@ public final class WidgetID
 		static final int MAGIC_ICON = 71;
 		static final int INTERFACE_CONTAINER = 72;
 		static final int INVENTORY_CONTAINER = 78;
+		static final int CHATBOX_PARENT = 94;
+		static final int INVENTORY_PARENT = 95;
 	}
 
 	static class ResizableViewportBottomLine
@@ -478,6 +480,10 @@ public final class WidgetID
 		static final int MAGIC_ICON = 64;
 		static final int INTERFACE_CONTAINER = 69;
 		static final int INVENTORY_CONTAINER = 75;
+		static final int CHATBOX_PARENT = 91;
+		static final int TABS1 = 92;
+		static final int TABS2 = 93;
+		static final int INVENTORY_PARENT = 94;
 	}
 
 	static class Chatbox
@@ -649,6 +655,11 @@ public final class WidgetID
 		static final int POINTS_INFOBOX = 3;
 	}
 
+	static class ChambersOfXericStorageUnitPrivate
+	{
+		static final int PRIVATE_CHEST_ITEM_CONTAINER = 6;
+	}
+
 	static class Tob
 	{
 		static final int PARTY_INTERFACE = 5;
@@ -755,7 +766,7 @@ public final class WidgetID
 
 	static class Minigames
 	{
-		static final int TELEPORT_BUTTON = 26;
+		static final int TELEPORT_BUTTON = 30;
 	}
 
 	static class StandardSpellBook
@@ -773,6 +784,7 @@ public final class WidgetID
 	static class LunarSpellBook
 	{
 		static final int LUNAR_HOME_TELEPORT = 101;
+		static final int FERTILE_SOIL = 126;
 	}
 
 	static class ArceuusSpellBook

@@ -494,9 +494,9 @@ public class ChatChannelPlugin extends Plugin
 	@Subscribe
 	public void onVarClientStrChanged(VarClientStrChanged strChanged)
 	{
-		if (strChanged.getIndex() == VarClientStr.RECENT_FRIENDS_CHAT.getIndex() && config.recentChats())
+		if (strChanged.getIndex() == VarClientStr.RECENT_FRIENDS_CHAT && config.recentChats())
 		{
-			updateRecentChat(client.getVar(VarClientStr.RECENT_FRIENDS_CHAT));
+			updateRecentChat(client.getVarcStrValue(VarClientStr.RECENT_FRIENDS_CHAT));
 		}
 	}
 
@@ -608,7 +608,7 @@ public class ChatChannelPlugin extends Plugin
 			Widget chatTitle = client.getWidget(WidgetInfo.FRIENDS_CHAT_TITLE);
 			if (friendsChatManager != null && friendsChatManager.getCount() > 0 && chatTitle != null)
 			{
-				chatTitle.setText(chatTitle.getText() + " (" + friendsChatManager.getCount() + "/100)");
+				chatTitle.setText(chatTitle.getText() + " (" + friendsChatManager.getCount() + "/" + friendsChatManager.getSize() + ")");
 			}
 		}
 		else if (event.getScriptId() == ScriptID.CLAN_SIDEPANEL_DRAW)
