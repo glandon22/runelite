@@ -37,7 +37,7 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
 import net.runelite.api.ObjectComposition;
-import net.runelite.api.events.ClientTick;
+import net.runelite.api.events.PostMenuSort;
 import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.game.ItemManager;
@@ -50,7 +50,6 @@ import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import org.mockito.Mock;
-import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -146,7 +145,7 @@ public class MenuEntrySwapperPluginTest
 			menu("Assignment", "Duradel", MenuAction.NPC_THIRD_OPTION),
 			menu("Talk-to", "Duradel", MenuAction.NPC_FIRST_OPTION),
 		};
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
+		menuEntrySwapperPlugin.onPostMenuSort(new PostMenuSort());
 
 		ArgumentCaptor<MenuEntry[]> argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
 		verify(client).setMenuEntries(argumentCaptor.capture());
@@ -183,7 +182,7 @@ public class MenuEntrySwapperPluginTest
 			menu("Talk-to", "Gnome banker", MenuAction.NPC_FIRST_OPTION),
 		};
 
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
+		menuEntrySwapperPlugin.onPostMenuSort(new PostMenuSort());
 
 		ArgumentCaptor<MenuEntry[]> argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
 		verify(client, times(2)).setMenuEntries(argumentCaptor.capture());
@@ -221,7 +220,7 @@ public class MenuEntrySwapperPluginTest
 			menu("Talk-to", "Kragen", MenuAction.NPC_FIRST_OPTION),
 		};
 
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
+		menuEntrySwapperPlugin.onPostMenuSort(new PostMenuSort());
 
 		ArgumentCaptor<MenuEntry[]> argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
 		verify(client).setMenuEntries(argumentCaptor.capture());
@@ -234,59 +233,6 @@ public class MenuEntrySwapperPluginTest
 			menu("Pay (south)", "Kragen", MenuAction.NPC_FOURTH_OPTION),
 			menu("Talk-to", "Kragen", MenuAction.NPC_FIRST_OPTION),
 			menu("Pay (north)", "Kragen", MenuAction.NPC_THIRD_OPTION),
-		}, argumentCaptor.getValue());
-	}
-
-	@Test
-	public void testTeleport()
-	{
-		when(config.swapTeleportSpell()).thenReturn(true);
-		when(client.isKeyPressed(KeyCode.KC_SHIFT)).thenReturn(true);
-
-		// Cast -> Grand Exchange
-		entries = new MenuEntry[]{
-			menu("Cancel", "", MenuAction.CANCEL),
-
-			menu("Configure", "Varrock Teleport", MenuAction.WIDGET_THIRD_OPTION),
-			menu("Grand Exchange", "Varrock Teleport", MenuAction.WIDGET_SECOND_OPTION),
-			menu("Cast", "Varrock Teleport", MenuAction.WIDGET_FIRST_OPTION),
-		};
-
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
-
-		ArgumentCaptor<MenuEntry[]> argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
-		verify(client).setMenuEntries(argumentCaptor.capture());
-
-		assertArrayEquals(new MenuEntry[]{
-			menu("Cancel", "", MenuAction.CANCEL),
-
-			menu("Configure", "Varrock Teleport", MenuAction.WIDGET_THIRD_OPTION),
-			menu("Cast", "Varrock Teleport", MenuAction.WIDGET_FIRST_OPTION),
-			menu("Grand Exchange", "Varrock Teleport", MenuAction.WIDGET_SECOND_OPTION),
-		}, argumentCaptor.getValue());
-
-		clearInvocations(client);
-
-		// Grand Exchange -> Cast
-		entries = new MenuEntry[]{
-			menu("Cancel", "", MenuAction.CANCEL),
-
-			menu("Configure", "Varrock Teleport", MenuAction.WIDGET_THIRD_OPTION),
-			menu("Cast", "Varrock Teleport", MenuAction.WIDGET_SECOND_OPTION),
-			menu("Grand Exchange", "Varrock Teleport", MenuAction.WIDGET_FIRST_OPTION),
-		};
-
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
-
-		argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
-		verify(client).setMenuEntries(argumentCaptor.capture());
-
-		assertArrayEquals(new MenuEntry[]{
-			menu("Cancel", "", MenuAction.CANCEL),
-
-			menu("Configure", "Varrock Teleport", MenuAction.WIDGET_THIRD_OPTION),
-			menu("Grand Exchange", "Varrock Teleport", MenuAction.WIDGET_FIRST_OPTION),
-			menu("Cast", "Varrock Teleport", MenuAction.WIDGET_SECOND_OPTION),
 		}, argumentCaptor.getValue());
 	}
 
@@ -305,7 +251,7 @@ public class MenuEntrySwapperPluginTest
 			menu("Enter", "Formidable Passage", MenuAction.GAME_OBJECT_FIRST_OPTION),
 		};
 
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
+		menuEntrySwapperPlugin.onPostMenuSort(new PostMenuSort());
 
 		ArgumentCaptor<MenuEntry[]> argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
 		verify(client).setMenuEntries(argumentCaptor.capture());
@@ -332,7 +278,7 @@ public class MenuEntrySwapperPluginTest
 			menu("Deposit-1", "Abyssal whip", MenuAction.CC_OP, 2),
 		};
 
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
+		menuEntrySwapperPlugin.onPostMenuSort(new PostMenuSort());
 
 		ArgumentCaptor<MenuEntry[]> argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
 		verify(client).setMenuEntries(argumentCaptor.capture());
@@ -357,7 +303,7 @@ public class MenuEntrySwapperPluginTest
 			menu("Deposit-1", "Rune arrow", MenuAction.CC_OP, 2),
 		};
 
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
+		menuEntrySwapperPlugin.onPostMenuSort(new PostMenuSort());
 
 		ArgumentCaptor<MenuEntry[]> argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
 		verify(client).setMenuEntries(argumentCaptor.capture());
@@ -385,7 +331,7 @@ public class MenuEntrySwapperPluginTest
 			menu("Interact", "Redwood birdhouse", MenuAction.GAME_OBJECT_FIRST_OPTION),
 		};
 
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
+		menuEntrySwapperPlugin.onPostMenuSort(new PostMenuSort());
 
 		ArgumentCaptor<MenuEntry[]> argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
 		verify(client).setMenuEntries(argumentCaptor.capture());
@@ -415,7 +361,7 @@ public class MenuEntrySwapperPluginTest
 			menu("Configure", "Fairy ring", MenuAction.GAME_OBJECT_FIRST_OPTION),
 		};
 
-		menuEntrySwapperPlugin.onClientTick(new ClientTick());
+		menuEntrySwapperPlugin.onPostMenuSort(new PostMenuSort());
 
 		ArgumentCaptor<MenuEntry[]> argumentCaptor = ArgumentCaptor.forClass(MenuEntry[].class);
 		verify(client).setMenuEntries(argumentCaptor.capture());

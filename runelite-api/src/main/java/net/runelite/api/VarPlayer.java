@@ -156,29 +156,6 @@ public enum VarPlayer
 	SLAYER_UNLOCK_1(1076),
 	SLAYER_UNLOCK_2(1344),
 
-	/**
-	 * Music track unlock bitfields
-	 */
-	MUSIC_TRACKS_UNLOCKED_1(20),
-	MUSIC_TRACKS_UNLOCKED_2(21),
-	MUSIC_TRACKS_UNLOCKED_3(22),
-	MUSIC_TRACKS_UNLOCKED_4(23),
-	MUSIC_TRACKS_UNLOCKED_5(24),
-	MUSIC_TRACKS_UNLOCKED_6(25),
-	MUSIC_TRACKS_UNLOCKED_7(298),
-	MUSIC_TRACKS_UNLOCKED_8(311),
-	MUSIC_TRACKS_UNLOCKED_9(346),
-	MUSIC_TRACKS_UNLOCKED_10(414),
-	MUSIC_TRACKS_UNLOCKED_11(464),
-	MUSIC_TRACKS_UNLOCKED_12(598),
-	MUSIC_TRACKS_UNLOCKED_13(662),
-	MUSIC_TRACKS_UNLOCKED_14(721),
-	MUSIC_TRACKS_UNLOCKED_15(906),
-	MUSIC_TRACKS_UNLOCKED_16(1009),
-	MUSIC_TRACKS_UNLOCKED_17(1338),
-	MUSIC_TRACKS_UNLOCKED_18(1681),
-	MUSIC_TRACKS_UNLOCKED_19(2065),
-
 	MUSIC_VOLUME(168),
 	SOUND_EFFECT_VOLUME(169),
 	AREA_EFFECT_VOLUME(872),
@@ -226,6 +203,13 @@ public enum VarPlayer
 	 * The difference, measured in minutes, between the time home teleport spell was last used and midnight, January 1, 1970 UTC.
 	 */
 	LAST_HOME_TELEPORT(892),
+
+	/**
+	 * Charge spell duration
+	 * Value * 2 = Remaining game ticks on buff
+	 * E.g. value of 50 means buff will expire in 100 ticks.
+	 */
+	CHARGE_GOD_SPELL(272),
 
 	/**
 	 * The difference, measured in minutes, between the time minigame teleport was last used and midnight, January 1, 1970 UTC.
