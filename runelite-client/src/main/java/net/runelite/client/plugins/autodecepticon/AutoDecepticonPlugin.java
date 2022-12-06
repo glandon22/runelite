@@ -89,9 +89,4 @@ public class AutoDecepticonPlugin extends Plugin {
         currentGameObjects.remove(event.getTile());
 
     }
-
-    @Subscribe
-    public void onGameObjectChanged(final GameObjectChanged event) {
-        currentGameObjects.remove(event.getTile());
-    }
 }

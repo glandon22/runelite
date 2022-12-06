@@ -5,6 +5,7 @@ import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
@@ -192,6 +193,7 @@ public class AutoBotFmPlugin extends Plugin {
             }
         }
         ArrayList<TilePacket> altp = new ArrayList<>();
+        /*
         WorldPoint wp = new WorldPoint(3200, 3431, 0);
         final LocalPoint lp = LocalPoint.fromWorld(client, wp);
         Polygon p = Perspective.getCanvasTilePoly(client, lp);
@@ -214,7 +216,20 @@ public class AutoBotFmPlugin extends Plugin {
         double h1 = r1.getHeight();
         int cx1 = (int)(x1 + (w1/2));
         int cy1 = (int)(y1 + 23 + (h1 /2));
-        altp.add(new TilePacket(cx1, cy1, "s2"));
+        altp.add(new TilePacket(cx1, cy1, "s2"));*/
+
+        WorldPoint wp2 = new WorldPoint(3200, 3432, 0);
+        final LocalPoint lp1 = LocalPoint.fromWorld(client, wp2);
+        Polygon p1 = Perspective.getCanvasTilePoly(client, lp1);
+        Rectangle r1 = p1.getBounds();
+        double x1 = r1.getX();
+        double y1 = r1.getY();
+        double w1 = r1.getWidth();
+        double h1 = r1.getHeight();
+        int cx1 = (int)(x1 + (w1/2));
+        int cy1 = (int)(y1 + 23 + (h1 /2));
+        altp.add(new TilePacket(cx1, cy1, "fountain"));
+
         int fmxp = client.getSkillExperience(Skill.FIREMAKING);
         WorldPoint playerWorldPoint = client.getLocalPlayer().getWorldLocation();
         //(wp.getX(), wp. getY(), wp.getPlane(), "world")
