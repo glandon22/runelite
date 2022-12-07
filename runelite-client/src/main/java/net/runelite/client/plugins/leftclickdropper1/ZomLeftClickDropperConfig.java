@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Jordan Zomerlei <https://github.com/JZomerlei>
+ * Copyright (c) 2019, Zom <https://github.com/JZomDev>
  * All rights reserved.
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package net.runelite.client.plugins.leftclickdrop;
+package net.runelite.client.plugins.leftclickdropper1;
 
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
@@ -32,14 +32,14 @@ import net.runelite.client.config.ConfigItem;
 @ConfigGroup("leftclickdrop")
 public interface ZomLeftClickDropperConfig extends Config
 {
-	@ConfigItem(
-		keyName = "itemList",
-		name = "Item list to left click drop",
-		description = "Comma delimited list of items you want to left click drop",
-		position = 1
-	)
-	default String itemList()
-	{
-		return "";
-	}
+    @ConfigItem(
+            keyName = "itemList",
+            name = "Item list to left click drop",
+            description = "Comma delimited list of items you want to left click drop",
+            position = 1
+    )
+    default String itemList()
+    {
+        return "";
+    }
 }
