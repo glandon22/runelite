@@ -66,6 +66,8 @@ public class AutoDecepticonPlugin extends Plugin {
     @Subscribe
     public void onGameObjectSpawned(GameObjectSpawned event)
     {
+        System.out.println("game object");
+        System.out.println(config.gameObject());
         //||
         //                        event.getGameObject().getLocalLocation().distanceTo(client.getLocalPlayer().getLocalLocation()) > 15
         if (
