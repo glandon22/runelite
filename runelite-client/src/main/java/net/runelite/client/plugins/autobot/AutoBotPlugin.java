@@ -79,7 +79,7 @@ public class AutoBotPlugin extends Plugin {
     // Wait a few game ticks as I go to a new fishing spot
     private Integer ignoreTick = 0;
     private String status = "initing";
-    private static final Set<Integer> FISHING_ANIMATIONS = ImmutableSet.of(
+    public static final Set<Integer> FISHING_ANIMATIONS = ImmutableSet.of(
             AnimationID.FISHING_BARBTAIL_HARPOON,
             AnimationID.FISHING_BAREHAND,
             AnimationID.FISHING_BAREHAND_CAUGHT_SHARK_1,
