@@ -1,10 +1,21 @@
 package net.runelite.client.plugins.autoserver;
 
+import net.runelite.api.Client;
+import net.runelite.api.Varbits;
+import net.runelite.api.coords.WorldPoint;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 import java.util.HashMap;
 
 public class Utilities {
-    public HashMap<Character, Integer> getCenter(Rectangle r) {
+    public static class PointData {
+        int x;
+        int y;
+        int z;
+    }
+
+    public HashMap<Character, Integer> getCenter(@NotNull Rectangle r) {
         double x = r.getX();
         double y = r.getY();
         double w = r.getWidth();
@@ -15,5 +26,25 @@ public class Utilities {
         ret.put('x', cx);
         ret.put('y', cy);
         return ret;
+    }
+
+    public void setYaw(Client client, Object value) {
+        try {
+            String parsedVal = (String) value;
+            System.out.println(parsedVal);
+            client.setCameraYawTarget(Integer.parseInt(parsedVal));
+        } catch (Exception e) {
+            System.out.println("eeee");
+            System.out.println(e);
+        }
+    }
+
+    public PointData getPlayerWorldPoint(Client client) {
+        WorldPoint wp = client.getLocalPlayer().getWorldLocation();
+        PointData pd = new PointData();
+        pd.x = wp.getX();
+        pd.y = wp.getY();
+        pd.z = wp.getPlane();
+        return pd;
     }
 }

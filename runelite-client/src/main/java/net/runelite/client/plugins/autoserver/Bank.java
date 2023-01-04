@@ -40,8 +40,12 @@ public class Bank {
                     Rectangle r = child.getBounds();
                     Utilities u = new Utilities();
                     HashMap<Character, Integer> center = u.getCenter(r);
-                    BankSlot bs = new BankSlot(center.get('x'), center.get('y'), child.getItemId(), child.getItemQuantity());
-                    bankStuff.add(bs);
+                    // For some reason, right as I open an interface it sometimes says the points are all located
+                    // in a small 50x50 corner of the upper right-hand screen.
+                    if (center.get('x') > 50 && center.get('y') > 50) {
+                        BankSlot bs = new BankSlot(center.get('x'), center.get('y'), child.getItemId(), child.getItemQuantity());
+                        bankStuff.add(bs);
+                    }
                 }
             }
         }
@@ -54,7 +58,12 @@ public class Bank {
         if (bankDumpContainer != null) {
             Rectangle r = bankDumpContainer.getBounds();
             Utilities u = new Utilities();
-            return u.getCenter(r);
+            HashMap<Character, Integer> center = u.getCenter(r);
+            // For some reason, right as I open an interface it sometimes says the points are all located
+            // in a small 50x50 corner of the upper right-hand screen.
+            if (center.get('x') > 50 && center.get('y') > 50) {
+                return center;
+            }
         }
         return null;
     }
