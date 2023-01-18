@@ -302,8 +302,8 @@ public final class WidgetID
 		static final int INCINERATOR = 46;
 		static final int INCINERATOR_CONFIRM = 47;
 		static final int EQUIPMENT_CONTENT_CONTAINER = 69;
-		static final int SETTINGS_BUTTON = 112;
-		static final int EQUIPMENT_BUTTON = 113;
+		static final int SETTINGS_BUTTON = 113;
+		static final int EQUIPMENT_BUTTON = 114;
 	}
 
 	static class GroupStorage
@@ -383,8 +383,7 @@ public final class WidgetID
 
 	static class LoginClickToPlayScreen
 	{
-		static final int MESSAGE_OF_THE_DAY = 7;
-		static final int CLICK_HERE_TO_PLAY = 87;
+		static final int MESSAGE_OF_THE_DAY = 6;
 	}
 
 	static class FixedViewport
