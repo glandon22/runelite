@@ -28,4 +28,8 @@ public class GameInfoPacket {
     String interactingWith;
     String[] chatOptions;
     HashMap<Integer, ArrayList<ObjectUtil.GameObjData>> decorativeObjects;
+    HashMap<Integer, ArrayList<ObjectUtil.ItemObjData>> groundItems;
+    int targetObj;
+    List<Inventory.Slot> equipmentInv;
+    java.awt.List menuEntries;
 }

@@ -4,21 +4,37 @@ import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.client.plugins.Plugin;
+import net.runelite.client.plugins.PluginManager;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import javax.inject.Inject;
 import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 public class ObjectUtil {
+    @Inject
+    private PluginManager pluginManager;
     @Value
     public static class GameObjData
     {
         int x;
         int y;
         int dist;
+    }
+
+    @Value
+    public static class ItemObjData
+    {
+        int x;
+        int y;
+        int dist;
+        int id;
     }
 
     @Value
@@ -70,8 +86,6 @@ public class ObjectUtil {
             if (localLocation != null) {
                 Tile tile = tiles[client.getPlane()][localLocation.getSceneX()][localLocation.getSceneY()];
                 if (tile != null) {
-                    System.out.println("do");
-                    System.out.println(tile.getDecorativeObject().getCanvasTilePoly().getBounds().getX());
                     GameObject[] go = tile.getGameObjects();
                     for (GameObject g : go) {
                         if (g != null && RELEVANT_OBJECTS.contains(g.getId()) && g.getCanvasTilePoly() != null) {
@@ -209,5 +223,61 @@ public class ObjectUtil {
             }
         }
         return returnData;
+    }
+
+    public HashMap<Integer, ArrayList<ItemObjData>> getGroundItems(Client client, Object itemsToFind) {
+        HashMap<Integer, ArrayList<ItemObjData>> returnData = new HashMap<>();
+
+        ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
+        HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
+        ArrayList<WorldPoint> wps = ptao.wps;
+
+        Tile[][][] tiles = client.getScene().getTiles();
+        Utilities u = new Utilities();
+        for (WorldPoint wp: wps) {
+            final LocalPoint localLocation = LocalPoint.fromWorld(client, wp);
+            if (localLocation != null) {
+                Tile tile = tiles[client.getPlane()][localLocation.getSceneX()][localLocation.getSceneY()];
+                if (tile != null) {
+                    List<TileItem> wo = tile.getGroundItems();
+                    if (wo != null) {
+                        for (TileItem ti: wo) {
+                            if (RELEVANT_OBJECTS.contains(ti.getId())) {
+                                final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
+                                Rectangle r = poly.getBounds();
+                                HashMap<Character, Integer> center = u.getCenter(r);
+                                if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
+                                    if (returnData.get(ti.getId()) != null) {
+                                        ArrayList<ItemObjData> gobj = returnData.get(ti.getId());
+                                        gobj.add(new ItemObjData(center.get('x'), center.get('y'), tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()), ti.getId()));
+                                        returnData.put(ti.getId(), gobj);
+                                    }
+
+                                    else {
+                                        ArrayList<ItemObjData> gobj = new ArrayList<>();
+                                        gobj.add(new ItemObjData(center.get('x'), center.get('y'), tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()), ti.getId()));
+                                        returnData.put(ti.getId(), gobj);
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return returnData;
+    }
+
+    public void getInteractedObject(Client client) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Plugin qhp = pluginManager.getPlugins().stream()
+                .filter(e -> e.getName().equals("Interact Highlight"))
+                .findAny().orElse(null);
+        if (qhp == null) return;
+
+        Object qh = qhp.getClass().getMethod("interacting").invoke(qhp);
+        if (qh == null) return;
+        System.out.println("testing refelction");
+        System.out.println(qh);
     }
 }

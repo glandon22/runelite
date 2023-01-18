@@ -126,6 +126,13 @@ public class InteractHighlightPlugin extends Plugin
 		}
 	}
 
+	public int interactedObjID() {
+		if (interactedObject == null) {
+			return 1;
+		}
+		return interactedObject.getId();
+	}
+
 	@Subscribe
 	public void onInteractingChanged(InteractingChanged interactingChanged)
 	{

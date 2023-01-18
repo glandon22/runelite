@@ -3,6 +3,7 @@ package net.runelite.client.plugins.autoserver;
 import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
+import net.runelite.api.MenuEntry;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
@@ -73,6 +74,22 @@ public class Interfaces {
                 }
                 return optionsText;
             }
+        }
+        return null;
+    }
+
+    public List getMenuEntries(Client client) {
+
+        if (client.isMenuOpen()) {
+            MenuEntry[] menuEntries = client.getMenuEntries();
+            List menuItems = new List();
+            for (MenuEntry entry : menuEntries)
+            {
+                String item = "";
+                item = item.concat(entry.getOption()).concat(" ").concat(entry.getTarget());
+                menuItems.add(item);
+            }
+            return menuItems;
         }
         return null;
     }

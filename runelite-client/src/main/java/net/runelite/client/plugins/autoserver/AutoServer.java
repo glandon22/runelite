@@ -10,27 +10,26 @@ import net.runelite.api.*;
 import net.runelite.api.events.GameTick;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetID;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import org.apache.commons.text.StringEscapeUtils;
+import net.runelite.client.plugins.PluginManager;
 
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.sql.Array;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
+
+import net.runelite.client.util.Text;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.*;
@@ -53,6 +52,8 @@ public class AutoServer extends Plugin {
         List<Inventory.Slot> inv;
     }
 
+    @Inject private PluginManager pluginManager;
+
     @Inject
     private Client client;
 
@@ -63,23 +64,23 @@ public class AutoServer extends Plugin {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
             String requestParamValue = null;
-            handleResponse(httpExchange,httpExchange.getRequestBody());
-
+            try {
+                handleResponse(httpExchange,httpExchange.getRequestBody());
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
         }
 
-        private void handleResponse(HttpExchange httpExchange, InputStream reqBody)  throws  IOException {
+        private void handleResponse(HttpExchange httpExchange, InputStream reqBody) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
             GameInfoPacket gip = new GameInfoPacket();
             Player playerUtil = new Player();
             OutputStream outputStream = httpExchange.getResponseBody();
             String text = new String(reqBody.readAllBytes(), CHARSET);
-            System.out.println("req body");
-            System.out.println(text);
             Object obj = null;
             try {
                 obj = new JSONParser().parse(text);
             } catch (Exception e) {
                 String resText = "Exception while trying to parse request body.";
-                System.out.println(resText);
                 httpExchange.sendResponseHeaders(403, resText.length());
 
                 outputStream.write(resText.getBytes());
@@ -110,6 +111,14 @@ public class AutoServer extends Plugin {
             ) {
                 Inventory inventory = new Inventory();
                 gip.inv = inventory.getInventory(client);
+            }
+
+            if (
+                    parsedRequestBody.get("equipmentInv") != null &&
+                            (Boolean) parsedRequestBody.get("equipmentInv")
+            ) {
+                Inventory inventory = new Inventory();
+                gip.equipmentInv = inventory.getEquipmentInventory(client);
             }
 
             if (parsedRequestBody.get("npcs") != null) {
@@ -240,9 +249,49 @@ public class AutoServer extends Plugin {
                 gip.chatOptions = ifce.getChatOptions(client);
             }
 
+            if (
+                    parsedRequestBody.get("getMenuEntries") != null && (Boolean) parsedRequestBody.get("getMenuEntries")
+            ) {
+                Interfaces ifce = new Interfaces();
+                gip.menuEntries = ifce.getMenuEntries(client);
+            }
+
             if (parsedRequestBody.get("decorativeObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
                 gip.decorativeObjects = go.findDecorativeObjects(client, parsedRequestBody.get("decorativeObjects"));
+            }
+
+            if (parsedRequestBody.get("npcsToKill") != null) {
+                JSONArray test = (JSONArray) parsedRequestBody.get("npcsToKill");
+                Object[] parse = test.toArray();
+                HashSet<String> npcsToFind = new HashSet<>();
+                for (Object o : parse) {
+                    String npcName = (String) o;
+                    npcsToFind.add(npcName);
+                }
+                NPCs npcUtil = new NPCs();
+                gip.npcs = npcUtil.getNPCsByToKill(client, npcsToFind);
+            }
+
+            if (parsedRequestBody.get("groundItems") != null) {
+                ObjectUtil go = new ObjectUtil();
+                try {
+                    gip.groundItems = go.getGroundItems(client, parsedRequestBody.get("groundItems"));
+                } catch (Exception e) {
+                    System.out.println("eeee");
+                    System.out.println(e);
+                }
+            }
+
+            if (parsedRequestBody.get("getTargetObj") != null && (Boolean) parsedRequestBody.get("getTargetObj")) {
+                Plugin qhp = pluginManager.getPlugins().stream()
+                        .filter(e -> e.getName().equals("Interact Highlight"))
+                        .findAny().orElse(null);
+                if (qhp == null) return;
+
+                Object qh = qhp.getClass().getMethod("interactedObjID").invoke(qhp);
+                if (qh == null) return;
+                gip.targetObj = ((Number) qh).intValue();
             }
 
             Headers headers = httpExchange.getResponseHeaders();
@@ -252,8 +301,6 @@ public class AutoServer extends Plugin {
             // Convert my game data object into a JSON string for down stream consumption
             Gson gson = new Gson();
             String responseBody = gson.toJson(gip);
-            System.out.println("resb");
-            System.out.println(responseBody);
             byte[] rawResponseBody = responseBody.getBytes(CHARSET);
             httpExchange.sendResponseHeaders(200, rawResponseBody.length);
             outputStream.write(rawResponseBody);
@@ -265,14 +312,6 @@ public class AutoServer extends Plugin {
     @Override
     protected void startUp() throws Exception
     {
-        System.out.println("herjk");
-        if (client.getLocalPlayer() != null) {
-            System.out.println("123");
-            if (client.getLocalPlayer().getInteracting() != null) {
-                System.out.println("567");
-                System.out.println(client.getLocalPlayer().getInteracting().getName());
-            }
-        }
         server = HttpServer.create(new InetSocketAddress("localhost", 56799), 0);
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         server.createContext("/osrs", new  MyHttpHandler());
@@ -283,6 +322,32 @@ public class AutoServer extends Plugin {
     @Override
     protected void shutDown() throws Exception {
         server.stop(0);
+    }
+
+    @Subscribe public void onGameTick(GameTick tick) throws Exception
+    {
+        /*for (int i = 0; i < 150; i++) {
+            Widget bankDumpContainer = client.getWidget(WidgetID.EQUIPMENT_GROUP_ID, i);
+            if (bankDumpContainer != null) {
+                System.out.println("found a widget");
+                System.out.println(i);
+                bankDumpContainer.setHidden(true);
+                Thread.sleep(2000);
+                bankDumpContainer.setHidden(false);
+                System.out.println("----------------------------------------------");
+            }
+        }
+        Widget bankDumpContainer = client.getWidget(WidgetID.EQUIPMENT_GROUP_ID, 24);
+        Rectangle r = bankDumpContainer.getBounds();
+        double x = r.getX();
+        double y = r.getY();
+        double w = r.getWidth();
+        double h = r.getHeight();
+        int cx = (int)(x + (w/2));
+        int cy = (int)(y + 23 + (h /2));
+        System.out.println(cx);
+        System.out.println(cy);
+        Thread.sleep(5000);*/
     }
 }
 
@@ -300,3 +365,12 @@ public class AutoServer extends Plugin {
         }
 *
 * */
+
+/*if (client.isMenuOpen()) {
+            MenuEntry[] menuEntries = client.getMenuEntries();
+            System.out.println("menu");
+            for (MenuEntry entry : menuEntries)
+            {
+                entry.getOption();
+            }
+        }*/

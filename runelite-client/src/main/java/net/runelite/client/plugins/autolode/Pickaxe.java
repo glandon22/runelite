@@ -34,6 +34,7 @@ import static net.runelite.api.AnimationID.*;
 import static net.runelite.api.ItemID.*;
 
 @Getter
+public
 enum Pickaxe
 {
 	BRONZE(BRONZE_PICKAXE, MINING_BRONZE_PICKAXE, MINING_MOTHERLODE_BRONZE),
@@ -80,12 +81,12 @@ enum Pickaxe
 		this.animIds = animIds;
 	}
 
-	boolean matchesMiningAnimation(final Player player)
+	public boolean matchesMiningAnimation(final Player player)
 	{
 		return player != null && fromAnimation(player.getAnimation()) == this;
 	}
 
-	static Pickaxe fromAnimation(int animId)
+	public static Pickaxe fromAnimation(int animId)
 	{
 		return PICKAXE_ANIM_IDS.get(animId);
 	}

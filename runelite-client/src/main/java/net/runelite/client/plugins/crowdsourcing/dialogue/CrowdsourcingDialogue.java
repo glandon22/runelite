@@ -77,6 +77,8 @@ public class CrowdsourcingDialogue
 
 		if (npcDialogueTextWidget != null && !npcDialogueTextWidget.getText().equals(lastNpcDialogueText))
 		{
+			System.out.println("case 1");
+			System.out.println(npcDialogueTextWidget.getText());
 			lastNpcDialogueText = npcDialogueTextWidget.getText();
 			String npcName = client.getWidget(WidgetInfo.DIALOG_NPC_NAME).getText();
 			NpcDialogueData data = new NpcDialogueData(sanitize(lastNpcDialogueText), npcName);
@@ -85,6 +87,8 @@ public class CrowdsourcingDialogue
 
 		if (playerDialogueTextWidget != null && !playerDialogueTextWidget.getText().equals(lastPlayerDialogueText))
 		{
+			System.out.println("case 2");
+			System.out.println(playerDialogueTextWidget.getText());
 			lastPlayerDialogueText = playerDialogueTextWidget.getText();
 			PlayerDialogueData data = new PlayerDialogueData(sanitize(lastPlayerDialogueText));
 			manager.storeEvent(data);
@@ -92,10 +96,12 @@ public class CrowdsourcingDialogue
 
 		if (playerDialogueOptionsWidget != null && playerDialogueOptionsWidget.getChildren() != dialogueOptions)
 		{
+			System.out.println("case 3");
 			dialogueOptions = playerDialogueOptionsWidget.getChildren();
 			String[] optionsText = new String[dialogueOptions.length];
 			for (int i = 0; i < dialogueOptions.length; i++)
 			{
+				System.out.println(dialogueOptions[i].getText());
 				optionsText[i] = sanitize(dialogueOptions[i].getText());
 			}
 			DialogueOptionsData data = new DialogueOptionsData(optionsText);

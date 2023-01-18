@@ -18,6 +18,7 @@ public class Player {
     public static class SkillData {
         int level;
         int xp;
+        int boostedLevel;
     }
 
     public HashMap<String, SkillData> getSkillData(Client client, Object skills) {
@@ -30,7 +31,8 @@ public class Player {
                 skillName = skillName.toUpperCase(Locale.ROOT);
                 SkillData skd = new SkillData(
                         client.getRealSkillLevel(Skill.valueOf(skillName)),
-                        client.getSkillExperience(Skill.valueOf(skillName))
+                        client.getSkillExperience(Skill.valueOf(skillName)),
+                        client.getBoostedSkillLevel(Skill.valueOf(skillName))
                 );
                 skillData.put((String) o, skd);
             } catch (Exception e) {
