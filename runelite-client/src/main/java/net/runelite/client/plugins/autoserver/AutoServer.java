@@ -250,6 +250,12 @@ public class AutoServer extends Plugin {
             }
 
             if (
+                    parsedRequestBody.get("playerAnimation") != null && (Boolean) parsedRequestBody.get("playerAnimation")
+            ) {
+                gip.playerAnimation = client.getLocalPlayer().getAnimation();
+            }
+
+            if (
                     parsedRequestBody.get("getMenuEntries") != null && (Boolean) parsedRequestBody.get("getMenuEntries")
             ) {
                 Interfaces ifce = new Interfaces();
@@ -312,7 +318,7 @@ public class AutoServer extends Plugin {
     @Override
     protected void startUp() throws Exception
     {
-        server = HttpServer.create(new InetSocketAddress("localhost", 56799), 0);
+        server = HttpServer.create(new InetSocketAddress("localhost", 56800), 0);
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         server.createContext("/osrs", new  MyHttpHandler());
         server.setExecutor(threadPoolExecutor);

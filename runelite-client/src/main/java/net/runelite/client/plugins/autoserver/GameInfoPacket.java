@@ -22,6 +22,7 @@ public class GameInfoPacket {
     HashMap<Integer, ObjectUtil.GameObjData> groundObjects;
     HashMap<Integer, ArrayList<ObjectUtil.GameObjData>> wallObjects;
     int poseAnimation;
+    int playerAnimation;
     int varBit;
     Interfaces.InterfaceData widget;
     Utilities.PointData playerWorldPoint;
