@@ -78,11 +78,8 @@ public class ExternalPluginClient
 
 	public List<ExternalPluginManifest> downloadManifest() throws IOException, VerificationException
 	{
-		HttpUrl manifest = RuneLiteProperties.getPluginHubBase()
-			.newBuilder()
-			.addPathSegments("manifest.js")
-			.build();
-		try (Response res = okHttpClient.newCall(new Request.Builder().url(manifest).build()).execute())
+		System.out.println(RuneLiteProperties.getPluginHubBase());
+		try (Response res = okHttpClient.newCall(new Request.Builder().url("https://repo.runelite.net/plugins/1.9.8/manifest.js").build()).execute())
 		{
 			if (res.code() != 200)
 			{
