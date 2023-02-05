@@ -56,7 +56,6 @@ public class AutoBotQuestPlugin extends Plugin {
             ObjectID.CAULDRON_OF_THUNDER,
             //top of 16671, find this to go down
             ObjectID.STAIRCASE_16673,
-            ObjectID.PRISON_DOOR_2143,
             ObjectID.LADDER_17385
     );
     @Inject
