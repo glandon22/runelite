@@ -69,7 +69,7 @@ public class Inventory {
             System.out.println(e.getCause());
             System.out.println(Arrays.toString(e.getStackTrace()));
         }
-        return null;
+        return new ArrayList<Slot>();
     }
 
     public List<Slot> getEquipmentInventory(Client client) {

@@ -19,6 +19,13 @@ public class Interfaces {
         int y;
     }
 
+    @Value
+    public static class EnrichedInterfaceData {
+        int x;
+        int y;
+        String text;
+    }
+
     public InterfaceData getClickToPlay(Client client) {
         GameState gs = client.getGameState();
         String state = gs.toString();
@@ -41,7 +48,7 @@ public class Interfaces {
         return null;
     }
 
-    public InterfaceData getWidget(Client client, Object widget) {
+    public EnrichedInterfaceData getWidget(Client client, Object widget) {
         String widgetString = (String) widget;
         String[] childAndParent = widgetString.split(",");
         Widget targetWidget = client.getWidget(
@@ -53,9 +60,10 @@ public class Interfaces {
             Rectangle r = targetWidget.getBounds();
             Utilities u = new Utilities();
             HashMap<Character, Integer> center = u.getCenter(r);
-            return new InterfaceData(
+            return new EnrichedInterfaceData(
                     center.get('x'),
-                    center.get('y')
+                    center.get('y'),
+                    targetWidget.getText()
             );
         }
         return null;

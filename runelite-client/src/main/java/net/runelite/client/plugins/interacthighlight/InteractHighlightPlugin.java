@@ -133,6 +133,13 @@ public class InteractHighlightPlugin extends Plugin
 		return interactedObject.getId();
 	}
 
+	public int interactedNPCID() {
+		if (interactedNpc == null) {
+			return 1;
+		}
+		return interactedNpc.getId();
+	}
+
 	@Subscribe
 	public void onInteractingChanged(InteractingChanged interactingChanged)
 	{

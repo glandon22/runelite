@@ -24,13 +24,14 @@ public class GameInfoPacket {
     int poseAnimation;
     int playerAnimation;
     int varBit;
-    Interfaces.InterfaceData widget;
+    Interfaces.EnrichedInterfaceData widget;
     Utilities.PointData playerWorldPoint;
     String interactingWith;
     String[] chatOptions;
     HashMap<Integer, ArrayList<ObjectUtil.GameObjData>> decorativeObjects;
     HashMap<Integer, ArrayList<ObjectUtil.ItemObjData>> groundItems;
     int targetObj;
+    int targetNPC;
     List<Inventory.Slot> equipmentInv;
     java.awt.List menuEntries;
 }
