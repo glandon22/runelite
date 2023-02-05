@@ -300,6 +300,17 @@ public class AutoServer extends Plugin {
                 gip.targetObj = ((Number) qh).intValue();
             }
 
+
+            if (parsedRequestBody.get("getTargetNPC") != null && (Boolean) parsedRequestBody.get("getTargetNPC")) {
+                Plugin qhp = pluginManager.getPlugins().stream()
+                        .filter(e -> e.getName().equals("Interact Highlight"))
+                        .findAny().orElse(null);
+                if (qhp == null) return;
+
+                Object qh = qhp.getClass().getMethod("interactedNPCID").invoke(qhp);
+                if (qh == null) return;
+                gip.targetNPC = ((Number) qh).intValue();
+            }
             Headers headers = httpExchange.getResponseHeaders();
             // Tell my downstream consumer we are sending JSON back
             headers.set(HEADER_CONTENT_TYPE, String.format("application/json; charset=%s", CHARSET));
