@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Adam <Adam@sigterm.info>
+ * Copyright (c) 2023, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,15 +22,25 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.twitch.irc;
+package net.runelite.client.hiscore;
 
-import java.util.Map;
-
-public interface TwitchListener
+class HiscoreResponse
 {
-	void privmsg(String source, Map<String, String> tags, String message);
+	static class Skill
+	{
+		String name;
+		int rank;
+		int level;
+		long xp;
+	}
 
-	void roomstate(Map<String, String> tags);
+	static class Activity
+	{
+		String name;
+		int rank;
+		long score;
+	}
 
-	void usernotice(Map<String, String> tags, String message);
+	Skill[] skills;
+	Activity[] activities;
 }

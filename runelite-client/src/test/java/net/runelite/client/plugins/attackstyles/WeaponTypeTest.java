@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Adam <Adam@sigterm.info>
+ * Copyright (c) 2023, Jordan Atwood <nightfirecat@nightfirec.at>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,15 +22,15 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.twitch.irc;
+package net.runelite.client.plugins.attackstyles;
 
-import java.util.Map;
+import org.junit.Test;
 
-public interface TwitchListener
+public class WeaponTypeTest
 {
-	void privmsg(String source, Map<String, String> tags, String message);
-
-	void roomstate(Map<String, String> tags);
-
-	void usernotice(Map<String, String> tags, String message);
+	@Test
+	public void init()
+	{
+		WeaponType.getWeaponType(0);
+	}
 }
