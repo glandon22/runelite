@@ -6,17 +6,18 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import lombok.Value;
-import net.runelite.api.*;
+import net.runelite.api.Client;
 import net.runelite.api.events.GameTick;
-import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
-import java.awt.*;
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,13 +29,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-
-import net.runelite.client.util.Text;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.*;
-
-import javax.inject.Inject;
 
 @PluginDescriptor(
         name = "AutoServer",
@@ -329,7 +323,7 @@ public class AutoServer extends Plugin {
     @Override
     protected void startUp() throws Exception
     {
-        server = HttpServer.create(new InetSocketAddress("localhost", 56800), 0);
+        server = HttpServer.create(new InetSocketAddress("localhost", 56799), 0);
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         server.createContext("/osrs", new  MyHttpHandler());
         server.setExecutor(threadPoolExecutor);
