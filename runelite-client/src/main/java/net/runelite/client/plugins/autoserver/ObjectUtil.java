@@ -29,6 +29,16 @@ public class ObjectUtil {
     }
 
     @Value
+    public static class EnhancedGameObjData
+    {
+        int x;
+        int y;
+        int dist;
+        int x_coord;
+        int y_coord;
+    }
+
+    @Value
     public static class ItemObjData
     {
         int x;
@@ -72,8 +82,8 @@ public class ObjectUtil {
         );
     }
 
-    public HashMap<Integer, GameObjData> findGameObjects(Client client, Object gameObjectsToFind) {
-        HashMap<Integer, GameObjData> returnData = new HashMap<>();
+    public HashMap<Integer, EnhancedGameObjData> findGameObjects(Client client, Object gameObjectsToFind) {
+        HashMap<Integer, EnhancedGameObjData> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(gameObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
@@ -94,7 +104,13 @@ public class ObjectUtil {
                             HashMap<Character, Integer> center = u.getCenter(r);
                             if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                 //return key value pair key object id and values of x adn y
-                                returnData.put(g.getId(), new GameObjData(center.get('x'), center.get('y'), g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
+                                returnData.put(g.getId(), new EnhancedGameObjData(
+                                        center.get('x'),
+                                        center.get('y'),
+                                        g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                        tile.getWorldLocation().getX(),
+                                        tile.getWorldLocation().getY()
+                                ));
                             }
                         }
                     }
@@ -178,6 +194,50 @@ public class ObjectUtil {
                 }
             }
         }
+        return returnData;
+    }
+
+    public HashMap<Integer, ArrayList<GameObjData>> findMultipleGameObjects(Client client, Object gameObjectsToFind) {
+        HashMap<Integer, ArrayList<GameObjData>> returnData = new HashMap<>();
+
+        ParsedTilesAndObjects ptao = parseTilesAndObjects(gameObjectsToFind);
+        HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
+        ArrayList<WorldPoint> wps = ptao.wps;
+
+        Tile[][][] tiles = client.getScene().getTiles();
+        Utilities u = new Utilities();
+        for (WorldPoint wp: wps) {
+            final LocalPoint localLocation = LocalPoint.fromWorld(client, wp);
+            if (localLocation != null) {
+                Tile tile = tiles[client.getPlane()][localLocation.getSceneX()][localLocation.getSceneY()];
+                if (tile != null) {
+                    GameObject[] go = tile.getGameObjects();
+                    for (GameObject g : go) {
+                        if (g != null && RELEVANT_OBJECTS.contains(g.getId()) && g.getCanvasTilePoly() != null) {
+                            Polygon poly = g.getCanvasTilePoly();
+                            Rectangle r = poly.getBounds();
+                            HashMap<Character, Integer> center = u.getCenter(r);
+                            if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
+                                //return key value pair key object id and values of x adn y
+                                //returnData.put(g.getId(), new GameObjData(center.get('x'), center.get('y'), g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
+                                if (returnData.get(g.getId()) != null) {
+                                    ArrayList<GameObjData> gobj = returnData.get(g.getId());
+                                    gobj.add(new GameObjData(center.get('x'), center.get('y'), g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
+                                    returnData.put(g.getId(), gobj);
+                                }
+
+                                else {
+                                    ArrayList<GameObjData> gobj = new ArrayList<>();
+                                    gobj.add(new GameObjData(center.get('x'), center.get('y'), g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
+                                    returnData.put(g.getId(), gobj);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         return returnData;
     }
 

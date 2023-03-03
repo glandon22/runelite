@@ -200,6 +200,11 @@ public class AutoServer extends Plugin {
                 gip.wallObjects = go.findWallObjects(client, parsedRequestBody.get("wallObjects"));
             }
 
+            if (parsedRequestBody.get("multipleGameObjects") != null) {
+                ObjectUtil go = new ObjectUtil();
+                gip.multipleGameObjects= go.findMultipleGameObjects(client, parsedRequestBody.get("multipleGameObjects"));
+            }
+
             if (
                     parsedRequestBody.get("poseAnimation") != null &&
                             (Boolean) parsedRequestBody.get("poseAnimation")
@@ -329,7 +334,7 @@ public class AutoServer extends Plugin {
     @Override
     protected void startUp() throws Exception
     {
-        server = HttpServer.create(new InetSocketAddress("localhost", 56800), 0);
+        server = HttpServer.create(new InetSocketAddress("localhost", 56799), 0);
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         server.createContext("/osrs", new  MyHttpHandler());
         server.setExecutor(threadPoolExecutor);

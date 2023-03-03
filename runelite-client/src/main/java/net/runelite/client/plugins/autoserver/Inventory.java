@@ -45,7 +45,7 @@ public class Inventory {
             List<Slot> inv = null;
             ItemContainer ic = client.getItemContainer(InventoryID.INVENTORY);
             if (ic != null) {
-                Item[] items = client.getItemContainer(InventoryID.INVENTORY).getItems();
+                Item[] items = ic.getItems();
                 inv = new ArrayList<Slot>();
                 for (int i = 0; i < items.length; ++i) {
                     if (items[i] != null && items[i].getId() > 0) {
