@@ -41,6 +41,7 @@ import net.runelite.api.clan.ClanID;
 import net.runelite.api.clan.ClanSettings;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.dbtable.DBRowConfig;
 import net.runelite.api.hooks.Callbacks;
 import net.runelite.api.hooks.DrawCallbacks;
 import net.runelite.api.vars.AccountType;
@@ -1036,6 +1037,8 @@ public interface Client extends OAuthApi, GameEngine
 	 */
 	Object getDBTableField(int rowID, int column, int tupleIndex, int fieldIndex);
 
+	DBRowConfig getDBRowConfig(int rowID);
+
 	/**
 	 * Get a map element config by id
 	 *
@@ -1714,14 +1717,6 @@ public interface Client extends OAuthApi, GameEngine
 	boolean isInInstancedRegion();
 
 	/**
-	 * Get the number of client ticks an item has been pressed
-	 *
-	 * @return the number of client ticks an item has been pressed
-	 */
-	@Deprecated
-	int getItemPressedDuration();
-
-	/**
 	 * Gets an array of tile collision data.
 	 * <p>
 	 * The index into the array is the plane/z-axis coordinate.
@@ -1873,21 +1868,6 @@ public interface Client extends OAuthApi, GameEngine
 	void checkClickbox(Model model, int orientation, int pitchSin, int pitchCos, int yawSin, int yawCos, int x, int y, int z, long hash);
 
 	/**
-	 * Get the if1 widget whose item is being dragged
-	 *
-	 * @return
-	 */
-	@Deprecated
-	Widget getIf1DraggedWidget();
-
-	/**
-	 * Get the item index of the item being dragged on an if1 widget
-	 * @return
-	 */
-	@Deprecated
-	int getIf1DraggedItemIndex();
-
-	/**
 	 * Is a widget is in target mode?
 	 */
 	boolean isWidgetSelected();
@@ -1896,20 +1876,6 @@ public interface Client extends OAuthApi, GameEngine
 	 * Sets if a widget is in target mode
 	 */
 	void setWidgetSelected(boolean selected);
-
-	/**
-	 * Get if an item is selected with "Use"
-	 * @return 1 if selected, else 0
-	 */
-	@Deprecated
-	int getSelectedItem();
-
-	/**
-	 * If an item is selected, this is the item index in the inventory.
-	 * @return
-	 */
-	@Deprecated
-	int getSelectedItemIndex();
 
 	/**
 	 * Get the selected widget, such as a selected spell or selected item (eg. "Use")
