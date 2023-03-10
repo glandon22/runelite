@@ -1,12 +1,13 @@
 package net.runelite.client.plugins.autoserver;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.Perspective;
 import net.runelite.api.Tile;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
-import org.json.simple.JSONArray;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -19,21 +20,19 @@ public class Tiles {
         int y;
     }
 
-    public HashMap<String,TileData> getTileData(Client client, Object tilesToFind) {
-        JSONArray jsonTilesToFind = (JSONArray) tilesToFind;
-        Object[] parsedTiles = jsonTilesToFind.toArray();
+    public HashMap<String,TileData> getTileData(Client client, JsonArray tilesToFind) {
         ArrayList<WorldPoint> wps = new ArrayList<>();
         HashMap<String, TileData> tileDataPacket = new HashMap<>();
-        for (Object t : parsedTiles) {
+        for (JsonElement elem : tilesToFind) {
             try {
-                String tileHash = (String) t;
+                String tileHash = elem.toString().replace("\"", "");
                 String[] tileCoords = tileHash.split(",");
                 wps.add(
                         new WorldPoint(Integer.parseInt(tileCoords[0]), Integer.parseInt(tileCoords[1]),Integer.parseInt(tileCoords[2]))
                 );
             } catch (Exception e) {
                 System.out.println("Failed to find tile data for tile: ");
-                System.out.println(t);
+                System.out.println(elem);
             }
         }
 

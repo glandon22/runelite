@@ -5,7 +5,6 @@ import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.widgets.Widget;
-import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
 
 import java.awt.*;
@@ -48,9 +47,8 @@ public class Interfaces {
         return null;
     }
 
-    public EnrichedInterfaceData getWidget(Client client, Object widget) {
-        String widgetString = (String) widget;
-        String[] childAndParent = widgetString.split(",");
+    public EnrichedInterfaceData getWidget(Client client, String widget) {
+        String[] childAndParent = widget.split(",");
         Widget targetWidget = client.getWidget(
             Integer.parseInt(childAndParent[0]),
             Integer.parseInt(childAndParent[1])

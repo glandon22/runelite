@@ -1,12 +1,13 @@
 package net.runelite.client.plugins.autoserver;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import lombok.Value;
 import net.runelite.api.AnimationID;
 import net.runelite.api.Client;
 import net.runelite.api.GraphicID;
 import net.runelite.api.Skill;
 import net.runelite.client.plugins.autolode.Pickaxe;
-import org.json.simple.JSONArray;
 
 import java.util.HashMap;
 import java.util.Locale;
@@ -21,26 +22,23 @@ public class Player {
         int boostedLevel;
     }
 
-    public HashMap<String, SkillData> getSkillData(Client client, Object skills) {
+    public HashMap<String, SkillData> getSkillData(Client client, JsonArray skills) {
         HashMap<String, SkillData> skillData = new HashMap<>();
-        JSONArray jsonSkills = (JSONArray) skills;
-        Object[] parse = jsonSkills.toArray();
-        for (Object o : parse) {
+        for (JsonElement elem : skills) {
             try {
-                String skillName = (String) o;
+                String skillName = elem.toString().replace("\"", "");
                 skillName = skillName.toUpperCase(Locale.ROOT);
                 SkillData skd = new SkillData(
                         client.getRealSkillLevel(Skill.valueOf(skillName)),
                         client.getSkillExperience(Skill.valueOf(skillName)),
                         client.getBoostedSkillLevel(Skill.valueOf(skillName))
                 );
-                skillData.put((String) o, skd);
+                skillData.put(skillName.toLowerCase(Locale.ROOT), skd);
             } catch (Exception e) {
                 System.out.println("Failed to find data for skill: ");
-                System.out.println(o);
+                System.out.println(elem);
             }
         }
-
         return skillData;
     }
 

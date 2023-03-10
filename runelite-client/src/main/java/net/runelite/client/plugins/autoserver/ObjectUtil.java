@@ -1,13 +1,13 @@
 package net.runelite.client.plugins.autoserver;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginManager;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import javax.inject.Inject;
 import java.awt.*;
@@ -54,17 +54,25 @@ public class ObjectUtil {
         ArrayList<WorldPoint> wps;
     }
 
-    public ParsedTilesAndObjects parseTilesAndObjects(Object gameObjectsToFind) {
+    class Search
+    {
+        String tile;
+        String object;
+
+        // Getters and Setters
+    }
+
+    public ParsedTilesAndObjects parseTilesAndObjects(JsonArray gameObjectsToFind) {
         HashSet<Integer> RELEVANT_OBJECTS = new HashSet<>();
         ArrayList<WorldPoint> wps = new ArrayList<>();
-
-        JSONArray jsonGameObjsAndTilesToFind = (JSONArray) gameObjectsToFind;
-        Object[] parsedGameObjsAndTiles = jsonGameObjsAndTilesToFind.toArray();
-        for (Object t : parsedGameObjsAndTiles) {
+        Gson gson = new Gson();
+        Search[] searchArr = gson.fromJson(gameObjectsToFind, Search[].class);
+        for(Search s: searchArr) {
             try {
-                JSONObject tileAndObject = (JSONObject) t;
-                String tileHash = (String) tileAndObject.get("tile");
-                int gameObjectToFind = Integer.parseInt((String) tileAndObject.get("object"));
+                String tileHash = s.tile;
+                System.out.println("hjhjhjhj");
+                System.out.println(s.object);
+                int gameObjectToFind = Integer.parseInt(s.object);
                 String[] tileCoords = tileHash.split(",");
                 wps.add(
                         new WorldPoint(Integer.parseInt(tileCoords[0]), Integer.parseInt(tileCoords[1]),Integer.parseInt(tileCoords[2]))
@@ -72,7 +80,7 @@ public class ObjectUtil {
                 RELEVANT_OBJECTS.add(gameObjectToFind);
             } catch (Exception e) {
                 System.out.println("Failed to find game object data for tile: ");
-                System.out.println(t);
+                System.out.println(s);
             }
         }
 
@@ -82,15 +90,14 @@ public class ObjectUtil {
         );
     }
 
-    public HashMap<Integer, EnhancedGameObjData> findGameObjects(Client client, Object gameObjectsToFind) {
+    public HashMap<Integer, EnhancedGameObjData> findGameObjects(Client client, JsonArray gameObjectsToFind) {
         HashMap<Integer, EnhancedGameObjData> returnData = new HashMap<>();
-
         ParsedTilesAndObjects ptao = parseTilesAndObjects(gameObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
         ArrayList<WorldPoint> wps = ptao.wps;
-
         Tile[][][] tiles = client.getScene().getTiles();
         Utilities u = new Utilities();
+
         for (WorldPoint wp: wps) {
             final LocalPoint localLocation = LocalPoint.fromWorld(client, wp);
             if (localLocation != null) {
@@ -121,7 +128,7 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, GameObjData> findGroundObjects(Client client, Object groundObjectsToFind) {
+    public HashMap<Integer, GameObjData> findGroundObjects(Client client, JsonArray groundObjectsToFind) {
         HashMap<Integer, GameObjData> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(groundObjectsToFind);
@@ -153,7 +160,7 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<GameObjData>> findWallObjects(Client client, Object wallObjectsToFind) {
+    public HashMap<Integer, ArrayList<GameObjData>> findWallObjects(Client client, JsonArray wallObjectsToFind) {
         HashMap<Integer, ArrayList<GameObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(wallObjectsToFind);
@@ -197,7 +204,7 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<GameObjData>> findMultipleGameObjects(Client client, Object gameObjectsToFind) {
+    public HashMap<Integer, ArrayList<GameObjData>> findMultipleGameObjects(Client client, JsonArray gameObjectsToFind) {
         HashMap<Integer, ArrayList<GameObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(gameObjectsToFind);
@@ -241,7 +248,7 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<GameObjData>> findDecorativeObjects(Client client, Object wallObjectsToFind) {
+    public HashMap<Integer, ArrayList<GameObjData>> findDecorativeObjects(Client client, JsonArray wallObjectsToFind) {
         HashMap<Integer, ArrayList<GameObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(wallObjectsToFind);
@@ -285,7 +292,7 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<ItemObjData>> getGroundItems(Client client, Object itemsToFind) {
+    public HashMap<Integer, ArrayList<ItemObjData>> getGroundItems(Client client, JsonArray itemsToFind) {
         HashMap<Integer, ArrayList<ItemObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);

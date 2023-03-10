@@ -1,7 +1,5 @@
 package net.runelite.client.plugins.autoserver;
 
-import net.runelite.api.coords.WorldPoint;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;

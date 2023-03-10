@@ -3,7 +3,6 @@ package net.runelite.client.plugins.autoserver;
 import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.NPC;
-import net.runelite.client.plugins.autobotstander.AutoBotStanderPlugin;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -20,6 +19,7 @@ public class NPCs {
         String name;
         int id;
         int dist;
+        int graphic;
     }
 
     public ArrayList<NpcPacket> getNPCsByName(Client client, HashSet<String> npcsToFind) {
@@ -41,7 +41,8 @@ public class NPCs {
                             center.get('y'),
                             npc.getName(),
                             npc.getId(),
-                            npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())
+                            npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                            npc.getGraphic()
                     );
                     alnp.add(np);
                 }
@@ -70,7 +71,8 @@ public class NPCs {
                             center.get('y'),
                             npc.getName(),
                             npc.getId(),
-                            npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())
+                            npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                            npc.getGraphic()
                     );
                     alnp.add(np);
                 }
@@ -98,7 +100,8 @@ public class NPCs {
                             center.get('y'),
                             npc.getName(),
                             npc.getId(),
-                            npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())
+                            npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                            npc.getGraphic()
                     );
                     alnp.add(np);
                 }

@@ -29,15 +29,9 @@ public class Inventory {
 
     private static WidgetItem getWidgetItem(Widget parentWidget, int idx)
     {
-        if (parentWidget.isIf3())
-        {
-            Widget wi = parentWidget.getChild(idx);
-            return new WidgetItem(wi.getItemId(), wi.getItemQuantity(), -1, wi.getBounds(), parentWidget, wi.getBounds());
-        }
-        else
-        {
-            return parentWidget.getWidgetItem(idx);
-        }
+        assert parentWidget.isIf3();
+        Widget wi = parentWidget.getChild(idx);
+        return new WidgetItem(wi.getItemId(), wi.getItemQuantity(), wi.getBounds(), parentWidget, wi.getBounds());
     }
 
     public List<Slot> getInventory(Client client) {

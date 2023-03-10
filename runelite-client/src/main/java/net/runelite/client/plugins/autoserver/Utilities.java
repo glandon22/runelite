@@ -1,7 +1,6 @@
 package net.runelite.client.plugins.autoserver;
 
 import net.runelite.api.Client;
-import net.runelite.api.Varbits;
 import net.runelite.api.coords.WorldPoint;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,11 +27,9 @@ public class Utilities {
         return ret;
     }
 
-    public void setYaw(Client client, Object value) {
+    public void setYaw(Client client, Integer value) {
         try {
-            String parsedVal = (String) value;
-            System.out.println(parsedVal);
-            client.setCameraYawTarget(Integer.parseInt(parsedVal));
+            client.setCameraYawTarget(value);
         } catch (Exception e) {
             System.out.println("eeee");
             System.out.println(e);
