@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2023, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,63 +22,17 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.api;
+package net.runelite.api.annotations;
 
-import javax.annotation.Nonnull;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import net.runelite.api.VarPlayer;
+import org.intellij.lang.annotations.MagicConstant;
 
-/**
- * Represents the model of an object.
- */
-public interface Model extends Mesh, Renderable
+@MagicConstant(valuesFromClass = VarPlayer.class)
+@Documented
+@Retention(RetentionPolicy.SOURCE)
+public @interface Varp
 {
-	int[] getFaceColors1();
-
-	int[] getFaceColors2();
-
-	int[] getFaceColors3();
-
-	int getSceneId();
-	void setSceneId(int sceneId);
-
-	int getBufferOffset();
-	void setBufferOffset(int bufferOffset);
-
-	int getUvBufferOffset();
-	void setUvBufferOffset(int bufferOffset);
-
-	int getBottomY();
-
-	void calculateBoundsCylinder();
-
-	byte[] getFaceRenderPriorities();
-
-	int getRadius();
-	int getDiameter();
-
-	/**
-	 * @see #getAABB(int)
-	 */
-	@Deprecated
-	void calculateExtreme(int orientation);
-
-	@Nonnull
-	AABB getAABB(int orientation);
-
-	int getXYZMag();
-	boolean isClickable();
-
-	int[] getVertexNormalsX();
-	int[] getVertexNormalsY();
-	int[] getVertexNormalsZ();
-
-	byte getOverrideAmount();
-	byte getOverrideHue();
-	byte getOverrideSaturation();
-	byte getOverrideLuminance();
-
-	byte[] getTextureFaces();
-
-	int[] getTexIndices1();
-	int[] getTexIndices2();
-	int[] getTexIndices3();
 }
