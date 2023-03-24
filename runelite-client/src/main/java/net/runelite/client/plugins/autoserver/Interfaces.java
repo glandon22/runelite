@@ -23,6 +23,7 @@ public class Interfaces {
         int x;
         int y;
         String text;
+        int spriteID;
     }
 
     public InterfaceData getClickToPlay(Client client) {
@@ -61,7 +62,8 @@ public class Interfaces {
             return new EnrichedInterfaceData(
                     center.get('x'),
                     center.get('y'),
-                    targetWidget.getText()
+                    targetWidget.getText(),
+                    targetWidget.getSpriteId()
             );
         }
         return null;

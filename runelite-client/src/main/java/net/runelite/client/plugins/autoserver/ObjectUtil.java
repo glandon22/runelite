@@ -78,6 +78,7 @@ public class ObjectUtil {
                         new WorldPoint(Integer.parseInt(tileCoords[0]), Integer.parseInt(tileCoords[1]),Integer.parseInt(tileCoords[2]))
                 );
                 RELEVANT_OBJECTS.add(gameObjectToFind);
+                System.out.println("success.");
             } catch (Exception e) {
                 System.out.println("Failed to find game object data for tile: ");
                 System.out.println(s);
@@ -106,7 +107,7 @@ public class ObjectUtil {
                     GameObject[] go = tile.getGameObjects();
                     for (GameObject g : go) {
                         if (g != null && RELEVANT_OBJECTS.contains(g.getId()) && g.getCanvasTilePoly() != null) {
-                            Polygon poly = g.getCanvasTilePoly();
+                            Shape poly = g.getConvexHull();
                             Rectangle r = poly.getBounds();
                             HashMap<Character, Integer> center = u.getCenter(r);
                             if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
