@@ -84,7 +84,8 @@ public class ObjectUtil {
                 System.out.println(s);
             }
         }
-
+        System.out.println(new Gson().toJson(RELEVANT_OBJECTS));
+        System.out.println(new Gson().toJson(wps));
         return new ParsedTilesAndObjects(
                 RELEVANT_OBJECTS,
                 wps
@@ -108,17 +109,19 @@ public class ObjectUtil {
                     for (GameObject g : go) {
                         if (g != null && RELEVANT_OBJECTS.contains(g.getId()) && g.getCanvasTilePoly() != null) {
                             Shape poly = g.getConvexHull();
-                            Rectangle r = poly.getBounds();
-                            HashMap<Character, Integer> center = u.getCenter(r);
-                            if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
-                                //return key value pair key object id and values of x adn y
-                                returnData.put(g.getId(), new EnhancedGameObjData(
-                                        center.get('x'),
-                                        center.get('y'),
-                                        g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                        tile.getWorldLocation().getX(),
-                                        tile.getWorldLocation().getY()
-                                ));
+                            if (poly != null) {
+                                Rectangle r = poly.getBounds();
+                                HashMap<Character, Integer> center = u.getCenter(r);
+                                if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
+                                    //return key value pair key object id and values of x adn y
+                                    returnData.put(g.getId(), new EnhancedGameObjData(
+                                            center.get('x'),
+                                            center.get('y'),
+                                            g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                            tile.getWorldLocation().getX(),
+                                            tile.getWorldLocation().getY()
+                                    ));
+                                }
                             }
                         }
                     }
