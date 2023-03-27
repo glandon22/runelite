@@ -28,7 +28,7 @@ public class NPCs {
         for (NPC npc : npcs) {
             String n = npc.getName();
             if (n != null && npcsToFind.contains(npc.getName())) {
-                Polygon poly = npc.getCanvasTilePoly();
+                Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
                 Utilities u = new Utilities();
@@ -58,7 +58,7 @@ public class NPCs {
         for (NPC npc : npcs) {
             String n = npc.getName();
             if (n != null && npcsToFind.contains(Integer.toString(npc.getId()))) {
-                Polygon poly = npc.getCanvasTilePoly();
+                Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
                 Utilities u = new Utilities();
@@ -82,12 +82,13 @@ public class NPCs {
     }
 
     public ArrayList<NpcPacket> getNPCsByToKill(Client client, HashSet<String> npcsToFind) {
+        System.out.println("getting convex");
         List<NPC> npcs = client.getNpcs();
         ArrayList<NpcPacket> alnp = new ArrayList<>();
         for (NPC npc : npcs) {
             String n = npc.getName();
             if (n != null && npcsToFind.contains(npc.getName()) && npc.getInteracting() == null) {
-                Polygon poly = npc.getCanvasTilePoly();
+                Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
                 Utilities u = new Utilities();
