@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.autoserver;
 
 import net.runelite.api.Client;
+import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +38,8 @@ public class Utilities {
     }
 
     public PointData getPlayerWorldPoint(Client client) {
-        WorldPoint wp = client.getLocalPlayer().getWorldLocation();
+        LocalPoint lp = client.getLocalPlayer().getLocalLocation();
+        WorldPoint wp = WorldPoint.fromLocal(client, lp);
         PointData pd = new PointData();
         pd.x = wp.getX();
         pd.y = wp.getY();
