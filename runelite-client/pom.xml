@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>net.runelite</groupId>
 		<artifactId>runelite-parent</artifactId>
-		<version>1.9.13-SNAPSHOT</version>
+		<version>1.9.16-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>client</artifactId>
@@ -388,6 +388,9 @@
 							<Multi-Release>true</Multi-Release>
 						</manifestEntries>
 					</archive>
+					<excludes>
+						<exclude>**/.clang-format</exclude>
+					</excludes>
 				</configuration>
 				<executions>
 					<execution>

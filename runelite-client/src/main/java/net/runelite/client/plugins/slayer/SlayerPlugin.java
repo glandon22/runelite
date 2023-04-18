@@ -54,6 +54,7 @@ import net.runelite.api.EnumComposition;
 import net.runelite.api.EnumID;
 import net.runelite.api.GameState;
 import net.runelite.api.ItemID;
+import net.runelite.api.MenuAction;
 import net.runelite.api.MessageNode;
 import net.runelite.api.NPC;
 import net.runelite.api.NPCComposition;
@@ -63,9 +64,11 @@ import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.CommandExecuted;
 import net.runelite.api.events.GameStateChanged;
 import net.runelite.api.events.GameTick;
+import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.NpcDespawned;
 import net.runelite.api.events.NpcSpawned;
 import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.widgets.Widget;
 import net.runelite.client.Notifier;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.chat.ChatClient;
@@ -77,6 +80,7 @@ import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ChatInput;
 import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.ItemVariationMapping;
 import net.runelite.client.game.npcoverlay.HighlightedNpc;
 import net.runelite.client.game.npcoverlay.NpcOverlayService;
 import net.runelite.client.plugins.Plugin;
@@ -474,6 +478,47 @@ public class SlayerPlugin extends Plugin
 		else
 		{
 			npcOverlayService.rebuild();
+		}
+	}
+
+	@Subscribe
+	public void onMenuOptionClicked(MenuOptionClicked menuOptionClicked)
+	{
+		if (menuOptionClicked.getMenuAction() == MenuAction.CC_OP && menuOptionClicked.getMenuOption().equals("Check"))
+		{
+			Widget w = client.getWidget(menuOptionClicked.getParam1());
+			if (w == null)
+			{
+				return;
+			}
+
+			if (menuOptionClicked.getParam0() != -1)
+			{
+				w = w.getChild(menuOptionClicked.getParam0());
+				if (w == null)
+				{
+					return;
+				}
+			}
+
+			// hack around equipment interface which has the item on a child component
+			int itemId = w.getItemId();
+			for (Widget child : w.getDynamicChildren())
+			{
+				if (itemId == -1)
+				{
+					itemId = child.getItemId();
+				}
+			}
+
+			itemId = ItemVariationMapping.map(itemId);
+			if (itemId == ItemID.SLAYER_HELMET || itemId == ItemID.SLAYER_RING_8
+				|| itemId == ItemID.ENCHANTED_GEM)
+			{
+				log.debug("Checked slayer task");
+				infoTimer = Instant.now();
+				addCounter();
+			}
 		}
 	}
 

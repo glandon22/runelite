@@ -22,37 +22,45 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.runelite.api;
 
-void compute_uv(
-          float3   f1,    float3   f2,     float3   f3,
-          float3   t1,    float3   t2,     float3   t3,
-/* out */ float2  *uv1,   float2  *uv2,    float2  *uv3
-) {
-    float3 v1 = t1;
-    float3 v2 = t2 - v1;
-    float3 v3 = t3 - v1;
+public interface ActorSpotAnim extends Node
+{
+	/**
+	 * Get the spotanim id
+	 * @see GraphicID
+	 * @return
+	 */
+	int getId();
 
-    float3 v4 = f1 - v1;
-    float3 v5 = f2 - v1;
-    float3 v6 = f3 - v1;
+	/**
+	 * Set the spotanim id
+	 * @see GraphicID
+	 * @param id
+	 */
+	void setId(int id);
 
-    float3 v7 = cross(v2, v3);
+	/**
+	 * Get the spotanim height
+	 * @return
+	 */
+	int getHeight();
 
-    float3 v8 = cross(v3, v7);
-    float d = 1.0f / dot(v8, v2);
+	/**
+	 * Set the spotanim height
+	 * @param height
+	 */
+	void setHeight(int height);
 
-    float u0 = dot(v8, v4) * d;
-    float u1 = dot(v8, v5) * d;
-    float u2 = dot(v8, v6) * d;
+	/**
+	 * Get the spotanim frame
+	 * @return
+	 */
+	int getFrame();
 
-    v8 = cross(v2, v7);
-    d = 1.0f / dot(v8, v3);
-
-    float v0_ = dot(v8, v4) * d;
-    float v1_ = dot(v8, v5) * d;
-    float v2_ = dot(v8, v6) * d;
-
-    *uv1 = (float2)(u0, v0_);
-    *uv2 = (float2)(u1, v1_);
-    *uv3 = (float2)(u2, v2_);
+	/**
+	 * Set the spotanim frame
+	 * @param frame
+	 */
+	void setFrame(int frame);
 }
