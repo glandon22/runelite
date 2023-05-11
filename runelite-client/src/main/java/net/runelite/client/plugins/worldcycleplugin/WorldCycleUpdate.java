@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Adam <Adam@sigterm.info>
+ * Copyright (c) 2022, Jamal <http://github.com/1Defence>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,25 +22,18 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.gpu;
+package net.runelite.client.plugins.worldcycleplugin;
 
-import org.jocl.Pointer;
-import org.jocl.cl_mem;
+import lombok.EqualsAndHashCode;
+import lombok.Value;
+import net.runelite.client.party.messages.PartyMemberMessage;
 
-class GLBuffer
+@Value
+@EqualsAndHashCode(callSuper = true)
+public class WorldCycleUpdate extends PartyMemberMessage
 {
-	String name;
-	int glBufferId = -1;
-	int size = -1;
-	cl_mem cl_mem;
-
-	GLBuffer(String name)
-	{
-		this.name = name;
-	}
-
-	Pointer ptr()
-	{
-		return cl_mem != null ? Pointer.to(cl_mem) : null;
-	}
+    public WorldCycleUpdate(String worldSet){
+        this.worldSet = worldSet;
+    }
+    private String worldSet;
 }

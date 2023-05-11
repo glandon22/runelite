@@ -70,15 +70,12 @@ public class ObjectUtil {
         for(Search s: searchArr) {
             try {
                 String tileHash = s.tile;
-                System.out.println("hjhjhjhj");
-                System.out.println(s.object);
                 int gameObjectToFind = Integer.parseInt(s.object);
                 String[] tileCoords = tileHash.split(",");
                 wps.add(
                         new WorldPoint(Integer.parseInt(tileCoords[0]), Integer.parseInt(tileCoords[1]),Integer.parseInt(tileCoords[2]))
                 );
                 RELEVANT_OBJECTS.add(gameObjectToFind);
-                System.out.println("success.");
             } catch (Exception e) {
                 System.out.println("Failed to find game object data for tile: ");
                 System.out.println(s);
@@ -108,7 +105,7 @@ public class ObjectUtil {
                     GameObject[] go = tile.getGameObjects();
                     for (GameObject g : go) {
                         if (g != null && RELEVANT_OBJECTS.contains(g.getId()) && g.getCanvasTilePoly() != null) {
-                            Polygon poly = g.getCanvasTilePoly();
+                            Shape poly = g.getConvexHull();
                             if (poly != null) {
                                 Rectangle r = poly.getBounds();
                                 HashMap<Character, Integer> center = u.getCenter(r);
@@ -164,8 +161,8 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<GameObjData>> findWallObjects(Client client, JsonArray wallObjectsToFind) {
-        HashMap<Integer, ArrayList<GameObjData>> returnData = new HashMap<>();
+    public HashMap<Integer, ArrayList<EnhancedGameObjData>> findWallObjects(Client client, JsonArray wallObjectsToFind) {
+        HashMap<Integer, ArrayList<EnhancedGameObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(wallObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
@@ -187,14 +184,26 @@ public class ObjectUtil {
                                 HashMap<Character, Integer> center = u.getCenter(r);
                                 if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                     if (returnData.get(wo.getId()) != null) {
-                                        ArrayList<GameObjData> gobj = returnData.get(wo.getId());
-                                        gobj.add(new GameObjData(center.get('x'), center.get('y'), wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
+                                        ArrayList<EnhancedGameObjData> gobj = returnData.get(wo.getId());
+                                        gobj.add(new EnhancedGameObjData(
+                                                    center.get('x'), center.get('y'),
+                                                    wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                    tile.getWorldLocation().getX(),
+                                                    tile.getWorldLocation().getY()
+                                                )
+                                        );
                                         returnData.put(wo.getId(), gobj);
                                     }
 
                                     else {
-                                        ArrayList<GameObjData> gobj = new ArrayList<>();
-                                        gobj.add(new GameObjData(center.get('x'), center.get('y'), wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
+                                        ArrayList<EnhancedGameObjData> gobj = new ArrayList<>();
+                                        gobj.add(new EnhancedGameObjData(
+                                                        center.get('x'), center.get('y'),
+                                                        wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                        tile.getWorldLocation().getX(),
+                                                        tile.getWorldLocation().getY()
+                                                )
+                                        );
                                         returnData.put(wo.getId(), gobj);
                                     }
 
