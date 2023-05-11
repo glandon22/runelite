@@ -18,7 +18,7 @@ public class GameInfoPacket {
     Interfaces.InterfaceData clickToPlay;
     HashMap<Integer, ObjectUtil.EnhancedGameObjData> gameObjects;
     HashMap<Integer, ObjectUtil.GameObjData> groundObjects;
-    HashMap<Integer, ArrayList<ObjectUtil.GameObjData>> wallObjects;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedGameObjData>> wallObjects;
     HashMap<Integer, ArrayList<ObjectUtil.GameObjData>> multipleGameObjects;
     int poseAnimation;
     int playerAnimation;
