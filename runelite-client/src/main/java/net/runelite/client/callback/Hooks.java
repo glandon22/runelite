@@ -636,7 +636,7 @@ public class Hooks implements Callbacks
 		if (now > nextError)
 		{
 			telemetryClient.submitError(
-				"client error",
+				"client error caught bigly",
 				message + " - " + reason);
 
 			if (rateLimitedError)

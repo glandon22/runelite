@@ -81,7 +81,7 @@ public class ObjectUtil {
                 System.out.println(s);
             }
         }
-        System.out.println(new Gson().toJson(RELEVANT_OBJECTS));
+        System.out.println("Successfully parsed tiles and objects / npcs to find. Searching the following tiles: ");
         System.out.println(new Gson().toJson(wps));
         return new ParsedTilesAndObjects(
                 RELEVANT_OBJECTS,
@@ -125,7 +125,7 @@ public class ObjectUtil {
                 }
             }
         }
-
+        System.out.println("Successfully found game objects.");
         return returnData;
     }
 
