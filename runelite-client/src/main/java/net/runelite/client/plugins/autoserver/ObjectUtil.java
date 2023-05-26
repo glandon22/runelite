@@ -36,6 +36,7 @@ public class ObjectUtil {
         int dist;
         int x_coord;
         int y_coord;
+        int id;
     }
 
     @Value
@@ -105,7 +106,7 @@ public class ObjectUtil {
                     GameObject[] go = tile.getGameObjects();
                     for (GameObject g : go) {
                         if (g != null && RELEVANT_OBJECTS.contains(g.getId()) && g.getCanvasTilePoly() != null) {
-                            Shape poly = g.getConvexHull();
+                            Polygon poly = g.getCanvasTilePoly();
                             if (poly != null) {
                                 Rectangle r = poly.getBounds();
                                 HashMap<Character, Integer> center = u.getCenter(r);
@@ -116,7 +117,8 @@ public class ObjectUtil {
                                             center.get('y'),
                                             g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                             tile.getWorldLocation().getX(),
-                                            tile.getWorldLocation().getY()
+                                            tile.getWorldLocation().getY(),
+                                            g.getId()
                                     ));
                                 }
                             }
@@ -189,7 +191,8 @@ public class ObjectUtil {
                                                     center.get('x'), center.get('y'),
                                                     wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                                     tile.getWorldLocation().getX(),
-                                                    tile.getWorldLocation().getY()
+                                                    tile.getWorldLocation().getY(),
+                                                    wo.getId()
                                                 )
                                         );
                                         returnData.put(wo.getId(), gobj);
@@ -201,7 +204,8 @@ public class ObjectUtil {
                                                         center.get('x'), center.get('y'),
                                                         wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                                         tile.getWorldLocation().getX(),
-                                                        tile.getWorldLocation().getY()
+                                                        tile.getWorldLocation().getY(),
+                                                        wo.getId()
                                                 )
                                         );
                                         returnData.put(wo.getId(), gobj);
@@ -248,7 +252,8 @@ public class ObjectUtil {
                                                     center.get('y'),
                                                     g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                                     tile.getWorldLocation().getX(),
-                                                    tile.getWorldLocation().getY()
+                                                    tile.getWorldLocation().getY(),
+                                                    g.getId()
                                             )
                                     );
                                     returnData.put(g.getId(), gobj);
@@ -262,7 +267,8 @@ public class ObjectUtil {
                                                     center.get('y'),
                                                     g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                                     tile.getWorldLocation().getX(),
-                                                    tile.getWorldLocation().getY()
+                                                    tile.getWorldLocation().getY(),
+                                                    g.getId()
                                             )
                                     );
                                     returnData.put(g.getId(), gobj);
