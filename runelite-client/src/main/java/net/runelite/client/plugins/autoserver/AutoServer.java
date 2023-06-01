@@ -7,7 +7,8 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import lombok.Value;
 import net.runelite.api.Client;
-import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.Deque;
+import net.runelite.api.Projectile;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
@@ -313,6 +314,15 @@ public class AutoServer extends Plugin {
                 gip.targetObj = ((Number) qh).intValue();
             }
 
+            if (jsonObject.get("projectiles") != null && jsonObject.get("projectiles").getAsBoolean()) {
+                HashSet<Integer> projs = new HashSet<>();
+                for (Projectile p : client.getProjectiles()) {
+                    projs.add(p.getId());
+                }
+
+                gip.projectiles = projs;
+            }
+
 
             if (jsonObject.get("getTargetNPC") != null && jsonObject.get("getTargetNPC").getAsBoolean()) {
                 Plugin qhp = pluginManager.getPlugins().stream()
@@ -353,54 +363,4 @@ public class AutoServer extends Plugin {
     protected void shutDown() throws Exception {
         server.stop(0);
     }
-
-    @Subscribe public void onGameTick(GameTick tick) throws Exception
-    {
-        /*for (int i = 0; i < 150; i++) {
-            Widget bankDumpContainer = client.getWidget(WidgetID.EQUIPMENT_GROUP_ID, i);
-            if (bankDumpContainer != null) {
-                System.out.println("found a widget");
-                System.out.println(i);
-                bankDumpContainer.setHidden(true);
-                Thread.sleep(2000);
-                bankDumpContainer.setHidden(false);
-                System.out.println("----------------------------------------------");
-            }
-        }
-        Widget bankDumpContainer = client.getWidget(WidgetID.EQUIPMENT_GROUP_ID, 24);
-        Rectangle r = bankDumpContainer.getBounds();
-        double x = r.getX();
-        double y = r.getY();
-        double w = r.getWidth();
-        double h = r.getHeight();
-        int cx = (int)(x + (w/2));
-        int cy = (int)(y + 23 + (h /2));
-        System.out.println(cx);
-        System.out.println(cy);
-        Thread.sleep(5000);*/
-    }
 }
-
-/*
-* for (int i = 0; i < 150; i++) {
-            Widget bankDumpContainer = client.getWidget(WidgetID.DEPOSIT_BOX_GROUP_ID, i);
-            if (bankDumpContainer != null) {
-                System.out.println("found a widget");
-                System.out.println(i);
-                bankDumpContainer.setHidden(true);
-                Thread.sleep(2000);
-                bankDumpContainer.setHidden(false);
-                System.out.println("----------------------------------------------");
-            }
-        }
-*
-* */
-
-/*if (client.isMenuOpen()) {
-            MenuEntry[] menuEntries = client.getMenuEntries();
-            System.out.println("menu");
-            for (MenuEntry entry : menuEntries)
-            {
-                entry.getOption();
-            }
-        }*/

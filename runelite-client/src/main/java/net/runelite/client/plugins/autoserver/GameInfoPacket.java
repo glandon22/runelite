@@ -1,8 +1,12 @@
 package net.runelite.client.plugins.autoserver;
 
+import net.runelite.api.Deque;
+import net.runelite.api.Projectile;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class GameInfoPacket {
@@ -33,4 +37,5 @@ public class GameInfoPacket {
     int targetNPC;
     List<Inventory.Slot> equipmentInv;
     java.awt.List menuEntries;
+    HashSet<Integer> projectiles;
 }
