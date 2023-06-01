@@ -41,9 +41,10 @@ public class Inventory {
             if (ic != null) {
                 Item[] items = ic.getItems();
                 inv = new ArrayList<Slot>();
+                Widget invWidget = client.getWidget(WidgetInfo.INVENTORY);
                 for (int i = 0; i < items.length; ++i) {
-                    if (items[i] != null && items[i].getId() > 0) {
-                        final WidgetItem targetWidgetItem = getWidgetItem(client.getWidget(WidgetInfo.INVENTORY), i);
+                    if (items[i] != null && items[i].getId() > 0 && invWidget != null) {
+                        final WidgetItem targetWidgetItem = getWidgetItem(invWidget, i);
                         final Rectangle r = targetWidgetItem.getCanvasBounds(false);
                         Utilities u = new Utilities();
                         HashMap<Character, Integer> center = u.getCenter(r);
@@ -58,7 +59,7 @@ public class Inventory {
             }
             return inv;
         } catch (Exception e) {
-            System.out.println("Exception while parsing inventory");
+            System.out.println("Exception while parsing inventory111111");
             System.out.println(e.getMessage());
             System.out.println(e.getCause());
             System.out.println(Arrays.toString(e.getStackTrace()));

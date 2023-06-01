@@ -30,7 +30,7 @@ public class NPCs {
         for (NPC npc : npcs) {
             String n = npc.getName();
             if (n != null && npcsToFind.contains(npc.getName())) {
-                Shape poly = npc.getConvexHull();
+                Polygon poly = npc.getCanvasTilePoly();
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
                 Utilities u = new Utilities();

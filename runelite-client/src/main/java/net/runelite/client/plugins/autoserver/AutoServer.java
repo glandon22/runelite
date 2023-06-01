@@ -27,8 +27,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicReference;
 
 @PluginDescriptor(
         name = "AutoServer",
@@ -53,6 +56,36 @@ public class AutoServer extends Plugin {
 
     @Inject
     private ClientThread clientThread;
+
+    private <T> T invokeAndWait(Callable<T> r)
+    {
+        try
+        {
+            AtomicReference<T> ref = new AtomicReference<>();
+            Semaphore semaphore = new Semaphore(0);
+            clientThread.invokeLater(() -> {
+                try
+                {
+
+                    ref.set(r.call());
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+                finally
+                {
+                    semaphore.release();
+                }
+            });
+            semaphore.acquire();
+            return ref.get();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
     private class MyHttpHandler implements HttpHandler {
         @Override
@@ -145,7 +178,10 @@ public class AutoServer extends Plugin {
                     }
                 }
                 NPCs npcUtil = new NPCs();
-                gip.npcs = npcUtil.getNPCsByID(client, npcsToFind);
+                invokeAndWait(() -> {
+                    gip.npcs = npcUtil.getNPCsByID(client, npcsToFind);
+                    return null;
+                });
             }
 
             if (
