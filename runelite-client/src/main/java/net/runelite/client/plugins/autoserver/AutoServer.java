@@ -442,6 +442,21 @@ public class AutoServer extends Plugin {
                 if (qh == null) return;
                 gip.targetNPC = ((Number) qh).intValue();
             }
+
+            if (jsonObject.get("allGroundItems") != null) {
+                JsonArray s = jsonObject.get("allGroundItems").getAsJsonArray();
+                ObjectUtil go = new ObjectUtil();
+                try {
+
+                    invokeAndWait(() -> {
+                        gip.allGroundItems = go.getGroundItemsAnyId(client, s);
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println("eeee");
+                    System.out.println(e);
+                }
+            }
             Headers headers = httpExchange.getResponseHeaders();
             // Tell my downstream consumer we are sending JSON back
             headers.set(HEADER_CONTENT_TYPE, String.format("application/json; charset=%s", CHARSET));

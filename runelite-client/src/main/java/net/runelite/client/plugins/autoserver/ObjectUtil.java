@@ -371,6 +371,47 @@ public class ObjectUtil {
         return returnData;
     }
 
+    public HashMap<Integer, ArrayList<ItemObjData>> getGroundItemsAnyId(Client client, JsonArray itemsToFind) {
+        HashMap<Integer, ArrayList<ItemObjData>> returnData = new HashMap<>();
+
+        ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
+        ArrayList<WorldPoint> wps = ptao.wps;
+
+        Tile[][][] tiles = client.getScene().getTiles();
+        Utilities u = new Utilities();
+        for (WorldPoint wp: wps) {
+            final LocalPoint localLocation = LocalPoint.fromWorld(client, wp);
+            if (localLocation != null) {
+                Tile tile = tiles[client.getPlane()][localLocation.getSceneX()][localLocation.getSceneY()];
+                if (tile != null) {
+                    List<TileItem> wo = tile.getGroundItems();
+                    if (wo != null) {
+                        for (TileItem ti: wo) {
+                            final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
+                            Rectangle r = poly.getBounds();
+                            HashMap<Character, Integer> center = u.getCenter(r);
+                            if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
+                                if (returnData.get(ti.getId()) != null) {
+                                    ArrayList<ItemObjData> gobj = returnData.get(ti.getId());
+                                    gobj.add(new ItemObjData(center.get('x'), center.get('y'), tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()), ti.getId()));
+                                    returnData.put(ti.getId(), gobj);
+                                }
+
+                                else {
+                                    ArrayList<ItemObjData> gobj = new ArrayList<>();
+                                    gobj.add(new ItemObjData(center.get('x'), center.get('y'), tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()), ti.getId()));
+                                    returnData.put(ti.getId(), gobj);
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return returnData;
+    }
+
     public void getInteractedObject(Client client) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Plugin qhp = pluginManager.getPlugins().stream()
                 .filter(e -> e.getName().equals("Interact Highlight"))

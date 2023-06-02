@@ -33,6 +33,7 @@ public class GameInfoPacket {
     String[] chatOptions;
     HashMap<Integer, ArrayList<ObjectUtil.GameObjData>> decorativeObjects;
     HashMap<Integer, ArrayList<ObjectUtil.ItemObjData>> groundItems;
+    HashMap<Integer, ArrayList<ObjectUtil.ItemObjData>> allGroundItems;
     int targetObj;
     int targetNPC;
     List<Inventory.Slot> equipmentInv;
