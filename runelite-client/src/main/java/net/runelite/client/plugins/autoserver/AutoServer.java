@@ -118,13 +118,10 @@ public class AutoServer extends Plugin {
             final JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
             if (jsonObject.get("varBit") != null) {
                 try {
-                    clientThread.invoke(() -> {
+                    invokeAndWait(() -> {
                         gip.varBit = client.getVarbitValue(jsonObject.get("varBit").getAsInt());
-                        return true;
+                        return null;
                     });
-                    // Varbit look ups are done on the client thread, and the call is run async. Wait at least 1 tick
-                    // to assure that it is populated.
-                    Thread.sleep(601);
                 } catch (Exception e) {
                     System.out.println("parsing error");
                     System.out.println(e);
@@ -136,7 +133,10 @@ public class AutoServer extends Plugin {
                     jsonObject.get("inv").getAsBoolean()
             ) {
                 Inventory inventory = new Inventory();
-                gip.inv = inventory.getInventory(client);
+                invokeAndWait(() -> {
+                    gip.inv = inventory.getInventory(client);
+                    return null;
+                });
             }
 
             if (
@@ -144,7 +144,10 @@ public class AutoServer extends Plugin {
                             (Boolean) jsonObject.get("equipmentInv").getAsBoolean()
             ) {
                 Inventory inventory = new Inventory();
-                gip.equipmentInv = inventory.getEquipmentInventory(client);
+                invokeAndWait(() -> {
+                    gip.equipmentInv = inventory.getEquipmentInventory(client);
+                    return null;
+                });
             }
 
             if (jsonObject.get("npcs") != null) {
@@ -161,7 +164,10 @@ public class AutoServer extends Plugin {
                     }
                 }
                 NPCs npcUtil = new NPCs();
-                gip.npcs = npcUtil.getNPCsByName(client, npcsToFind);
+                invokeAndWait(() -> {
+                    gip.npcs = npcUtil.getNPCsByName(client, npcsToFind);
+                    return null;
+                });
             }
 
             if (jsonObject.get("npcsID") != null) {
@@ -189,14 +195,20 @@ public class AutoServer extends Plugin {
                     jsonObject.get("bank").getAsBoolean()
             ) {
                 Bank bankUtil = new Bank();
-                gip.bankItems = bankUtil.getBankItems(client);
+                invokeAndWait(() -> {
+                    gip.bankItems = bankUtil.getBankItems(client);
+                    return null;
+                });
             }
 
             if (
                     jsonObject.get("dumpInvButton") != null && jsonObject.get("dumpInvButton").getAsBoolean()
             ) {
                 Bank bankUtil = new Bank();
-                gip.dumpInvButton = bankUtil.getDumpInventoryLoc(client);
+                invokeAndWait(() -> {
+                    gip.dumpInvButton = bankUtil.getDumpInventoryLoc(client);
+                    return null;
+                });
             }
 
             if (jsonObject.get("skills") != null) {
@@ -207,12 +219,18 @@ public class AutoServer extends Plugin {
                     jsonObject.get("isMining") != null &&
                     jsonObject.get("isMining").getAsBoolean()
             ) {
-                gip.isMining = playerUtil.isMining(client);
+                invokeAndWait(() -> {
+                    gip.isMining = playerUtil.isMining(client);
+                    return null;
+                });
             }
 
             if (jsonObject.get("tiles") != null) {
                 Tiles tileUtil = new Tiles();
-                gip.tiles = tileUtil.getTileData(client, jsonObject.get("tiles").getAsJsonArray());
+                invokeAndWait(() -> {
+                    gip.tiles = tileUtil.getTileData(client, jsonObject.get("tiles").getAsJsonArray());
+                    return null;
+                });
             }
 
             if (
@@ -220,95 +238,140 @@ public class AutoServer extends Plugin {
                     jsonObject.get("clickToPlay").getAsBoolean()
             ) {
                 Interfaces ifce = new Interfaces();
-                gip.clickToPlay = ifce.getClickToPlay(client);
+                invokeAndWait(() -> {
+                    gip.clickToPlay = ifce.getClickToPlay(client);
+                    return null;
+                });
             }
 
             if (jsonObject.get("gameObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
                 JsonArray s = jsonObject.get("gameObjects").getAsJsonArray();
-                gip.gameObjects = go.findGameObjects(client, s);
+                invokeAndWait(() -> {
+                    gip.gameObjects = go.findGameObjects(client, s);
+                    return null;
+                });
             }
 
             if (jsonObject.get("groundObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
                 JsonArray s = jsonObject.get("groundObjects").getAsJsonArray();
-                gip.groundObjects = go.findGroundObjects(client, s);
+                invokeAndWait(() -> {
+                    gip.groundObjects = go.findGroundObjects(client, s);
+                    return null;
+                });
             }
 
             if (jsonObject.get("wallObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
                 JsonArray s = jsonObject.get("wallObjects").getAsJsonArray();
-                gip.wallObjects = go.findWallObjects(client, s);
+                invokeAndWait(() -> {
+                    gip.wallObjects = go.findWallObjects(client, s);
+                    return null;
+                });
             }
 
             if (jsonObject.get("multipleGameObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
                 JsonArray s = jsonObject.get("multipleGameObjects").getAsJsonArray();
-                gip.multipleGameObjects= go.findMultipleGameObjects(client, s);
+                invokeAndWait(() -> {
+                    gip.multipleGameObjects = go.findMultipleGameObjects(client, s);
+                    return null;
+                });
             }
 
             if (
                     jsonObject.get("poseAnimation") != null && jsonObject.get("poseAnimation").getAsBoolean()
             ) {
                 Player pu = new Player();
-                gip.poseAnimation = pu.getPoseAnimation(client);
+                invokeAndWait(() -> {
+                    gip.poseAnimation = pu.getPoseAnimation(client);
+                    return null;
+                });
             }
 
             if (jsonObject.get("widget") != null) {
                 Interfaces ifce = new Interfaces();
-                gip.widget = ifce.getWidget(client, jsonObject.get("widget").getAsString());
+                invokeAndWait(() -> {
+                    gip.widget = ifce.getWidget(client, jsonObject.get("widget").getAsString());
+                    return null;
+                });
             }
 
             if (jsonObject.get("setYaw") != null) {
                 Utilities u = new Utilities();
-                u.setYaw(client, jsonObject.get("setYaw").getAsInt());
+                invokeAndWait(() -> {
+                    u.setYaw(client, jsonObject.get("setYaw").getAsInt());
+                    return null;
+                });
             }
 
             if (
                     jsonObject.get("playerWorldPoint") != null && jsonObject.get("playerWorldPoint").getAsBoolean()
             ) {
                 Utilities u = new Utilities();
-                gip.playerWorldPoint = u.getPlayerWorldPoint(client);
+                invokeAndWait(() -> {
+                    gip.playerWorldPoint = u.getPlayerWorldPoint(client);
+                    return null;
+                });
             }
 
             if (
                     jsonObject.get("interactingWith") != null && jsonObject.get("interactingWith").getAsBoolean()
             ) {
                 Player pu = new Player();
-                gip.interactingWith = pu.getInteractingWith(client);
+                invokeAndWait(() -> {
+                    gip.interactingWith = pu.getInteractingWith(client);
+                    return null;
+                });
             }
 
             if (
                     jsonObject.get("isFishing") != null && jsonObject.get("isFishing").getAsBoolean()
             ) {
                 Player pu = new Player();
-                gip.isFishing = pu.isFishing(client);
+                invokeAndWait(() -> {
+                    gip.isFishing = pu.isFishing(client);
+                    return null;
+                });
             }
 
             if (
                     jsonObject.get("chatOptions") != null && jsonObject.get("chatOptions").getAsBoolean()
             ) {
                 Interfaces ifce = new Interfaces();
-                gip.chatOptions = ifce.getChatOptions(client);
+                invokeAndWait(() -> {
+                    gip.chatOptions = ifce.getChatOptions(client);
+                    return null;
+                });
             }
 
             if (
                     jsonObject.get("playerAnimation") != null && jsonObject.get("playerAnimation").getAsBoolean()
             ) {
-                gip.playerAnimation = client.getLocalPlayer().getAnimation();
+                invokeAndWait(() -> {
+                    gip.playerAnimation = client.getLocalPlayer().getAnimation();
+                    return null;
+                });
             }
 
             if (
                     jsonObject.get("getMenuEntries") != null && jsonObject.get("getMenuEntries").getAsBoolean()
             ) {
                 Interfaces ifce = new Interfaces();
-                gip.menuEntries = ifce.getMenuEntries(client);
+                invokeAndWait(() -> {
+                    gip.menuEntries = ifce.getMenuEntries(client);
+                    return null;
+                });
             }
 
             if (jsonObject.get("decorativeObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
                 JsonArray s = jsonObject.get("decorativeObjects").getAsJsonArray();
-                gip.decorativeObjects = go.findDecorativeObjects(client, s);
+                invokeAndWait(() -> {
+                    gip.decorativeObjects = go.findDecorativeObjects(client, s);
+                    return null;
+                });
             }
 
             if (jsonObject.get("npcsToKill") != null) {
@@ -325,14 +388,20 @@ public class AutoServer extends Plugin {
                     }
                 }
                 NPCs npcUtil = new NPCs();
-                gip.npcs = npcUtil.getNPCsByToKill(client, npcsToFind);
+                invokeAndWait(() -> {
+                    gip.npcs = npcUtil.getNPCsByToKill(client, npcsToFind);
+                    return null;
+                });
             }
 
             if (jsonObject.get("groundItems") != null) {
                 JsonArray s = jsonObject.get("groundItems").getAsJsonArray();
                 ObjectUtil go = new ObjectUtil();
                 try {
-                    gip.groundItems = go.getGroundItems(client, s);
+                    invokeAndWait(() -> {
+                        gip.groundItems = go.getGroundItems(client, s);
+                        return null;
+                    });
                 } catch (Exception e) {
                     System.out.println("eeee");
                     System.out.println(e);
@@ -352,11 +421,14 @@ public class AutoServer extends Plugin {
 
             if (jsonObject.get("projectiles") != null && jsonObject.get("projectiles").getAsBoolean()) {
                 HashSet<Integer> projs = new HashSet<>();
-                for (Projectile p : client.getProjectiles()) {
-                    projs.add(p.getId());
-                }
+                invokeAndWait(() -> {
+                    for (Projectile p : client.getProjectiles()) {
+                        projs.add(p.getId());
+                    }
 
-                gip.projectiles = projs;
+                    gip.projectiles = projs;
+                    return null;
+                });
             }
 
 
