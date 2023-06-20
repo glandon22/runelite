@@ -20,10 +20,10 @@ public class GameInfoPacket {
     boolean isFishing;
     HashMap<String, Tiles.TileData> tiles;
     Interfaces.InterfaceData clickToPlay;
-    HashMap<Integer, ObjectUtil.EnhancedGameObjData> gameObjects;
-    HashMap<Integer, ObjectUtil.GameObjData> groundObjects;
-    HashMap<Integer, ArrayList<ObjectUtil.EnhancedGameObjData>> wallObjects;
-    HashMap<Integer, ArrayList<ObjectUtil.EnhancedGameObjData>> multipleGameObjects;
+    HashMap<Integer, ObjectUtil.EnhancedObjData> gameObjects;
+    HashMap<Integer, ObjectUtil.EnhancedObjData> groundObjects;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> wallObjects;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> multipleGameObjects;
     int poseAnimation;
     int playerAnimation;
     int varBit;
@@ -31,12 +31,13 @@ public class GameInfoPacket {
     Utilities.PointData playerWorldPoint;
     String interactingWith;
     String[] chatOptions;
-    HashMap<Integer, ArrayList<ObjectUtil.GameObjData>> decorativeObjects;
-    HashMap<Integer, ArrayList<ObjectUtil.ItemObjData>> groundItems;
-    HashMap<Integer, ArrayList<ObjectUtil.ItemObjData>> allGroundItems;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> decorativeObjects;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> groundItems;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> allGroundItems;
     int targetObj;
     int targetNPC;
     List<Inventory.Slot> equipmentInv;
     java.awt.List menuEntries;
     HashSet<Integer> projectiles;
+    Interfaces.RightClickMenu rightClickMenu;
 }

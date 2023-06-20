@@ -20,31 +20,15 @@ import java.util.List;
 public class ObjectUtil {
     @Inject
     private PluginManager pluginManager;
-    @Value
-    public static class GameObjData
-    {
-        int x;
-        int y;
-        int dist;
-    }
 
     @Value
-    public static class EnhancedGameObjData
+    public static class EnhancedObjData
     {
         int x;
         int y;
         int dist;
         int x_coord;
         int y_coord;
-        int id;
-    }
-
-    @Value
-    public static class ItemObjData
-    {
-        int x;
-        int y;
-        int dist;
         int id;
     }
 
@@ -90,8 +74,8 @@ public class ObjectUtil {
         );
     }
 
-    public HashMap<Integer, EnhancedGameObjData> findGameObjects(Client client, JsonArray gameObjectsToFind) {
-        HashMap<Integer, EnhancedGameObjData> returnData = new HashMap<>();
+    public HashMap<Integer, EnhancedObjData> findGameObjects(Client client, JsonArray gameObjectsToFind) {
+        HashMap<Integer, EnhancedObjData> returnData = new HashMap<>();
         ParsedTilesAndObjects ptao = parseTilesAndObjects(gameObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
         ArrayList<WorldPoint> wps = ptao.wps;
@@ -112,7 +96,7 @@ public class ObjectUtil {
                                 HashMap<Character, Integer> center = u.getCenter(r);
                                 if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                     //return key value pair key object id and values of x adn y
-                                    returnData.put(g.getId(), new EnhancedGameObjData(
+                                    returnData.put(g.getId(), new EnhancedObjData(
                                             center.get('x'),
                                             center.get('y'),
                                             g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
@@ -131,8 +115,8 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, GameObjData> findGroundObjects(Client client, JsonArray groundObjectsToFind) {
-        HashMap<Integer, GameObjData> returnData = new HashMap<>();
+    public HashMap<Integer, EnhancedObjData> findGroundObjects(Client client, JsonArray groundObjectsToFind) {
+        HashMap<Integer, EnhancedObjData> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(groundObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
@@ -154,7 +138,17 @@ public class ObjectUtil {
                         Rectangle r = s.getBounds();
                         HashMap<Character, Integer> center = u.getCenter(r);
                         if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
-                            returnData.put(wo.getId(), new GameObjData(center.get('x'), center.get('y'), wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
+                            returnData.put(
+                                    wo.getId(),
+                                    new EnhancedObjData(
+                                            center.get('x'),
+                                            center.get('y'),
+                                            wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                            wp.getX(),
+                                            wp.getY(),
+                                            wo.getId()
+                                    )
+                            );
                         }
                     }
                 }
@@ -163,8 +157,8 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<EnhancedGameObjData>> findWallObjects(Client client, JsonArray wallObjectsToFind) {
-        HashMap<Integer, ArrayList<EnhancedGameObjData>> returnData = new HashMap<>();
+    public HashMap<Integer, ArrayList<EnhancedObjData>> findWallObjects(Client client, JsonArray wallObjectsToFind) {
+        HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(wallObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
@@ -186,9 +180,10 @@ public class ObjectUtil {
                                 HashMap<Character, Integer> center = u.getCenter(r);
                                 if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                     if (returnData.get(wo.getId()) != null) {
-                                        ArrayList<EnhancedGameObjData> gobj = returnData.get(wo.getId());
-                                        gobj.add(new EnhancedGameObjData(
-                                                    center.get('x'), center.get('y'),
+                                        ArrayList<EnhancedObjData> gobj = returnData.get(wo.getId());
+                                        gobj.add(new EnhancedObjData(
+                                                    center.get('x'),
+                                                    center.get('y'),
                                                     wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                                     tile.getWorldLocation().getX(),
                                                     tile.getWorldLocation().getY(),
@@ -199,9 +194,10 @@ public class ObjectUtil {
                                     }
 
                                     else {
-                                        ArrayList<EnhancedGameObjData> gobj = new ArrayList<>();
-                                        gobj.add(new EnhancedGameObjData(
-                                                        center.get('x'), center.get('y'),
+                                        ArrayList<EnhancedObjData> gobj = new ArrayList<>();
+                                        gobj.add(new EnhancedObjData(
+                                                        center.get('x'),
+                                                        center.get('y'),
                                                         wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                                         tile.getWorldLocation().getX(),
                                                         tile.getWorldLocation().getY(),
@@ -221,8 +217,8 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<EnhancedGameObjData>> findMultipleGameObjects(Client client, JsonArray gameObjectsToFind) {
-        HashMap<Integer, ArrayList<EnhancedGameObjData>> returnData = new HashMap<>();
+    public HashMap<Integer, ArrayList<EnhancedObjData>> findMultipleGameObjects(Client client, JsonArray gameObjectsToFind) {
+        HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(gameObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
@@ -245,9 +241,9 @@ public class ObjectUtil {
                                 //return key value pair key object id and values of x adn y
                                 //returnData.put(g.getId(), new GameObjData(center.get('x'), center.get('y'), g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
                                 if (returnData.get(g.getId()) != null) {
-                                    ArrayList<EnhancedGameObjData> gobj = returnData.get(g.getId());
+                                    ArrayList<EnhancedObjData> gobj = returnData.get(g.getId());
                                     gobj.add(
-                                            new EnhancedGameObjData(
+                                            new EnhancedObjData(
                                                     center.get('x'),
                                                     center.get('y'),
                                                     g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
@@ -260,9 +256,9 @@ public class ObjectUtil {
                                 }
 
                                 else {
-                                    ArrayList<EnhancedGameObjData> gobj = new ArrayList<>();
+                                    ArrayList<EnhancedObjData> gobj = new ArrayList<>();
                                     gobj.add(
-                                            new EnhancedGameObjData(
+                                            new EnhancedObjData(
                                                     center.get('x'),
                                                     center.get('y'),
                                                     g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
@@ -283,8 +279,8 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<GameObjData>> findDecorativeObjects(Client client, JsonArray wallObjectsToFind) {
-        HashMap<Integer, ArrayList<GameObjData>> returnData = new HashMap<>();
+    public HashMap<Integer, ArrayList<EnhancedObjData>> findDecorativeObjects(Client client, JsonArray wallObjectsToFind) {
+        HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(wallObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
@@ -306,14 +302,28 @@ public class ObjectUtil {
                                 HashMap<Character, Integer> center = u.getCenter(r);
                                 if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                     if (returnData.get(wo.getId()) != null) {
-                                        ArrayList<GameObjData> gobj = returnData.get(wo.getId());
-                                        gobj.add(new GameObjData(center.get('x'), center.get('y'), wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
+                                        ArrayList<EnhancedObjData> gobj = returnData.get(wo.getId());
+                                        gobj.add(new EnhancedObjData(
+                                                center.get('x'),
+                                                center.get('y'),
+                                                wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                wp.getX(),
+                                                wp.getY(),
+                                                wo.getId()
+                                        ));
                                         returnData.put(wo.getId(), gobj);
                                     }
 
                                     else {
-                                        ArrayList<GameObjData> gobj = new ArrayList<>();
-                                        gobj.add(new GameObjData(center.get('x'), center.get('y'), wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
+                                        ArrayList<EnhancedObjData> gobj = new ArrayList<>();
+                                        gobj.add(new EnhancedObjData(
+                                                center.get('x'),
+                                                center.get('y'),
+                                                wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                wp.getX(),
+                                                wp.getY(),
+                                                wo.getId()
+                                        ));
                                         returnData.put(wo.getId(), gobj);
                                     }
 
@@ -327,8 +337,8 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<ItemObjData>> getGroundItems(Client client, JsonArray itemsToFind) {
-        HashMap<Integer, ArrayList<ItemObjData>> returnData = new HashMap<>();
+    public HashMap<Integer, ArrayList<EnhancedObjData>> getGroundItems(Client client, JsonArray itemsToFind) {
+        HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
@@ -344,20 +354,39 @@ public class ObjectUtil {
                     List<TileItem> wo = tile.getGroundItems();
                     if (wo != null) {
                         for (TileItem ti: wo) {
-                            if (RELEVANT_OBJECTS.contains(ti.getId())) {
+                            // 9999999 is a hack to search for any items on a tile. I should improve this
+                            if (RELEVANT_OBJECTS.contains(9999999) || RELEVANT_OBJECTS.contains(ti.getId())) {
                                 final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
                                 Rectangle r = poly.getBounds();
                                 HashMap<Character, Integer> center = u.getCenter(r);
                                 if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                     if (returnData.get(ti.getId()) != null) {
-                                        ArrayList<ItemObjData> gobj = returnData.get(ti.getId());
-                                        gobj.add(new ItemObjData(center.get('x'), center.get('y'), tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()), ti.getId()));
+                                        ArrayList<EnhancedObjData> gobj = returnData.get(ti.getId());
+                                        gobj.add(
+                                                new EnhancedObjData(
+                                                        center.get('x'),
+                                                        center.get('y'),
+                                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                        wp.getX(),
+                                                        wp.getY(),
+                                                        ti.getId()
+                                                )
+                                        );
                                         returnData.put(ti.getId(), gobj);
                                     }
 
                                     else {
-                                        ArrayList<ItemObjData> gobj = new ArrayList<>();
-                                        gobj.add(new ItemObjData(center.get('x'), center.get('y'), tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()), ti.getId()));
+                                        ArrayList<EnhancedObjData> gobj = new ArrayList<>();
+                                        gobj.add(
+                                                new EnhancedObjData(
+                                                        center.get('x'),
+                                                        center.get('y'),
+                                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                        wp.getX(),
+                                                        wp.getY(),
+                                                        ti.getId()
+                                                )
+                                        );
                                         returnData.put(ti.getId(), gobj);
                                     }
 
@@ -371,8 +400,8 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<ItemObjData>> getGroundItemsAnyId(Client client, JsonArray itemsToFind) {
-        HashMap<Integer, ArrayList<ItemObjData>> returnData = new HashMap<>();
+    public HashMap<Integer, ArrayList<EnhancedObjData>> getGroundItemsAnyId(Client client, JsonArray itemsToFind) {
+        HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
         ArrayList<WorldPoint> wps = ptao.wps;
@@ -387,19 +416,38 @@ public class ObjectUtil {
                     List<TileItem> wo = tile.getGroundItems();
                     if (wo != null) {
                         for (TileItem ti: wo) {
+                            System.out.println("wp coords");
+                            System.out.println(wp.getX());
+                            System.out.println(wp.getY());
                             final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
                             Rectangle r = poly.getBounds();
                             HashMap<Character, Integer> center = u.getCenter(r);
                             if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                 if (returnData.get(ti.getId()) != null) {
-                                    ArrayList<ItemObjData> gobj = returnData.get(ti.getId());
-                                    gobj.add(new ItemObjData(center.get('x'), center.get('y'), tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()), ti.getId()));
+                                    ArrayList<EnhancedObjData> gobj = returnData.get(ti.getId());
+                                    gobj.add(new EnhancedObjData(
+                                            center.get('x'),
+                                            center.get('y'),
+                                            tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                            wp.getX(),
+                                            wp.getY(),
+                                            ti.getId())
+                                    );
                                     returnData.put(ti.getId(), gobj);
                                 }
 
                                 else {
-                                    ArrayList<ItemObjData> gobj = new ArrayList<>();
-                                    gobj.add(new ItemObjData(center.get('x'), center.get('y'), tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()), ti.getId()));
+                                    ArrayList<EnhancedObjData> gobj = new ArrayList<>();
+                                    gobj.add(
+                                            new EnhancedObjData(
+                                                    center.get('x'),
+                                                    center.get('y'),
+                                                    tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                    wp.getX(),
+                                                    wp.getY(),
+                                                    ti.getId()
+                                            )
+                                    );
                                     returnData.put(ti.getId(), gobj);
                                 }
 

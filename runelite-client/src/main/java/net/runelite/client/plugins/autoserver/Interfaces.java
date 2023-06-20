@@ -8,6 +8,7 @@ import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
 import java.awt.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -16,6 +17,15 @@ public class Interfaces {
     public static class InterfaceData {
         int x;
         int y;
+    }
+
+    @Value
+    public static class RightClickMenu {
+        int x;
+        int y;
+        int width;
+        int height;
+        Object[] entries;
     }
 
     @Value
@@ -100,5 +110,14 @@ public class Interfaces {
             return menuItems;
         }
         return null;
+    }
+
+    public RightClickMenu getRightClickMenuEntries(Client client) {
+        final int menuX = client.getMenuX();
+        final int menuY = client.getMenuY();
+        final int menuWidth = client.getMenuWidth();
+        final int menuH = client.getMenuHeight();
+        final MenuEntry[] menuEntries = client.getMenuEntries();
+        return new RightClickMenu(menuX, menuY, menuWidth, menuH, Arrays.stream(menuEntries).toArray());
     }
 }

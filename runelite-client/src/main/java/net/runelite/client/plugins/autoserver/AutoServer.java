@@ -443,6 +443,19 @@ public class AutoServer extends Plugin {
                 gip.targetNPC = ((Number) qh).intValue();
             }
 
+            if (jsonObject.get("rightClick") != null && jsonObject.get("rightClick").getAsBoolean()) {
+                Interfaces i = new Interfaces();
+                try {
+                    invokeAndWait(() -> {
+                        gip.rightClickMenu = i.getRightClickMenuEntries(client);
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println("eeee");
+                    System.out.println(e);
+                }
+            }
+
             if (jsonObject.get("allGroundItems") != null) {
                 JsonArray s = jsonObject.get("allGroundItems").getAsJsonArray();
                 ObjectUtil go = new ObjectUtil();
