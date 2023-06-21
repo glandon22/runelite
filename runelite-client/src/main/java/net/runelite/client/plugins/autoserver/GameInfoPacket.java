@@ -40,4 +40,6 @@ public class GameInfoPacket {
     java.awt.List menuEntries;
     HashSet<Integer> projectiles;
     Interfaces.RightClickMenu rightClickMenu;
+
+    ArrayList<NPCs.NpcPacket> players;
 }

@@ -140,6 +140,17 @@ public class AutoServer extends Plugin {
             }
 
             if (
+                    jsonObject.get("players") != null &&
+                            jsonObject.get("players").getAsBoolean()
+            ) {
+                NPCs npcUtil = new NPCs();
+                invokeAndWait(() -> {
+                    gip.players = npcUtil.getNearbyPlayers(client);
+                    return null;
+                });
+            }
+
+            if (
                     jsonObject.get("equipmentInv") != null &&
                             (Boolean) jsonObject.get("equipmentInv").getAsBoolean()
             ) {
