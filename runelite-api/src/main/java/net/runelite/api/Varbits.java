@@ -520,7 +520,15 @@ public final class Varbits
 	public static final int AUTOWEED = 5557;
 
 	/**
-	 * The varbit that stores the players {@code AccountType}.
+	 * The player's account type.
+	 * <p>
+	 * 0 = normal
+	 * 1 = ironman
+	 * 2 = ultimate ironman
+	 * 3 = hardcore ironman
+	 * 4 = group ironman
+	 * 5 = hardcore group ironman
+	 * 6 = unranked group ironman
 	 */
 	public static final int ACCOUNT_TYPE = 1777;
 
@@ -585,6 +593,7 @@ public final class Varbits
 	/**
 	 * Spell cooldowns
 	 */
+	public static final int HEAL_GROUP_COOLDOWN = 925;
 	public static final int VENGEANCE_COOLDOWN = 2451;
 	public static final int DEATH_CHARGE_COOLDOWN = 12138;
 	public static final int CORRUPTION_COOLDOWN = 12288;
@@ -804,4 +813,17 @@ public final class Varbits
 	 * Set to 20 upon drinking an overload.
 	 */
 	public static final int COX_OVERLOAD_REFRESHES_REMAINING = 5418;
+
+	public static final int SLAYER_POINTS = 4068;
+	public static final int SLAYER_TASK_STREAK = 4069;
+
+	/**
+	 * The assigned boss for boss slayer.
+	 */
+	public static final int SLAYER_TASK_BOSS = 4723;
+
+	/**
+	 * Whether the level up interface is disabled
+	 */
+	public static final int DISABLE_LEVEL_UP_INTERFACE = 9452;
 }

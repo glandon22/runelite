@@ -31,7 +31,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -78,8 +77,13 @@ public class ExternalPluginClient
 
 	public List<ExternalPluginManifest> downloadManifest() throws IOException, VerificationException
 	{
-		System.out.println(RuneLiteProperties.getPluginHubBase());
-		try (Response res = okHttpClient.newCall(new Request.Builder().url("https://repo.runelite.net/plugins/1.9.8/manifest.js").build()).execute())
+		String ss = RuneLiteProperties.getPluginHubBase().toString();
+		String[] parts = ss.split("-");
+		String cc = parts[0].substring(parts[0].length() - 1);
+		String modified = String.valueOf(Integer.parseInt(cc) - 1);
+		String output = parts[0].substring(0, parts[0].length() - 1).concat(modified);
+		HttpUrl manifest = HttpUrl.get(output + "/manifest.js").newBuilder().build();
+		try (Response res = okHttpClient.newCall(new Request.Builder().url(manifest).build()).execute())
 		{
 			if (res.code() != 200)
 			{
@@ -196,7 +200,7 @@ public class ExternalPluginClient
 			}
 
 			// CHECKSTYLE:OFF
-			return gson.fromJson(new InputStreamReader(res.body().byteStream()), new TypeToken<Map<String, Integer>>(){}.getType());
+			return gson.fromJson(res.body().string(), new TypeToken<Map<String, Integer>>(){}.getType());
 			// CHECKSTYLE:ON
 		}
 		catch (JsonSyntaxException ex)

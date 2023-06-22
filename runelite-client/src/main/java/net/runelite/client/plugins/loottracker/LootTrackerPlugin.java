@@ -116,7 +116,6 @@ import net.runelite.client.util.ImageUtil;
 import net.runelite.client.util.QuantityFormatter;
 import net.runelite.client.util.Text;
 import net.runelite.http.api.loottracker.GameItem;
-import net.runelite.http.api.loottracker.LootAggregate;
 import net.runelite.http.api.loottracker.LootRecord;
 import net.runelite.http.api.loottracker.LootRecordType;
 import org.apache.commons.text.WordUtils;
@@ -762,7 +761,7 @@ public class LootTrackerPlugin extends Plugin
 			.map(item -> new ItemStack(item.getId(), item.getQuantity(), client.getLocalPlayer().getLocalLocation()))
 			.collect(Collectors.toList());
 
-		if (config.showRaidsLootValue() && (event.equals(THEATRE_OF_BLOOD) || event.equals(CHAMBERS_OF_XERIC)) || event.equals(TOMBS_OF_AMASCUT))
+		if (config.showRaidsLootValue() && (event.equals(THEATRE_OF_BLOOD) || event.equals(CHAMBERS_OF_XERIC) || event.equals(TOMBS_OF_AMASCUT)))
 		{
 			long totalValue = items.stream()
 				.filter(item -> item.getId() > -1)
@@ -1300,21 +1299,6 @@ public class LootTrackerPlugin extends Plugin
 		return items.stream()
 			.map(item -> new GameItem(item.getId(), item.getQuantity()))
 			.collect(Collectors.toList());
-	}
-
-	private Collection<LootTrackerRecord> convertToLootTrackerRecord(final Collection<LootAggregate> records)
-	{
-		return records.stream()
-			.sorted(Comparator.comparing(LootAggregate::getLast_time))
-			.map(record ->
-			{
-				LootTrackerItem[] drops = record.getDrops().stream().map(itemStack ->
-					buildLootTrackerItem(itemStack.getId(), itemStack.getQty())
-				).toArray(LootTrackerItem[]::new);
-
-				return new LootTrackerRecord(record.getEventId(), "", record.getType(), drops, record.getAmount());
-			})
-			.collect(Collectors.toCollection(ArrayList::new));
 	}
 
 	private LootTrackerRecord convertToLootTrackerRecord(final ConfigLoot configLoot)

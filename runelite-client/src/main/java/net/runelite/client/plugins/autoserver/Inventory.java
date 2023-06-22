@@ -29,15 +29,9 @@ public class Inventory {
 
     private static WidgetItem getWidgetItem(Widget parentWidget, int idx)
     {
-        if (parentWidget.isIf3())
-        {
-            Widget wi = parentWidget.getChild(idx);
-            return new WidgetItem(wi.getItemId(), wi.getItemQuantity(), -1, wi.getBounds(), parentWidget, wi.getBounds());
-        }
-        else
-        {
-            return parentWidget.getWidgetItem(idx);
-        }
+        assert parentWidget.isIf3();
+        Widget wi = parentWidget.getChild(idx);
+        return new WidgetItem(wi.getItemId(), wi.getItemQuantity(), wi.getBounds(), parentWidget, wi.getBounds());
     }
 
     public List<Slot> getInventory(Client client) {
@@ -45,11 +39,12 @@ public class Inventory {
             List<Slot> inv = null;
             ItemContainer ic = client.getItemContainer(InventoryID.INVENTORY);
             if (ic != null) {
-                Item[] items = client.getItemContainer(InventoryID.INVENTORY).getItems();
+                Item[] items = ic.getItems();
                 inv = new ArrayList<Slot>();
+                Widget invWidget = client.getWidget(WidgetInfo.INVENTORY);
                 for (int i = 0; i < items.length; ++i) {
-                    if (items[i] != null && items[i].getId() > 0) {
-                        final WidgetItem targetWidgetItem = getWidgetItem(client.getWidget(WidgetInfo.INVENTORY), i);
+                    if (items[i] != null && items[i].getId() > 0 && invWidget != null) {
+                        final WidgetItem targetWidgetItem = getWidgetItem(invWidget, i);
                         final Rectangle r = targetWidgetItem.getCanvasBounds(false);
                         Utilities u = new Utilities();
                         HashMap<Character, Integer> center = u.getCenter(r);
@@ -64,7 +59,7 @@ public class Inventory {
             }
             return inv;
         } catch (Exception e) {
-            System.out.println("Exception while parsing inventory");
+            System.out.println("Exception while parsing inventory111111");
             System.out.println(e.getMessage());
             System.out.println(e.getCause());
             System.out.println(Arrays.toString(e.getStackTrace()));

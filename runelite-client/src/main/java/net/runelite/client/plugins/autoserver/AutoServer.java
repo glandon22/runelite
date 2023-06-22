@@ -1,21 +1,21 @@
 package net.runelite.client.plugins.autoserver;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import lombok.Value;
 import net.runelite.api.Client;
+import net.runelite.api.Deque;
+import net.runelite.api.Projectile;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import org.apache.commons.compress.utils.IOUtils;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -27,8 +27,11 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicReference;
 
 @PluginDescriptor(
         name = "AutoServer",
@@ -49,10 +52,40 @@ public class AutoServer extends Plugin {
     @Inject private PluginManager pluginManager;
 
     @Inject
-    private Client client;
+    public Client client;
 
     @Inject
     private ClientThread clientThread;
+
+    private <T> T invokeAndWait(Callable<T> r)
+    {
+        try
+        {
+            AtomicReference<T> ref = new AtomicReference<>();
+            Semaphore semaphore = new Semaphore(0);
+            clientThread.invokeLater(() -> {
+                try
+                {
+
+                    ref.set(r.call());
+                }
+                catch (Exception e)
+                {
+                    throw new RuntimeException(e);
+                }
+                finally
+                {
+                    semaphore.release();
+                }
+            });
+            semaphore.acquire();
+            return ref.get();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 
     private class MyHttpHandler implements HttpHandler {
         @Override
@@ -69,10 +102,10 @@ public class AutoServer extends Plugin {
             GameInfoPacket gip = new GameInfoPacket();
             Player playerUtil = new Player();
             OutputStream outputStream = httpExchange.getResponseBody();
-            String text = new String(reqBody.readAllBytes(), CHARSET);
-            Object obj = null;
+            byte[] bytes = IOUtils.toByteArray(reqBody);
+            String text = new String(bytes, CHARSET);
             try {
-                obj = new JSONParser().parse(text);
+                JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
             } catch (Exception e) {
                 String resText = "Exception while trying to parse request body.";
                 httpExchange.sendResponseHeaders(403, resText.length());
@@ -82,17 +115,13 @@ public class AutoServer extends Plugin {
                 outputStream.close();
                 return;
             }
-
-            JSONObject parsedRequestBody = (JSONObject) obj;
-            if (parsedRequestBody.get("varBit") != null) {
+            final JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
+            if (jsonObject.get("varBit") != null) {
                 try {
-                    clientThread.invoke(() -> {
-                        gip.varBit = client.getVarbitValue(Integer.parseInt((String) parsedRequestBody.get("varBit")));
-                        return true;
+                    invokeAndWait(() -> {
+                        gip.varBit = client.getVarbitValue(jsonObject.get("varBit").getAsInt());
+                        return null;
                     });
-                    // Varbit look ups are done on the client thread, and the call is run async. Wait at least 1 tick
-                    // to assure that it is populated.
-                    Thread.sleep(601);
                 } catch (Exception e) {
                     System.out.println("parsing error");
                     System.out.println(e);
@@ -100,190 +129,286 @@ public class AutoServer extends Plugin {
             }
 
             if (
-                    parsedRequestBody.get("inv") != null &&
-                    (Boolean) parsedRequestBody.get("inv")
+                    jsonObject.get("inv") != null &&
+                    jsonObject.get("inv").getAsBoolean()
             ) {
                 Inventory inventory = new Inventory();
-                gip.inv = inventory.getInventory(client);
+                invokeAndWait(() -> {
+                    gip.inv = inventory.getInventory(client);
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("equipmentInv") != null &&
-                            (Boolean) parsedRequestBody.get("equipmentInv")
+                    jsonObject.get("equipmentInv") != null &&
+                            (Boolean) jsonObject.get("equipmentInv").getAsBoolean()
             ) {
                 Inventory inventory = new Inventory();
-                gip.equipmentInv = inventory.getEquipmentInventory(client);
+                invokeAndWait(() -> {
+                    gip.equipmentInv = inventory.getEquipmentInventory(client);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("npcs") != null) {
-                JSONArray test = (JSONArray) parsedRequestBody.get("npcs");
-                Object[] parse = test.toArray();
+            if (jsonObject.get("npcs") != null) {
+                JsonArray test = jsonObject.get("npcs").getAsJsonArray();
                 HashSet<String> npcsToFind = new HashSet<>();
-                for (Object o : parse) {
-                    String npcName = (String) o;
-                    npcsToFind.add(npcName);
+                for (JsonElement elem : test) {
+                    try {
+                        String tileHash = elem.toString().replace("\"", "");
+                        npcsToFind.add(tileHash);
+
+                    } catch (Exception e) {
+                        System.out.println("Failed to find tile data for npc: ");
+                        System.out.println(elem);
+                    }
                 }
                 NPCs npcUtil = new NPCs();
-                gip.npcs = npcUtil.getNPCsByName(client, npcsToFind);
+                invokeAndWait(() -> {
+                    gip.npcs = npcUtil.getNPCsByName(client, npcsToFind);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("npcsID") != null) {
-                JSONArray test = (JSONArray) parsedRequestBody.get("npcsID");
-                Object[] parse = test.toArray();
+            if (jsonObject.get("npcsID") != null) {
+                JsonArray test = jsonObject.get("npcsID").getAsJsonArray();
                 HashSet<String> npcsToFind = new HashSet<>();
-                for (Object o : parse) {
-                    String npcName = (String) o;
-                    npcsToFind.add(npcName);
+                for (JsonElement elem : test) {
+                    try {
+                        String tileHash = elem.toString().replace("\"", "");
+                        npcsToFind.add(tileHash);
+
+                    } catch (Exception e) {
+                        System.out.println("Failed to find tile data for npc: ");
+                        System.out.println(elem);
+                    }
                 }
                 NPCs npcUtil = new NPCs();
-                gip.npcs = npcUtil.getNPCsByID(client, npcsToFind);
+                invokeAndWait(() -> {
+                    gip.npcs = npcUtil.getNPCsByID(client, npcsToFind);
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("bank") != null &&
-                    (Boolean) parsedRequestBody.get("bank")
+                    jsonObject.get("bank") != null &&
+                    jsonObject.get("bank").getAsBoolean()
             ) {
                 Bank bankUtil = new Bank();
-                gip.bankItems = bankUtil.getBankItems(client);
+                invokeAndWait(() -> {
+                    gip.bankItems = bankUtil.getBankItems(client);
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("dumpInvButton") != null &&
-                            (Boolean) parsedRequestBody.get("dumpInvButton")
+                    jsonObject.get("dumpInvButton") != null && jsonObject.get("dumpInvButton").getAsBoolean()
             ) {
                 Bank bankUtil = new Bank();
-                gip.dumpInvButton = bankUtil.getDumpInventoryLoc(client);
+                invokeAndWait(() -> {
+                    gip.dumpInvButton = bankUtil.getDumpInventoryLoc(client);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("skills") != null) {
-                gip.skills = playerUtil.getSkillData(client, parsedRequestBody.get("skills"));
+            if (jsonObject.get("skills") != null) {
+                gip.skills = playerUtil.getSkillData(client, jsonObject.get("skills").getAsJsonArray());
             }
 
             if (
-                    parsedRequestBody.get("isMining") != null &&
-                    (Boolean) parsedRequestBody.get("isMining")
+                    jsonObject.get("isMining") != null &&
+                    jsonObject.get("isMining").getAsBoolean()
             ) {
-                gip.isMining = playerUtil.isMining(client);
+                invokeAndWait(() -> {
+                    gip.isMining = playerUtil.isMining(client);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("tiles") != null) {
+            if (jsonObject.get("tiles") != null) {
                 Tiles tileUtil = new Tiles();
-                gip.tiles = tileUtil.getTileData(client, parsedRequestBody.get("tiles"));
+                invokeAndWait(() -> {
+                    gip.tiles = tileUtil.getTileData(client, jsonObject.get("tiles").getAsJsonArray());
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("clickToPlay") != null &&
-                    (Boolean) parsedRequestBody.get("clickToPlay")
+                    jsonObject.get("clickToPlay") != null &&
+                    jsonObject.get("clickToPlay").getAsBoolean()
             ) {
                 Interfaces ifce = new Interfaces();
-                gip.clickToPlay = ifce.getClickToPlay(client);
+                invokeAndWait(() -> {
+                    gip.clickToPlay = ifce.getClickToPlay(client);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("gameObjects") != null) {
+            if (jsonObject.get("gameObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
-                gip.gameObjects = go.findGameObjects(client, parsedRequestBody.get("gameObjects"));
+                JsonArray s = jsonObject.get("gameObjects").getAsJsonArray();
+                invokeAndWait(() -> {
+                    gip.gameObjects = go.findGameObjects(client, s);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("groundObjects") != null) {
+            if (jsonObject.get("groundObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
-                gip.groundObjects = go.findGroundObjects(client, parsedRequestBody.get("groundObjects"));
+                JsonArray s = jsonObject.get("groundObjects").getAsJsonArray();
+                invokeAndWait(() -> {
+                    gip.groundObjects = go.findGroundObjects(client, s);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("wallObjects") != null) {
+            if (jsonObject.get("wallObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
-                gip.wallObjects = go.findWallObjects(client, parsedRequestBody.get("wallObjects"));
+                JsonArray s = jsonObject.get("wallObjects").getAsJsonArray();
+                invokeAndWait(() -> {
+                    gip.wallObjects = go.findWallObjects(client, s);
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("multipleGameObjects") != null) {
+                ObjectUtil go = new ObjectUtil();
+                JsonArray s = jsonObject.get("multipleGameObjects").getAsJsonArray();
+                invokeAndWait(() -> {
+                    gip.multipleGameObjects = go.findMultipleGameObjects(client, s);
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("poseAnimation") != null &&
-                            (Boolean) parsedRequestBody.get("poseAnimation")
+                    jsonObject.get("poseAnimation") != null && jsonObject.get("poseAnimation").getAsBoolean()
             ) {
                 Player pu = new Player();
-                gip.poseAnimation = pu.getPoseAnimation(client);
+                invokeAndWait(() -> {
+                    gip.poseAnimation = pu.getPoseAnimation(client);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("widget") != null) {
+            if (jsonObject.get("widget") != null) {
                 Interfaces ifce = new Interfaces();
-                gip.widget = ifce.getWidget(client, parsedRequestBody.get("widget"));
+                invokeAndWait(() -> {
+                    gip.widget = ifce.getWidget(client, jsonObject.get("widget").getAsString());
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("setYaw") != null) {
+            if (jsonObject.get("setYaw") != null) {
                 Utilities u = new Utilities();
-                u.setYaw(client, parsedRequestBody.get("setYaw"));
+                invokeAndWait(() -> {
+                    u.setYaw(client, jsonObject.get("setYaw").getAsInt());
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("playerWorldPoint") != null &&
-                            (Boolean) parsedRequestBody.get("playerWorldPoint")
+                    jsonObject.get("playerWorldPoint") != null && jsonObject.get("playerWorldPoint").getAsBoolean()
             ) {
                 Utilities u = new Utilities();
-                gip.playerWorldPoint = u.getPlayerWorldPoint(client);
+                invokeAndWait(() -> {
+                    gip.playerWorldPoint = u.getPlayerWorldPoint(client);
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("interactingWith") != null &&
-                            (Boolean) parsedRequestBody.get("interactingWith")
+                    jsonObject.get("interactingWith") != null && jsonObject.get("interactingWith").getAsBoolean()
             ) {
                 Player pu = new Player();
-                gip.interactingWith = pu.getInteractingWith(client);
+                invokeAndWait(() -> {
+                    gip.interactingWith = pu.getInteractingWith(client);
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("isFishing") != null &&
-                    (Boolean) parsedRequestBody.get("isFishing")
+                    jsonObject.get("isFishing") != null && jsonObject.get("isFishing").getAsBoolean()
             ) {
                 Player pu = new Player();
-                gip.isFishing = pu.isFishing(client);
+                invokeAndWait(() -> {
+                    gip.isFishing = pu.isFishing(client);
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("chatOptions") != null && (Boolean) parsedRequestBody.get("chatOptions")
+                    jsonObject.get("chatOptions") != null && jsonObject.get("chatOptions").getAsBoolean()
             ) {
                 Interfaces ifce = new Interfaces();
-                gip.chatOptions = ifce.getChatOptions(client);
+                invokeAndWait(() -> {
+                    gip.chatOptions = ifce.getChatOptions(client);
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("playerAnimation") != null && (Boolean) parsedRequestBody.get("playerAnimation")
+                    jsonObject.get("playerAnimation") != null && jsonObject.get("playerAnimation").getAsBoolean()
             ) {
-                gip.playerAnimation = client.getLocalPlayer().getAnimation();
+                invokeAndWait(() -> {
+                    gip.playerAnimation = client.getLocalPlayer().getAnimation();
+                    return null;
+                });
             }
 
             if (
-                    parsedRequestBody.get("getMenuEntries") != null && (Boolean) parsedRequestBody.get("getMenuEntries")
+                    jsonObject.get("getMenuEntries") != null && jsonObject.get("getMenuEntries").getAsBoolean()
             ) {
                 Interfaces ifce = new Interfaces();
-                gip.menuEntries = ifce.getMenuEntries(client);
+                invokeAndWait(() -> {
+                    gip.menuEntries = ifce.getMenuEntries(client);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("decorativeObjects") != null) {
+            if (jsonObject.get("decorativeObjects") != null) {
                 ObjectUtil go = new ObjectUtil();
-                gip.decorativeObjects = go.findDecorativeObjects(client, parsedRequestBody.get("decorativeObjects"));
+                JsonArray s = jsonObject.get("decorativeObjects").getAsJsonArray();
+                invokeAndWait(() -> {
+                    gip.decorativeObjects = go.findDecorativeObjects(client, s);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("npcsToKill") != null) {
-                JSONArray test = (JSONArray) parsedRequestBody.get("npcsToKill");
-                Object[] parse = test.toArray();
+            if (jsonObject.get("npcsToKill") != null) {
+                JsonArray test = jsonObject.get("npcsToKill").getAsJsonArray();
                 HashSet<String> npcsToFind = new HashSet<>();
-                for (Object o : parse) {
-                    String npcName = (String) o;
-                    npcsToFind.add(npcName);
+                for (JsonElement elem : test) {
+                    try {
+                        String tileHash = elem.toString().replace("\"", "");
+                        npcsToFind.add(tileHash);
+
+                    } catch (Exception e) {
+                        System.out.println("Failed to find tile data for npc: ");
+                        System.out.println(elem);
+                    }
                 }
                 NPCs npcUtil = new NPCs();
-                gip.npcs = npcUtil.getNPCsByToKill(client, npcsToFind);
+                invokeAndWait(() -> {
+                    gip.npcs = npcUtil.getNPCsByToKill(client, npcsToFind);
+                    return null;
+                });
             }
 
-            if (parsedRequestBody.get("groundItems") != null) {
+            if (jsonObject.get("groundItems") != null) {
+                JsonArray s = jsonObject.get("groundItems").getAsJsonArray();
                 ObjectUtil go = new ObjectUtil();
                 try {
-                    gip.groundItems = go.getGroundItems(client, parsedRequestBody.get("groundItems"));
+                    invokeAndWait(() -> {
+                        gip.groundItems = go.getGroundItems(client, s);
+                        return null;
+                    });
                 } catch (Exception e) {
                     System.out.println("eeee");
                     System.out.println(e);
                 }
             }
 
-            if (parsedRequestBody.get("getTargetObj") != null && (Boolean) parsedRequestBody.get("getTargetObj")) {
+            if (jsonObject.get("getTargetObj") != null && jsonObject.get("getTargetObj").getAsBoolean()) {
                 Plugin qhp = pluginManager.getPlugins().stream()
                         .filter(e -> e.getName().equals("Interact Highlight"))
                         .findAny().orElse(null);
@@ -294,8 +419,20 @@ public class AutoServer extends Plugin {
                 gip.targetObj = ((Number) qh).intValue();
             }
 
+            if (jsonObject.get("projectiles") != null && jsonObject.get("projectiles").getAsBoolean()) {
+                HashSet<Integer> projs = new HashSet<>();
+                invokeAndWait(() -> {
+                    for (Projectile p : client.getProjectiles()) {
+                        projs.add(p.getId());
+                    }
 
-            if (parsedRequestBody.get("getTargetNPC") != null && (Boolean) parsedRequestBody.get("getTargetNPC")) {
+                    gip.projectiles = projs;
+                    return null;
+                });
+            }
+
+
+            if (jsonObject.get("getTargetNPC") != null && jsonObject.get("getTargetNPC").getAsBoolean()) {
                 Plugin qhp = pluginManager.getPlugins().stream()
                         .filter(e -> e.getName().equals("Interact Highlight"))
                         .findAny().orElse(null);
@@ -304,6 +441,34 @@ public class AutoServer extends Plugin {
                 Object qh = qhp.getClass().getMethod("interactedNPCID").invoke(qhp);
                 if (qh == null) return;
                 gip.targetNPC = ((Number) qh).intValue();
+            }
+
+            if (jsonObject.get("rightClick") != null && jsonObject.get("rightClick").getAsBoolean()) {
+                Interfaces i = new Interfaces();
+                try {
+                    invokeAndWait(() -> {
+                        gip.rightClickMenu = i.getRightClickMenuEntries(client);
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println("eeee");
+                    System.out.println(e);
+                }
+            }
+
+            if (jsonObject.get("allGroundItems") != null) {
+                JsonArray s = jsonObject.get("allGroundItems").getAsJsonArray();
+                ObjectUtil go = new ObjectUtil();
+                try {
+
+                    invokeAndWait(() -> {
+                        gip.allGroundItems = go.getGroundItemsAnyId(client, s);
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println("eeee");
+                    System.out.println(e);
+                }
             }
             Headers headers = httpExchange.getResponseHeaders();
             // Tell my downstream consumer we are sending JSON back
@@ -334,54 +499,4 @@ public class AutoServer extends Plugin {
     protected void shutDown() throws Exception {
         server.stop(0);
     }
-
-    @Subscribe public void onGameTick(GameTick tick) throws Exception
-    {
-        /*for (int i = 0; i < 150; i++) {
-            Widget bankDumpContainer = client.getWidget(WidgetID.EQUIPMENT_GROUP_ID, i);
-            if (bankDumpContainer != null) {
-                System.out.println("found a widget");
-                System.out.println(i);
-                bankDumpContainer.setHidden(true);
-                Thread.sleep(2000);
-                bankDumpContainer.setHidden(false);
-                System.out.println("----------------------------------------------");
-            }
-        }
-        Widget bankDumpContainer = client.getWidget(WidgetID.EQUIPMENT_GROUP_ID, 24);
-        Rectangle r = bankDumpContainer.getBounds();
-        double x = r.getX();
-        double y = r.getY();
-        double w = r.getWidth();
-        double h = r.getHeight();
-        int cx = (int)(x + (w/2));
-        int cy = (int)(y + 23 + (h /2));
-        System.out.println(cx);
-        System.out.println(cy);
-        Thread.sleep(5000);*/
-    }
 }
-
-/*
-* for (int i = 0; i < 150; i++) {
-            Widget bankDumpContainer = client.getWidget(WidgetID.DEPOSIT_BOX_GROUP_ID, i);
-            if (bankDumpContainer != null) {
-                System.out.println("found a widget");
-                System.out.println(i);
-                bankDumpContainer.setHidden(true);
-                Thread.sleep(2000);
-                bankDumpContainer.setHidden(false);
-                System.out.println("----------------------------------------------");
-            }
-        }
-*
-* */
-
-/*if (client.isMenuOpen()) {
-            MenuEntry[] menuEntries = client.getMenuEntries();
-            System.out.println("menu");
-            for (MenuEntry entry : menuEntries)
-            {
-                entry.getOption();
-            }
-        }*/
