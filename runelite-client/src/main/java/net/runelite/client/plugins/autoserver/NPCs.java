@@ -22,6 +22,8 @@ public class NPCs {
         int graphic;
         int health;
         int scale;
+        int x_coord;
+        int y_coord;
     }
 
     public ArrayList<NpcPacket> getNPCsByName(Client client, HashSet<String> npcsToFind) {
@@ -45,7 +47,9 @@ public class NPCs {
                             npc.getId(),
                             npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                             npc.getGraphic(),
-                            npc.getHealthRatio(), npc.getHealthScale()
+                            npc.getHealthRatio(), npc.getHealthScale(),
+                            npc.getWorldLocation().getX(),
+                            npc.getWorldLocation().getY()
                     );
                     alnp.add(np);
                 }
@@ -76,7 +80,9 @@ public class NPCs {
                             npc.getId(),
                             npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                             npc.getGraphic(),
-                            npc.getHealthRatio(), npc.getHealthScale()
+                            npc.getHealthRatio(), npc.getHealthScale(),
+                            npc.getWorldLocation().getX(),
+                            npc.getWorldLocation().getY()
                     );
                     alnp.add(np);
                 }
@@ -111,7 +117,9 @@ public class NPCs {
                                 npc.getId(),
                                 npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                 npc.getGraphic(),
-                                npc.getHealthRatio(), npc.getHealthScale()
+                                npc.getHealthRatio(), npc.getHealthScale(),
+                                npc.getWorldLocation().getX(),
+                                npc.getWorldLocation().getY()
                         );
                         alnp.add(np);
                     }
