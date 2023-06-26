@@ -1,13 +1,17 @@
 package net.runelite.client.plugins.autoserver;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.MenuEntry;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
@@ -77,6 +81,26 @@ public class Interfaces {
             );
         }
         return null;
+    }
+
+    public HashMap<String, EnrichedInterfaceData> getWidgets(Client client, JsonArray widgetsToFind) {
+        ArrayList<String> widgetList = new ArrayList<>();
+        HashMap<String, EnrichedInterfaceData> widgetDataPacket = new HashMap<>();
+        for (JsonElement elem : widgetsToFind) {
+            try {
+                String widget = elem.toString().replace("\"", "");
+                widgetList.add(widget);
+            } catch (Exception e) {
+                System.out.println("Failed to find data for widget: ");
+                System.out.println(elem);
+            }
+        }
+
+        for (String widget: widgetList) {
+            widgetDataPacket.put(widget, getWidget(client, widget));
+        }
+
+        return widgetDataPacket;
     }
 
     public String[] getChatOptions(Client client) {

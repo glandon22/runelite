@@ -28,6 +28,7 @@ public class GameInfoPacket {
     int playerAnimation;
     int varBit;
     Interfaces.EnrichedInterfaceData widget;
+    HashMap<String, Interfaces.EnrichedInterfaceData> widgets;
     Utilities.PointData playerWorldPoint;
     String interactingWith;
     String[] chatOptions;

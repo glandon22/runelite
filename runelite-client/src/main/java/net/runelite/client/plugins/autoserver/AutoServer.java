@@ -233,6 +233,14 @@ public class AutoServer extends Plugin {
                 });
             }
 
+            if (jsonObject.get("widgets") != null) {
+                Interfaces ifce = new Interfaces();
+                invokeAndWait(() -> {
+                    gip.widgets = ifce.getWidgets(client, jsonObject.get("widgets").getAsJsonArray());
+                    return null;
+                });
+            }
+
             if (
                     jsonObject.get("clickToPlay") != null &&
                     jsonObject.get("clickToPlay").getAsBoolean()
