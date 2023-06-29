@@ -9,6 +9,7 @@ import net.runelite.api.MenuEntry;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.api.widgets.WidgetItem;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -143,5 +144,21 @@ public class Interfaces {
         final int menuH = client.getMenuHeight();
         final MenuEntry[] menuEntries = client.getMenuEntries();
         return new RightClickMenu(menuX, menuY, menuWidth, menuH, Arrays.stream(menuEntries).toArray());
+    }
+
+    public String[] getChatLines(Client client)
+    {
+        String[] chatLines = new String[8];
+        Widget chatHolder = client.getWidget(162, 56);
+        if (chatHolder != null && chatHolder.getChildren() != null) {
+            for (int i = 0; i <= 28; i += 4) {
+                Widget line = chatHolder.getChild(i);
+                System.out.println("eeeeee");
+                System.out.println(i);
+                System.out.println(line.getText());
+                chatLines[i / 4] = line.getText();
+            }
+        }
+        return chatLines;
     }
 }

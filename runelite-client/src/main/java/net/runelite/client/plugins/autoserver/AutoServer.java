@@ -306,6 +306,14 @@ public class AutoServer extends Plugin {
                 });
             }
 
+            if (jsonObject.get("chatLines") != null) {
+                Interfaces ifce = new Interfaces();
+                invokeAndWait(() -> {
+                    gip.chatLines = ifce.getChatLines(client);
+                    return null;
+                });
+            }
+
             if (jsonObject.get("setYaw") != null) {
                 Utilities u = new Utilities();
                 invokeAndWait(() -> {

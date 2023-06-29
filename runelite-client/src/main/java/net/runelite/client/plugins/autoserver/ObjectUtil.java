@@ -90,7 +90,7 @@ public class ObjectUtil {
                     GameObject[] go = tile.getGameObjects();
                     for (GameObject g : go) {
                         if (g != null && RELEVANT_OBJECTS.contains(g.getId()) && g.getCanvasTilePoly() != null) {
-                            Polygon poly = g.getCanvasTilePoly();
+                            Shape poly = g.getClickbox();
                             if (poly != null) {
                                 Rectangle r = poly.getBounds();
                                 HashMap<Character, Integer> center = u.getCenter(r);
@@ -234,7 +234,7 @@ public class ObjectUtil {
                     GameObject[] go = tile.getGameObjects();
                     for (GameObject g : go) {
                         if (g != null && RELEVANT_OBJECTS.contains(g.getId()) && g.getCanvasTilePoly() != null) {
-                            Polygon poly = g.getCanvasTilePoly();
+                            Shape poly = g.getClickbox();
                             Rectangle r = poly.getBounds();
                             HashMap<Character, Integer> center = u.getCenter(r);
                             if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
