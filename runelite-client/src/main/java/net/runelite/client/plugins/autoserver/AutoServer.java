@@ -1,5 +1,6 @@
 package net.runelite.client.plugins.autoserver;
 
+import com.google.api.client.json.Json;
 import com.google.gson.*;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
@@ -257,6 +258,46 @@ public class AutoServer extends Plugin {
                 JsonArray s = jsonObject.get("gameObjects").getAsJsonArray();
                 invokeAndWait(() -> {
                     gip.gameObjects = go.findGameObjects(client, s);
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("gameObjectsV2") != null) {
+                System.out.println("in v2");
+                ObjectUtil go = new ObjectUtil();
+                JsonObject s = jsonObject.get("gameObjectsV2").getAsJsonObject();
+                invokeAndWait(() -> {
+                    gip.gameObjectsV2 = go.gameObjects(client, s, ObjectUtil.SearchObjectType.Game);
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("groundObjectsV2") != null) {
+                System.out.println("in v2");
+                ObjectUtil go = new ObjectUtil();
+                JsonObject s = jsonObject.get("groundObjectsV2").getAsJsonObject();
+                invokeAndWait(() -> {
+                    gip.groundObjectsV2 = go.gameObjects(client, s, ObjectUtil.SearchObjectType.GroundObject);
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("wallObjectsV2") != null) {
+                System.out.println("in v2");
+                ObjectUtil go = new ObjectUtil();
+                JsonObject s = jsonObject.get("wallObjectsV2").getAsJsonObject();
+                invokeAndWait(() -> {
+                    gip.wallObjectsV2 = go.gameObjects(client, s, ObjectUtil.SearchObjectType.Wall);
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("decorativeObjectsV2") != null) {
+                System.out.println("in v2");
+                ObjectUtil go = new ObjectUtil();
+                JsonObject s = jsonObject.get("decorativeObjectsV2").getAsJsonObject();
+                invokeAndWait(() -> {
+                    gip.decorativeObjectsV2 = go.gameObjects(client, s, ObjectUtil.SearchObjectType.Decorative);
                     return null;
                 });
             }

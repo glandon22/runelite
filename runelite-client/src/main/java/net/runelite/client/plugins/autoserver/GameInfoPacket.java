@@ -24,6 +24,10 @@ public class GameInfoPacket {
     HashMap<Integer, ObjectUtil.EnhancedObjData> groundObjects;
     HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> wallObjects;
     HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> multipleGameObjects;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> gameObjectsV2;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> wallObjectsV2;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> groundObjectsV2;
+    HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> decorativeObjectsV2;
     int poseAnimation;
     int playerAnimation;
     int varBit;

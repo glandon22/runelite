@@ -1,7 +1,10 @@
 package net.runelite.client.plugins.autoserver;
 
+import com.google.api.client.json.Json;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
@@ -21,6 +24,13 @@ public class ObjectUtil {
     @Inject
     private PluginManager pluginManager;
 
+
+    public enum SearchObjectType {
+        Wall,
+        GroundObject,
+        Game,
+        Decorative
+    }
     @Value
     public static class EnhancedObjData
     {
@@ -43,6 +53,14 @@ public class ObjectUtil {
     {
         String tile;
         String object;
+
+        // Getters and Setters
+    }
+
+    class SearchV2
+    {
+        JsonArray tiles;
+        JsonArray objects;
 
         // Getters and Setters
     }
@@ -72,6 +90,123 @@ public class ObjectUtil {
                 RELEVANT_OBJECTS,
                 wps
         );
+    }
+
+    /**
+     *
+     * {
+     *     'tiles': ['1,2,3','4,5,6'],
+     *     'objects': ['1','2','3',]
+     * }
+     **/
+
+    public ParsedTilesAndObjects parseTilesAndObjectsV2(JsonObject gameObjectsToFind) {
+        HashSet<Integer> relevantObjects = new HashSet<>();
+        ArrayList<WorldPoint> worldPoints = new ArrayList<>();
+        try {
+            Gson gson = new Gson();
+            // Parse my input as SearchV2 class
+            SearchV2 search = gson.fromJson(gameObjectsToFind, SearchV2.class);
+            // Iterate through the tiles i passed
+            for (JsonElement tile : search.tiles) {
+                String[] tileCoords = tile.getAsString().split(",");
+                worldPoints.add(
+                        new WorldPoint(Integer.parseInt(tileCoords[0]), Integer.parseInt(tileCoords[1]),Integer.parseInt(tileCoords[2]))
+                );
+            }
+
+            for (JsonElement object: search.objects) {
+                relevantObjects.add(object.getAsInt());
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to find game object data for tile: ");
+            System.out.println(e.getMessage());
+        }
+        return new ParsedTilesAndObjects(
+                relevantObjects,
+                worldPoints
+        );
+    }
+
+    public HashMap<Integer, ArrayList<EnhancedObjData>> gameObjects(Client client, JsonObject gameObjectsToFind, SearchObjectType searchType) {
+        HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
+
+        ParsedTilesAndObjects ptao = parseTilesAndObjectsV2(gameObjectsToFind);
+        HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
+        ArrayList<WorldPoint> wps = ptao.wps;
+
+        Tile[][][] tiles = client.getScene().getTiles();
+        Utilities u = new Utilities();
+        for (WorldPoint wp: wps) {
+            final LocalPoint localLocation = LocalPoint.fromWorld(client, wp);
+
+            if (localLocation == null) {
+                continue;
+            }
+
+            Tile tile = tiles[client.getPlane()][localLocation.getSceneX()][localLocation.getSceneY()];
+
+            if (tile == null) {
+                continue;
+            }
+
+            TileObject[] objects;
+            if (searchType == SearchObjectType.Decorative) {
+                objects = new DecorativeObject[]{tile.getDecorativeObject()};
+            }
+
+            else if (searchType == SearchObjectType.Wall) {
+                objects = new WallObject[]{tile.getWallObject()};
+            }
+
+            else if (searchType == SearchObjectType.GroundObject) {
+                objects = new GroundObject[]{tile.getGroundObject()};
+            }
+
+            else {
+                objects = tile.getGameObjects();
+            }
+
+
+            for (TileObject g : objects) {
+                // Return all objects if not looking for a specific one
+                if (g != null && (RELEVANT_OBJECTS.contains(g.getId()) || RELEVANT_OBJECTS.isEmpty()) && g.getCanvasTilePoly() != null) {
+                    Shape poly = g.getClickbox();
+                    if (poly == null) {
+                        poly = g.getCanvasTilePoly();
+                    }
+                    if (poly == null) {
+                        continue;
+                    }
+                    Rectangle r = poly.getBounds();
+                    HashMap<Character, Integer> center = u.getCenter(r);
+                    if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
+                        EnhancedObjData data = new EnhancedObjData(
+                                center.get('x'),
+                                center.get('y'),
+                                g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                tile.getWorldLocation().getX(),
+                                tile.getWorldLocation().getY(),
+                                g.getId()
+                        );
+
+                        if (returnData.get(g.getId()) != null) {
+                            ArrayList<EnhancedObjData> gobj = returnData.get(g.getId());
+                            gobj.add(data);
+                            returnData.put(g.getId(), gobj);
+                        }
+
+                        else {
+                            ArrayList<EnhancedObjData> gobj = new ArrayList<>();
+                            gobj.add(data);
+                            returnData.put(g.getId(), gobj);
+                        }
+                    }
+                }
+            }
+        }
+
+        return returnData;
     }
 
     public HashMap<Integer, EnhancedObjData> findGameObjects(Client client, JsonArray gameObjectsToFind) {
@@ -458,17 +593,5 @@ public class ObjectUtil {
             }
         }
         return returnData;
-    }
-
-    public void getInteractedObject(Client client) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Plugin qhp = pluginManager.getPlugins().stream()
-                .filter(e -> e.getName().equals("Interact Highlight"))
-                .findAny().orElse(null);
-        if (qhp == null) return;
-
-        Object qh = qhp.getClass().getMethod("interacting").invoke(qhp);
-        if (qh == null) return;
-        System.out.println("testing refelction");
-        System.out.println(qh);
     }
 }

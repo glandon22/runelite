@@ -73,20 +73,16 @@ public class Inventory {
             ItemContainer ic = client.getItemContainer(InventoryID.EQUIPMENT);
             if (ic != null) {
                 Item[] items = ic.getItems();
+                System.out.println("got some items");
+                System.out.println(items.length);
                 inv = new ArrayList<Slot>();
-                for (Item item : items) {
+                for (int i = 0; i < items.length; i++) {
+                    System.out.println("my items");
+                    System.out.println(items[i].getId());
+                    Item item = items[i];
                     if (item != null && item.getId() > 0) {
-                        System.out.println(item.getId());
-                        /*final WidgetItem targetWidgetItem = getWidgetItem(client.getWidget(WidgetInfo.EQUIPMENT), i);
-                        final Rectangle r = targetWidgetItem.getCanvasBounds(false);
-                        Utilities u = new Utilities();
-                        HashMap<Character, Integer> center = u.getCenter(r);
-                        // For some reason, right as I open an interface it sometimes says the points are all located
-                        // in a small 50x50 corner of the upper right-hand screen.
-                        if (center.get('x') > 50 && center.get('y') > 50) {
-                            Slot slot = new Slot(center.get('x'), center.get('y'), i, items[i].getId(), items[i].getQuantity());
-                            inv.add(slot);
-                        }*/
+                        Slot slot = new Slot(0, 0, i, items[i].getId(), items[i].getQuantity());
+                        inv.add(slot);
                     }
                 }
             }

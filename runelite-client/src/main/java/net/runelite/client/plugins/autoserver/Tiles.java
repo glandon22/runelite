@@ -53,7 +53,15 @@ public class Tiles {
                                         center.get('y') > 0 && center.get('y') < 1035
                         ) {
                             String parsedKey = Integer.toString(wp.getX()) + Integer.toString(wp.getY()) + Integer.toString(wp.getPlane());
+                            String parsedKeyV2 = Integer.toString(
+                                    wp.getX()) +
+                                    ',' +
+                                    Integer.toString(wp.getY()) +
+                                    ',' +
+                                    Integer.toString(wp.getPlane()
+                            );
                             tileDataPacket.put(parsedKey, new TileData(center.get('x'), center.get('y')));
+                            tileDataPacket.put(parsedKeyV2, new TileData(center.get('x'), center.get('y')));
                         }
                     }
                 }

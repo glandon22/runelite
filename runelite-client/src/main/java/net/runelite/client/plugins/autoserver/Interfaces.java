@@ -28,9 +28,11 @@ public class Interfaces {
     public static class RightClickMenu {
         int x;
         int y;
+        int server_x;
+        int server_y;
         int width;
         int height;
-        Object[] entries;
+        ArrayList<String> entries;
     }
 
     @Value
@@ -39,6 +41,8 @@ public class Interfaces {
         int y;
         String text;
         int spriteID;
+        String name;
+        int itemID;
     }
 
     public InterfaceData getClickToPlay(Client client) {
@@ -70,7 +74,14 @@ public class Interfaces {
             Integer.parseInt(childAndParent[1])
         );
 
+        if (targetWidget != null && childAndParent.length == 3) {
+            System.out.println("child");
+            System.out.println(Integer.parseInt(childAndParent[2]));
+            targetWidget = targetWidget.getChild(Integer.parseInt(childAndParent[2]));
+        }
+
         if (targetWidget != null) {
+
             Rectangle r = targetWidget.getBounds();
             Utilities u = new Utilities();
             HashMap<Character, Integer> center = u.getCenter(r);
@@ -78,7 +89,9 @@ public class Interfaces {
                     center.get('x'),
                     center.get('y'),
                     targetWidget.getText(),
-                    targetWidget.getSpriteId()
+                    targetWidget.getSpriteId(),
+                    targetWidget.getName(),
+                    targetWidget.getItemId()
             );
         }
         return null;
@@ -142,8 +155,20 @@ public class Interfaces {
         final int menuY = client.getMenuY();
         final int menuWidth = client.getMenuWidth();
         final int menuH = client.getMenuHeight();
+        ArrayList<String> options = new ArrayList<>();
         final MenuEntry[] menuEntries = client.getMenuEntries();
-        return new RightClickMenu(menuX, menuY, menuWidth, menuH, Arrays.stream(menuEntries).toArray());
+        for(MenuEntry mu : menuEntries) {
+            options.add(mu.getOption());
+        }
+        return new RightClickMenu(
+                menuX,
+                menuY,
+                client.getMouseCanvasPosition().getX(),
+                client.getMouseCanvasPosition().getY(),
+                menuWidth,
+                menuH,
+                options
+        );
     }
 
     public String[] getChatLines(Client client)
