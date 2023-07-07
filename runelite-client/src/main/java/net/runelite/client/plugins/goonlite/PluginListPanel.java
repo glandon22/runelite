@@ -22,35 +22,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.config;
+package net.runelite.client.plugins.goonlite;
 
 import com.google.common.collect.ImmutableList;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import net.runelite.client.config.Config;
-import net.runelite.client.config.ConfigDescriptor;
-import net.runelite.client.config.ConfigGroup;
-import net.runelite.client.config.ConfigManager;
-import net.runelite.client.config.RuneLiteConfig;
+import net.runelite.client.config.*;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.ExternalPluginsChanged;
@@ -68,6 +45,21 @@ import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.IconTextField;
 import net.runelite.client.util.Text;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @Slf4j
 @Singleton
 class PluginListPanel extends PluginPanel
@@ -75,14 +67,7 @@ class PluginListPanel extends PluginPanel
 	private static final String RUNELITE_GROUP_NAME = RuneLiteConfig.class.getAnnotation(ConfigGroup.class).value();
 	private static final String PINNED_PLUGINS_CONFIG_KEY = "pinnedPlugins";
 	private static final ImmutableList<String> CATEGORY_TAGS = ImmutableList.of(
-		"Combat",
-		"Chat",
-		"Item",
-		"Minigame",
-		"Notification",
-		"Plugin Hub",
-		"Skilling",
-		"XP"
+		"Crafting"
 	);
 
 	private final ConfigManager configManager;
@@ -183,16 +168,26 @@ class PluginListPanel extends PluginPanel
 
 	void rebuildPluginList()
 	{
-		System.out.println("building list");
+		System.out.println("gooning");
 		final List<String> pinnedPlugins = getPinnedPluginNames();
 
 		// populate pluginList with all non-hidden plugins
 		pluginList = Stream.concat(
 			fakePlugins.stream(),
 			pluginManager.getPlugins().stream()
-				.filter(plugin -> !plugin.getClass().getAnnotation(PluginDescriptor.class).hidden())
+				.filter(plugin -> {
+					String[] tags = plugin.getClass().getAnnotation(PluginDescriptor.class).tags();
+					for (String tag : tags) {
+						if (tag == "goonlite") {
+							return true;
+						}
+					}
+					return false;
+				})
 				.map(plugin ->
 				{
+					System.out.println("got a plugin");
+					System.out.println(plugin.getName());
 					PluginDescriptor descriptor = plugin.getClass().getAnnotation(PluginDescriptor.class);
 					Config config = pluginManager.getPluginConfigProxy(plugin);
 					ConfigDescriptor configDescriptor = config == null ? null : configManager.getConfigDescriptor(config);
@@ -220,6 +215,8 @@ class PluginListPanel extends PluginPanel
 			.collect(Collectors.toList());
 
 		mainPanel.removeAll();
+		System.out.println("trying to refresh");
+		System.out.println(pluginList.size());
 		refresh();
 	}
 
@@ -230,23 +227,25 @@ class PluginListPanel extends PluginPanel
 
 	void refresh()
 	{
-		// update enabled / disabled status of all items
-		pluginList.forEach(listItem ->
-		{
-			final Plugin plugin = listItem.getPluginConfig().getPlugin();
-			if (plugin != null)
+		if (pluginList != null) {
+			// update enabled / disabled status of all items
+			pluginList.forEach(listItem ->
 			{
-				listItem.setPluginEnabled(pluginManager.isPluginEnabled(plugin));
-			}
-		});
+				final Plugin plugin = listItem.getPluginConfig().getPlugin();
+				if (plugin != null)
+				{
+					listItem.setPluginEnabled(pluginManager.isPluginEnabled(plugin));
+				}
+			});
 
-		int scrollBarPosition = scrollPane.getVerticalScrollBar().getValue();
+			int scrollBarPosition = scrollPane.getVerticalScrollBar().getValue();
 
-		onSearchBarChanged();
-		searchBar.requestFocusInWindow();
-		validate();
+			onSearchBarChanged();
+			searchBar.requestFocusInWindow();
+			validate();
 
-		scrollPane.getVerticalScrollBar().setValue(scrollBarPosition);
+			scrollPane.getVerticalScrollBar().setValue(scrollBarPosition);
+		}
 	}
 
 	void openWithFilter(String filter)

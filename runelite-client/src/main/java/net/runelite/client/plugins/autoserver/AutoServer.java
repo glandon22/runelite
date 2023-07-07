@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @PluginDescriptor(
         name = "AutoServer",
         description = "Exposes a server on port 56789 to get game data",
-        tags = {"bot"},
+        tags = {"bot", "goonlite"},
         enabledByDefault = false
 )
 public class AutoServer extends Plugin {
