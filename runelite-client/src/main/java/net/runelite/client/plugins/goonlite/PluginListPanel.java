@@ -53,9 +53,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -178,7 +176,7 @@ class PluginListPanel extends PluginPanel
 				.filter(plugin -> {
 					String[] tags = plugin.getClass().getAnnotation(PluginDescriptor.class).tags();
 					for (String tag : tags) {
-						if (tag == "goonlite") {
+						if (Objects.equals(tag, "goonlite")) {
 							return true;
 						}
 					}
