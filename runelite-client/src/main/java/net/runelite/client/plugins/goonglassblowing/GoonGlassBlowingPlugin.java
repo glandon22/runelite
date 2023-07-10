@@ -92,6 +92,17 @@ public class GoonGlassBlowingPlugin extends Plugin {
                 return;
             }
             final JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
+            if (jsonObject.get("status") != null) {
+                status = jsonObject.get("status").getAsString();
+            }
+
+            if (jsonObject.get("next_break") != null) {
+                break_start = jsonObject.get("next_break").getAsString();
+            }
+
+            if (jsonObject.get("break_end") != null) {
+                break_end = jsonObject.get("break_end").getAsString();
+            }
 
             Headers headers = httpExchange.getResponseHeaders();
             // Tell my downstream consumer we are sending JSON back
@@ -111,9 +122,10 @@ public class GoonGlassBlowingPlugin extends Plugin {
     @Override
     protected void startUp() throws Exception
     {
-        break_start = "test";
-        status = "test";
-        break_end = "test";
+        terminate = false;
+        break_start = "Unknown";
+        status = "Starting up.";
+        break_end = "Unknown";
         server = HttpServer.create(new InetSocketAddress("localhost", 56798), 0);
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         server.createContext("/manager", new MyHttpHandler());
@@ -135,6 +147,6 @@ public class GoonGlassBlowingPlugin extends Plugin {
     {
         overlayManager.remove(overlay);
         terminate = true;
-        server.stop(30);
+        server.stop(10);
     }
 }
