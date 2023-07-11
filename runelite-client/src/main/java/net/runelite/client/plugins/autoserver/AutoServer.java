@@ -263,7 +263,7 @@ public class AutoServer extends Plugin {
             }
 
             if (jsonObject.get("gameObjectsV2") != null) {
-                System.out.println("in v2");
+                System.out.println("in v2 game");
                 ObjectUtil go = new ObjectUtil();
                 JsonObject s = jsonObject.get("gameObjectsV2").getAsJsonObject();
                 invokeAndWait(() -> {
@@ -273,7 +273,7 @@ public class AutoServer extends Plugin {
             }
 
             if (jsonObject.get("groundObjectsV2") != null) {
-                System.out.println("in v2");
+                System.out.println("in v2 ground");
                 ObjectUtil go = new ObjectUtil();
                 JsonObject s = jsonObject.get("groundObjectsV2").getAsJsonObject();
                 invokeAndWait(() -> {
@@ -283,7 +283,7 @@ public class AutoServer extends Plugin {
             }
 
             if (jsonObject.get("wallObjectsV2") != null) {
-                System.out.println("in v2");
+                System.out.println("in v2 wall");
                 ObjectUtil go = new ObjectUtil();
                 JsonObject s = jsonObject.get("wallObjectsV2").getAsJsonObject();
                 invokeAndWait(() -> {
@@ -293,7 +293,7 @@ public class AutoServer extends Plugin {
             }
 
             if (jsonObject.get("decorativeObjectsV2") != null) {
-                System.out.println("in v2");
+                System.out.println("in v2 decorative");
                 ObjectUtil go = new ObjectUtil();
                 JsonObject s = jsonObject.get("decorativeObjectsV2").getAsJsonObject();
                 invokeAndWait(() -> {
