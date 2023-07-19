@@ -649,7 +649,7 @@ public class GroundItemsPlugin extends Plugin
 				.append(QuantityFormatter.quantityToStackSize(item.getQuantity()))
 				.append(')');
 		}
-		
+
 		notifier.notify(notificationStringBuilder.toString());
 	}
 
