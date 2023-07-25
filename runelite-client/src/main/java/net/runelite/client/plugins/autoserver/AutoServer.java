@@ -234,6 +234,14 @@ public class AutoServer extends Plugin {
                 });
             }
 
+            if (jsonObject.get("canvas") != null) {
+                Interfaces ifce = new Interfaces();
+                invokeAndWait(() -> {
+                    gip.canvas = ifce.getCanvasData(client);
+                    return null;
+                });
+            }
+
             if (jsonObject.get("widgets") != null) {
                 Interfaces ifce = new Interfaces();
                 invokeAndWait(() -> {

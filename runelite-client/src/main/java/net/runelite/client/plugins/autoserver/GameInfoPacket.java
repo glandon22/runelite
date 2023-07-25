@@ -46,4 +46,5 @@ public class GameInfoPacket {
     HashSet<Integer> projectiles;
     Interfaces.RightClickMenu rightClickMenu;
     String[] chatLines;
+    Interfaces.CanvasData canvas;
 }
