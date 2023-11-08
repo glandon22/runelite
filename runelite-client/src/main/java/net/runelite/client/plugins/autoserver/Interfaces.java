@@ -43,6 +43,18 @@ public class Interfaces {
         int spriteID;
         String name;
         int itemID;
+        int xMin;
+        int xMax;
+        int yMin;
+        int yMax;
+    }
+
+    @Value
+    public static class CanvasData {
+        int xMin;
+        int xMax;
+        int yMin;
+        int yMax;
     }
 
     public InterfaceData getClickToPlay(Client client) {
@@ -91,7 +103,11 @@ public class Interfaces {
                     targetWidget.getText(),
                     targetWidget.getSpriteId(),
                     targetWidget.getName(),
-                    targetWidget.getItemId()
+                    targetWidget.getItemId(),
+                    (int) r.getX(),
+                    (int) ( r.getX() + r.getWidth()),
+                    (int) r.getY(),
+                    (int) (r.getY() + r.getHeight())
             );
         }
         return null;
@@ -185,5 +201,20 @@ public class Interfaces {
             }
         }
         return chatLines;
+    }
+
+    public CanvasData getCanvasData(Client client) {
+        Canvas c = client.getCanvas();
+        Rectangle r = c.getBounds();
+        double xMin = c.getLocationOnScreen().getX();
+        double xMax = c.getLocationOnScreen().getX() + r.getWidth();
+        double yMin = c.getLocationOnScreen().getY();
+        double yMax = c.getLocationOnScreen().getY() + r.getHeight();
+        return new CanvasData(
+                (int) xMin,
+                (int) xMax,
+                (int) yMin,
+                (int) yMax
+        );
     }
 }

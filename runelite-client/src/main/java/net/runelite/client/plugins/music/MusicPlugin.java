@@ -73,6 +73,7 @@ import net.runelite.api.events.VolumeChanged;
 import net.runelite.api.events.WidgetLoaded;
 import net.runelite.api.widgets.JavaScriptCallback;
 import net.runelite.api.widgets.Widget;
+import net.runelite.api.widgets.WidgetConfig;
 import net.runelite.api.widgets.WidgetID;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetPositionMode;
@@ -189,7 +190,7 @@ public class MusicPlugin extends Plugin
 			channels = new Channel[]{musicChannel, effectChannel, areaChannel};
 
 			addMusicButtons();
-			if (client.getGameState() == GameState.LOGGED_IN && false)
+			if (client.getGameState() == GameState.LOGGED_IN && musicConfig.granularSliders())
 			{
 				updateMusicOptions();
 				resetSettingsWindow();
@@ -253,7 +254,7 @@ public class MusicPlugin extends Plugin
 		}
 
 		if ((widgetLoaded.getGroupId() == WidgetID.SETTINGS_GROUP_ID || widgetLoaded.getGroupId() == WidgetID.SETTINGS_SIDE_GROUP_ID)
-			&& false)
+			&& musicConfig.granularSliders())
 		{
 			updateMusicOptions();
 		}
@@ -310,7 +311,7 @@ public class MusicPlugin extends Plugin
 	@Subscribe
 	public void onVolumeChanged(VolumeChanged volumeChanged)
 	{
-		if (false)
+		if (musicConfig.granularSliders())
 		{
 			updateMusicOptions();
 		}
@@ -325,7 +326,7 @@ public class MusicPlugin extends Plugin
 			{
 				if (MusicConfig.GRANULAR_SLIDERS.equals(configChanged.getKey()))
 				{
-					if (false)
+					if (musicConfig.granularSliders())
 					{
 						updateMusicOptions();
 						resetSettingsWindow();
@@ -343,7 +344,7 @@ public class MusicPlugin extends Plugin
 						client.setGameState(GameState.LOADING);
 					}
 				}
-				else
+				else if (musicConfig.granularSliders())
 				{
 					updateMusicOptions();
 				}
@@ -613,6 +614,7 @@ public class MusicPlugin extends Plugin
 			icon.setName(channel.getName());
 			icon.setOnMouseRepeatListener((Object[]) null);
 			icon.setOnOpListener((JavaScriptCallback) ev -> channel.toggleMute());
+			icon.setClickMask(0); // do not transmit op, it can get desynced from our state
 		}
 
 		@Override
@@ -628,6 +630,7 @@ public class MusicPlugin extends Plugin
 			if (this.icon != null)
 			{
 				this.icon.setOnOpListener((Object[]) null);
+				this.icon.setClickMask(WidgetConfig.transmitAction(0));
 			}
 
 			Widget root = client.getWidget(this.root);
@@ -711,7 +714,7 @@ public class MusicPlugin extends Plugin
 			case StructID.SETTINGS_MUSIC_VOLUME:
 			case StructID.SETTINGS_EFFECT_VOLUME:
 			case StructID.SETTINGS_AREA_VOLUME:
-				if (!false)
+				if (!musicConfig.granularSliders())
 				{
 					return;
 				}
@@ -723,7 +726,7 @@ public class MusicPlugin extends Plugin
 				sc.setValue(ParamID.SETTING_SLIDER_CUSTOM_SETPOS, 1);
 				sc.setValue(ParamID.SETTING_SLIDER_IS_DRAGGABLE, 1);
 				sc.setValue(ParamID.SETTING_SLIDER_DEADZONE, 0);
-				sc.setValue(ParamID.SETTING_SLIDER_DEADZONE, 0);
+				sc.setValue(ParamID.SETTING_SLIDER_DEADTIME, 0);
 				break;
 		}
 	}
@@ -738,7 +741,7 @@ public class MusicPlugin extends Plugin
 
 		if (ev.getScriptId() == ScriptID.SETTINGS_SLIDER_CHOOSE_ONOP)
 		{
-			if (!false)
+			if (!musicConfig.granularSliders())
 			{
 				return;
 			}
@@ -770,7 +773,7 @@ public class MusicPlugin extends Plugin
 			s.getChannel().setWindowSlider(s);
 		}
 
-		if (ev.getScriptId() == ScriptID.TOPLEVEL_REDRAW && false)
+		if (ev.getScriptId() == ScriptID.TOPLEVEL_REDRAW && musicConfig.granularSliders())
 		{
 			// we have to set the var to our value so toplevel_redraw doesn't try to set
 			// the volume to what vanilla has stored
