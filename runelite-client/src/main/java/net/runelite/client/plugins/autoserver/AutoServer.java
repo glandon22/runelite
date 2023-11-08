@@ -203,6 +203,17 @@ public class AutoServer extends Plugin {
             }
 
             if (
+                    jsonObject.get("depositBox") != null &&
+                            jsonObject.get("depositBox").getAsBoolean()
+            ) {
+                Bank bankUtil = new Bank();
+                invokeAndWait(() -> {
+                    gip.depositBox = bankUtil.getDepositItems(client);
+                    return null;
+                });
+            }
+
+            if (
                     jsonObject.get("dumpInvButton") != null && jsonObject.get("dumpInvButton").getAsBoolean()
             ) {
                 Bank bankUtil = new Bank();

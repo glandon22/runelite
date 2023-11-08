@@ -14,6 +14,7 @@ public class GameInfoPacket {
     List<Inventory.Slot> inv;
     ArrayList<NPCs.NpcPacket> npcs;
     ArrayList<Bank.BankSlot> bankItems;
+    ArrayList<Bank.BankSlot> depositBox;
     HashMap<Character, Integer> dumpInvButton;
     HashMap<String, Player.SkillData> skills;
     boolean isMining;
