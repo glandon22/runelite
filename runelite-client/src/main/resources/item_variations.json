@@ -534,7 +534,8 @@
     432,
     709,
     2404,
-    4273
+    4273,
+    28573
   ],
   "scorpion cage": [
     456,
@@ -558,8 +559,7 @@
   ],
   "axe handle": [
     492,
-    7952,
-    28177
+    7952
   ],
   "broken axe": [
     494,
@@ -1665,7 +1665,8 @@
   ],
   "knife": [
     946,
-    5605
+    5605,
+    28413
   ],
   "rope": [
     954,
@@ -2220,6 +2221,10 @@
     2511,
     24650
   ],
+  "lockpick": [
+    1523,
+    28415
+  ],
   "map part": [
     1535,
     1536,
@@ -2336,7 +2341,8 @@
   ],
   "chisel": [
     1755,
-    5601
+    5601,
+    28414
   ],
   "molten glass": [
     1775,
@@ -3557,7 +3563,8 @@
   "barricade": [
     4053,
     25209,
-    25210
+    25210,
+    28390
   ],
   "decorative sword": [
     4068,
@@ -4311,6 +4318,10 @@
     4818,
     21837
   ],
+  "strange potion": [
+    4836,
+    28383
+  ],
   "relicyms balm": [
     4842,
     4844,
@@ -4603,6 +4614,10 @@
     5598,
     5599,
     5600
+  ],
+  "fox": [
+    5608,
+    28670
   ],
   "hourglass": [
     5610,
@@ -5237,6 +5252,10 @@
     6991,
     6992,
     7002
+  ],
+  "gunpowder": [
+    7108,
+    28442
   ],
   "fuse": [
     7109,
@@ -7536,6 +7555,10 @@
     11672,
     11673
   ],
+  "hair clip": [
+    11682,
+    28408
+  ],
   "beach boxing gloves": [
     11705,
     11706
@@ -8753,7 +8776,8 @@
   ],
   "satchel": [
     19527,
-    19528
+    19528,
+    28392
   ],
   "tormented bracelet": [
     19544,
@@ -8919,15 +8943,18 @@
   ],
   "ruby key": [
     20767,
-    21053
+    21053,
+    28418
   ],
   "emerald key": [
     20768,
-    21054
+    21054,
+    28417
   ],
   "sapphire key": [
     20769,
-    21055
+    21055,
+    28416
   ],
   "notes": [
     20770,
@@ -9490,6 +9517,18 @@
     22486,
     22664
   ],
+  "starter sword": [
+    22331,
+    28559
+  ],
+  "starter bow": [
+    22333,
+    28555
+  ],
+  "starter staff": [
+    22335,
+    28557
+  ],
   "bryophytas staff": [
     22368,
     22370
@@ -9753,6 +9792,10 @@
     23495,
     25842,
     25843
+  ],
+  "temple key": [
+    23502,
+    28389
   ],
   "giant egg sac": [
     23517,
@@ -10430,6 +10473,50 @@
     25467,
     25473
   ],
+  "soulreaper axe": [
+    25484,
+    28338
+  ],
+  "ultor ring": [
+    25485,
+    28307
+  ],
+  "magus ring": [
+    25486,
+    28313
+  ],
+  "venator ring": [
+    25487,
+    28310
+  ],
+  "bellator ring": [
+    25488,
+    28316
+  ],
+  "blood ancient sceptre": [
+    25489,
+    28238,
+    28260,
+    28473
+  ],
+  "ice ancient sceptre": [
+    25490,
+    28242,
+    28262,
+    28474
+  ],
+  "smoke ancient sceptre": [
+    25491,
+    28240,
+    28264,
+    28475
+  ],
+  "shadow ancient sceptre": [
+    25492,
+    28244,
+    28266,
+    28476
+  ],
   "celestial ring": [
     25539,
     25541
@@ -11051,6 +11138,10 @@
     26868,
     26874
   ],
+  "cell": [
+    26882,
+    28402
+  ],
   "portal talisman": [
     26887,
     26888,
@@ -11382,6 +11473,10 @@
     28124,
     28125
   ],
+  "strange icon": [
+    28130,
+    28360
+  ],
   "log basket": [
     28140,
     28142
@@ -11390,8 +11485,170 @@
     28143,
     28145
   ],
-  "crystalh axe": [
+  "mulch": [
+    28183,
+    28648,
+    28649
+  ],
+  "crystal felling axe": [
     28220,
     28223
+  ],
+  "ring of shadows": [
+    28327,
+    28329
+  ],
+  "blackstone fragment": [
+    28356,
+    28357
+  ],
+  "icon segment": [
+    28361,
+    28362
+  ],
+  "shadow key": [
+    28370,
+    28371,
+    28372,
+    28373,
+    28374
+  ],
+  "perfected shadow torch schematic": [
+    28380,
+    28381
+  ],
+  "unfinished serum": [
+    28386,
+    28387
+  ],
+  "tatty page": [
+    28394,
+    28395,
+    28396,
+    28397,
+    28398,
+    28399,
+    28400
+  ],
+  "damp tablet": [
+    28439,
+    28440
+  ],
+  "slimy tablet": [
+    28465,
+    28466,
+    28467
+  ],
+  "gooey note": [
+    28468,
+    28469,
+    28470
+  ],
+  "sigil of sustenance": [
+    28477,
+    28478
+  ],
+  "sigil of hoarding": [
+    28480,
+    28481
+  ],
+  "sigil of the alchemaniac": [
+    28483,
+    28484
+  ],
+  "sigil of the hunter": [
+    28486,
+    28487
+  ],
+  "sigil of resistance": [
+    28489,
+    28490
+  ],
+  "sigil of agile fortune": [
+    28492,
+    28493
+  ],
+  "sigil of the food master": [
+    28495,
+    28496
+  ],
+  "sigil of the wellfed": [
+    28498,
+    28499
+  ],
+  "sigil of the infernal chef": [
+    28501,
+    28502
+  ],
+  "sigil of the infernal smith": [
+    28504,
+    28505
+  ],
+  "sigil of the lightbearer": [
+    28507,
+    28508
+  ],
+  "sigil of the bloodhound": [
+    28510,
+    28511
+  ],
+  "sigil of precision": [
+    28513,
+    28514
+  ],
+  "sigil of the augmented thrall": [
+    28516,
+    28517
+  ],
+  "sigil of faith": [
+    28519,
+    28520
+  ],
+  "sigil of titanium": [
+    28522,
+    28523
+  ],
+  "sigil of the ninja": [
+    28525,
+    28526
+  ],
+  "sigil of woodcraft": [
+    28528,
+    28529
+  ],
+  "corrupted scythe of vitur": [
+    28543,
+    28545
+  ],
+  "corrupted tumekens shadow": [
+    28547,
+    28549
+  ],
+  "quest lamp": [
+    28551,
+    28552,
+    28553,
+    28554
+  ],
+  "warped sceptre": [
+    28583,
+    28585
+  ],
+  "magic lamp": [
+    28587,
+    28588,
+    28589,
+    28590
+  ],
+  "spider hat": [
+    28603,
+    28605,
+    28607,
+    28609,
+    28611
+  ],
+  "beehive": [
+    28676,
+    28677
   ]
 }

@@ -25,6 +25,7 @@
 package net.runelite.client.plugins.gpu;
 
 import com.google.common.base.Stopwatch;
+import java.io.IOException;
 import java.util.Arrays;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -43,45 +44,73 @@ import net.runelite.api.SceneTileModel;
 import net.runelite.api.SceneTilePaint;
 import net.runelite.api.Tile;
 import net.runelite.api.WallObject;
+import net.runelite.client.plugins.gpu.regions.Regions;
 
 @Singleton
 @Slf4j
 class SceneUploader
 {
-	@Inject
-	private Client client;
+	private final Client client;
+	private final GpuPluginConfig gpuConfig;
+
+	private Regions regions;
 
 	int sceneId = (int) System.nanoTime();
 	private int offset;
 	private int uvoffset;
+	private int uniqueModels;
 
-	void upload(Scene scene, GpuIntBuffer vertexbuffer, GpuFloatBuffer uvBuffer)
+	@Inject
+	SceneUploader(
+		Client client,
+		GpuPluginConfig config
+	)
 	{
-		Stopwatch stopwatch = Stopwatch.createStarted();
+		this.client = client;
+		this.gpuConfig = config;
 
+		try (var in = SceneUploader.class.getResourceAsStream("regions/regions.txt"))
+		{
+			regions = new Regions(in, "regions.txt");
+		}
+		catch (IOException ex)
+		{
+			throw new RuntimeException(ex);
+		}
+	}
+
+	void upload(Scene scene, GpuIntBuffer vertexBuffer, GpuFloatBuffer uvBuffer)
+	{
 		++sceneId;
 		offset = 0;
 		uvoffset = 0;
-		vertexbuffer.clear();
+		uniqueModels = 0;
+		vertexBuffer.clear();
 		uvBuffer.clear();
 
+		Stopwatch stopwatch = Stopwatch.createStarted();
+		prepare(scene);
+		stopwatch.stop();
+		log.debug("Scene preparation time: {}", stopwatch);
+
+		stopwatch = Stopwatch.createStarted();
 		for (int z = 0; z < Constants.MAX_Z; ++z)
 		{
-			for (int x = 0; x < Constants.SCENE_SIZE; ++x)
+			for (int x = 0; x < Constants.EXTENDED_SCENE_SIZE; ++x)
 			{
-				for (int y = 0; y < Constants.SCENE_SIZE; ++y)
+				for (int y = 0; y < Constants.EXTENDED_SCENE_SIZE; ++y)
 				{
-					Tile tile = scene.getTiles()[z][x][y];
+					Tile tile = scene.getExtendedTiles()[z][x][y];
 					if (tile != null)
 					{
-						upload(scene, tile, vertexbuffer, uvBuffer);
+						upload(scene, tile, vertexBuffer, uvBuffer);
 					}
 				}
 			}
 		}
 
 		stopwatch.stop();
-		log.debug("Scene upload time: {}", stopwatch);
+		log.debug("Scene upload time: {} unique models: {} length: {}KB", stopwatch, uniqueModels, (offset * 16) / 1024);
 	}
 
 	private void upload(Scene scene, Tile tile, GpuIntBuffer vertexBuffer, GpuFloatBuffer uvBuffer)
@@ -208,6 +237,8 @@ class SceneUploader
 		final int localX = offsetX;
 		final int localY = offsetY;
 
+		tileX += GpuPlugin.SCENE_OFFSET;
+		tileY += GpuPlugin.SCENE_OFFSET;
 		int swHeight = tileHeights[tileZ][tileX][tileY];
 		int seHeight = tileHeights[tileZ][tileX + 1][tileY];
 		int neHeight = tileHeights[tileZ][tileX + 1][tileY + 1];
@@ -356,6 +387,12 @@ class SceneUploader
 
 	private void uploadSceneModel(Model model, GpuIntBuffer vertexBuffer, GpuFloatBuffer uvBuffer)
 	{
+		// deduplicate hillskewed models
+		if (model.getUnskewedModel() != null)
+		{
+			model = model.getUnskewedModel();
+		}
+
 		if (model.getSceneId() == sceneId)
 		{
 			return; // model has already been uploaded
@@ -371,6 +408,7 @@ class SceneUploader
 			model.setUvBufferOffset(-1);
 		}
 		model.setSceneId(sceneId);
+		++uniqueModels;
 
 		int len = pushModel(model, vertexBuffer, uvBuffer);
 
@@ -1007,5 +1045,65 @@ class SceneUploader
 		}
 
 		return (hue << 10 | sat << 7 | lum) & 65535;
+	}
+
+	// remove tiles from the scene that are outside the current region
+	private void prepare(Scene scene)
+	{
+		if (scene.isInstance() || !gpuConfig.hideUnrelatedMaps())
+		{
+			return;
+		}
+
+		int baseX = scene.getBaseX() / 8;
+		int baseY = scene.getBaseY() / 8;
+		int centerX = baseX + 6;
+		int centerY = baseY + 6;
+		int centerId = regions.getRegionId(centerX, centerY);
+
+		int r = Constants.EXTENDED_SCENE_SIZE / 16;
+		for (int offx = -r; offx <= r; ++offx)
+		{
+			for (int offy = -r; offy <= r; ++offy)
+			{
+				int cx = centerX + offx;
+				int cy = centerY + offy;
+				int id = regions.getRegionId(cx, cy);
+				if (id != centerId)
+				{
+					removeChunk(scene, cx, cy);
+				}
+			}
+		}
+	}
+
+	private static void removeChunk(Scene scene, int cx, int cy)
+	{
+		int wx = cx * 8;
+		int wy = cy * 8;
+		int sx = wx - scene.getBaseX();
+		int sy = wy - scene.getBaseY();
+		int cmsx = sx + GpuPlugin.SCENE_OFFSET;
+		int cmsy = sy + GpuPlugin.SCENE_OFFSET;
+		Tile[][][] tiles = scene.getExtendedTiles();
+		for (int x = 0; x < 8; ++x)
+		{
+			for (int y = 0; y < 8; ++y)
+			{
+				int msx = cmsx + x;
+				int msy = cmsy + y;
+				if (msx >= 0 && msx < Constants.EXTENDED_SCENE_SIZE && msy >= 0 && msy < Constants.EXTENDED_SCENE_SIZE)
+				{
+					for (int z = 0; z < Constants.MAX_Z; ++z)
+					{
+						Tile tile = tiles[z][msx][msy];
+						if (tile != null)
+						{
+							scene.removeTile(tile);
+						}
+					}
+				}
+			}
+		}
 	}
 }
