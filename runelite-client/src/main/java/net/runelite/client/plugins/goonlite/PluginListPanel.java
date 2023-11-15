@@ -184,8 +184,6 @@ class PluginListPanel extends PluginPanel
 				})
 				.map(plugin ->
 				{
-					System.out.println("got a plugin");
-					System.out.println(plugin.getName());
 					PluginDescriptor descriptor = plugin.getClass().getAnnotation(PluginDescriptor.class);
 					Config config = pluginManager.getPluginConfigProxy(plugin);
 					ConfigDescriptor configDescriptor = config == null ? null : configManager.getConfigDescriptor(config);
@@ -213,7 +211,6 @@ class PluginListPanel extends PluginPanel
 			.collect(Collectors.toList());
 
 		mainPanel.removeAll();
-		System.out.println("trying to refresh");
 		System.out.println(pluginList.size());
 		refresh();
 	}

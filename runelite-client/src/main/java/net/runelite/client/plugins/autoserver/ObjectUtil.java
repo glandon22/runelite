@@ -1,6 +1,5 @@
 package net.runelite.client.plugins.autoserver;
 
-import com.google.api.client.json.Json;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

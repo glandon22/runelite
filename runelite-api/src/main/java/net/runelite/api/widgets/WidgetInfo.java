@@ -576,7 +576,8 @@ public enum WidgetInfo
 
 	STRANGLER_INFECTION_OVERLAY(WidgetID.THE_STRANGLER_INFECTION_GROUP_ID, 4),
 	SANITY_OVERLAY(WidgetID.SANITY_GROUP_ID, 3),
-	;
+	// Place holder
+	CLICK_HERE_TO_PLAY_BUTTON(2, 3);
 
 	private final int id;
 

@@ -1,6 +1,10 @@
-package net.runelite.client.plugins.goonglassblowing;
+package net.runelite.client.plugins.glpotmaker;
 
-import com.google.gson.*;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.inject.Provides;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -8,35 +12,32 @@ import com.sun.net.httpserver.HttpServer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
-import net.runelite.api.GameObject;
-import net.runelite.api.GameState;
-import net.runelite.api.Projectile;
-import net.runelite.api.widgets.WidgetInfo;
+import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.autoserver.*;
+import net.runelite.client.plugins.cannon.CannonConfig;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.apache.commons.compress.utils.IOUtils;
 
 import javax.inject.Inject;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @PluginDescriptor(
-        name = "Blow Glass",
-        description = "Auto Blows Glass",
-        tags = {"bot", "goonlite", "crafting"},
+        name = "Pot Maker",
+        description = "Auto makes pots",
+        tags = {"bot", "goonlite", "herblore"},
         enabledByDefault = false
 )
-public class GoonGlassBlowingPlugin extends Plugin {
+public class GlPotMakerPlugin extends Plugin {
     @Getter(AccessLevel.PACKAGE)
     private String status;
 
@@ -48,6 +49,14 @@ public class GoonGlassBlowingPlugin extends Plugin {
 
     private boolean terminate;
 
+    @Inject
+    private GlPotMakerConfig config;
+
+    @Provides
+    GlPotMakerConfig provideConfig(ConfigManager configManager)
+    {
+        return configManager.getConfig(GlPotMakerConfig.class);
+    }
     private HttpServer server = null;
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final Charset CHARSET = StandardCharsets.UTF_8;
@@ -68,6 +77,7 @@ public class GoonGlassBlowingPlugin extends Plugin {
     private class MyHttpHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
+            System.out.println("sdfsdfdsfds");
             String requestParamValue = null;
             try {
                 handleResponse(httpExchange, httpExchange.getRequestBody());
@@ -77,12 +87,15 @@ public class GoonGlassBlowingPlugin extends Plugin {
         }
 
         private void handleResponse(HttpExchange httpExchange, InputStream reqBody) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+            System.out.println("we here");
             OutputStream outputStream = httpExchange.getResponseBody();
             byte[] bytes = IOUtils.toByteArray(reqBody);
             String text = new String(bytes, CHARSET);
             try {
                 JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
             } catch (Exception e) {
+                System.out.println("exce");
+                System.out.println(e.getMessage());
                 String resText = "Exception while trying to parse request body.";
                 httpExchange.sendResponseHeaders(403, resText.length());
 
@@ -92,6 +105,8 @@ public class GoonGlassBlowingPlugin extends Plugin {
                 return;
             }
             final JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
+            System.out.println("hhhhh");
+            System.out.println(jsonObject.toString());
             if (jsonObject.get("status") != null) {
                 status = jsonObject.get("status").getAsString();
             }
@@ -131,7 +146,15 @@ public class GoonGlassBlowingPlugin extends Plugin {
         server.createContext("/manager", new MyHttpHandler());
         server.setExecutor(threadPoolExecutor);
         server.start();
-        processBuilder = new ProcessBuilder("python3", System.getProperty("user.dir") + "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool/crafting/blow_glass_v3.py");
+        String command = "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool/herblore/make_pots_v2.py";
+        System.out.println("my comm");
+        System.out.println(command);
+        processBuilder = new ProcessBuilder(
+                "python3",
+                System.getProperty("user.dir") + command,
+                Integer.toString(config.pot()),
+                Integer.toString(config.secondary())
+        );
         processBuilder.redirectErrorStream(true);
         // Get the environment variables from the ProcessBuilder instance
         Map<String, String> environment = processBuilder.environment();
@@ -139,6 +162,8 @@ public class GoonGlassBlowingPlugin extends Plugin {
         // Set a new environment variable
         environment.put("PYTHONPATH", System.getProperty("user.dir") + "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool");
         processBuilder.start();
+
+
         overlayManager.add(overlay);
     }
 
@@ -148,7 +173,7 @@ public class GoonGlassBlowingPlugin extends Plugin {
         Process p = new ProcessBuilder(
                 "/bin/sh",
                 "-c",
-                "pgrep -f '.*AutoOldSchool/crafting/blow_glass_v3.py' | xargs kill -9").start();
+                "pgrep -f '.*AutoOldSchool/herblore/make_pots_v2.py' | xargs kill -9").start();
         overlayManager.remove(overlay);
         server.stop(0);
     }

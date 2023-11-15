@@ -1,4 +1,5 @@
-package net.runelite.client.plugins.goonglassblowing;
+package net.runelite.client.plugins.glbankfletch;
+
 
 import com.google.gson.*;
 import com.sun.net.httpserver.Headers;
@@ -15,6 +16,7 @@ import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.autoserver.*;
+import net.runelite.client.plugins.glbankfletch.ScriptOverlay;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.apache.commons.compress.utils.IOUtils;
 
@@ -31,12 +33,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 @PluginDescriptor(
-        name = "Blow Glass",
-        description = "Auto Blows Glass",
-        tags = {"bot", "goonlite", "crafting"},
+        name = "Bank Fletcher",
+        description = "Auto fletches",
+        tags = {"bot", "goonlite", "fletch"},
         enabledByDefault = false
 )
-public class GoonGlassBlowingPlugin extends Plugin {
+public class GlBankFletchPlugin extends Plugin {
     @Getter(AccessLevel.PACKAGE)
     private String status;
 
@@ -68,6 +70,7 @@ public class GoonGlassBlowingPlugin extends Plugin {
     private class MyHttpHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
+            System.out.println("sdfsdfdsfds");
             String requestParamValue = null;
             try {
                 handleResponse(httpExchange, httpExchange.getRequestBody());
@@ -77,12 +80,15 @@ public class GoonGlassBlowingPlugin extends Plugin {
         }
 
         private void handleResponse(HttpExchange httpExchange, InputStream reqBody) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+            System.out.println("we here");
             OutputStream outputStream = httpExchange.getResponseBody();
             byte[] bytes = IOUtils.toByteArray(reqBody);
             String text = new String(bytes, CHARSET);
             try {
                 JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
             } catch (Exception e) {
+                System.out.println("exce");
+                System.out.println(e.getMessage());
                 String resText = "Exception while trying to parse request body.";
                 httpExchange.sendResponseHeaders(403, resText.length());
 
@@ -92,6 +98,8 @@ public class GoonGlassBlowingPlugin extends Plugin {
                 return;
             }
             final JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
+            System.out.println("hhhhh");
+            System.out.println(jsonObject.toString());
             if (jsonObject.get("status") != null) {
                 status = jsonObject.get("status").getAsString();
             }
@@ -131,7 +139,7 @@ public class GoonGlassBlowingPlugin extends Plugin {
         server.createContext("/manager", new MyHttpHandler());
         server.setExecutor(threadPoolExecutor);
         server.start();
-        processBuilder = new ProcessBuilder("python3", System.getProperty("user.dir") + "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool/crafting/blow_glass_v3.py");
+        processBuilder = new ProcessBuilder("python3", System.getProperty("user.dir") + "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool/fletching/string_v3.py");
         processBuilder.redirectErrorStream(true);
         // Get the environment variables from the ProcessBuilder instance
         Map<String, String> environment = processBuilder.environment();
@@ -139,6 +147,8 @@ public class GoonGlassBlowingPlugin extends Plugin {
         // Set a new environment variable
         environment.put("PYTHONPATH", System.getProperty("user.dir") + "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool");
         processBuilder.start();
+
+
         overlayManager.add(overlay);
     }
 
@@ -148,7 +158,7 @@ public class GoonGlassBlowingPlugin extends Plugin {
         Process p = new ProcessBuilder(
                 "/bin/sh",
                 "-c",
-                "pgrep -f '.*AutoOldSchool/crafting/blow_glass_v3.py' | xargs kill -9").start();
+                "pgrep -f '.*AutoOldSchool/fletching/string_v3.py' | xargs kill -9").start();
         overlayManager.remove(overlay);
         server.stop(0);
     }

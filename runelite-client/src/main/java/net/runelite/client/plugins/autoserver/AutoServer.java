@@ -1,6 +1,5 @@
 package net.runelite.client.plugins.autoserver;
 
-import com.google.api.client.json.Json;
 import com.google.gson.*;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
