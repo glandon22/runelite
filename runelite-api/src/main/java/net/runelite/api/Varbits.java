@@ -153,6 +153,34 @@ public final class Varbits
 	public static final int PRAYER_AUGURY = 5465;
 
 	/**
+	 * Ruinous Powers
+	 */
+	public static final int PRAYER_RP_REJUVENATION = 14840;
+	public static final int PRAYER_RP_ANCIENT_STRENGTH = 14829;
+	public static final int PRAYER_RP_ANCIENT_SIGHT = 14830;
+	public static final int PRAYER_RP_ANCIENT_WILL = 14831;
+	public static final int PRAYER_RP_PROTECT_ITEM = 14966;
+	public static final int PRAYER_RP_RUINOUS_GRACE = 14841;
+	public static final int PRAYER_RP_DAMPEN_MAGIC = 14964;
+	public static final int PRAYER_RP_DAMPEN_RANGED = 14963;
+	public static final int PRAYER_RP_DAMPEN_MELEE = 14962;
+	public static final int PRAYER_RP_TRINITAS = 14832;
+	public static final int PRAYER_RP_BERSERKER = 14844;
+	public static final int PRAYER_RP_PURGE = 14839;
+	public static final int PRAYER_RP_METABOLISE = 14843;
+	public static final int PRAYER_RP_REBUKE = 14850;
+	public static final int PRAYER_RP_VINDICATION = 14851;
+	public static final int PRAYER_RP_DECIMATE = 14833;
+	public static final int PRAYER_RP_ANNIHILATE = 14834;
+	public static final int PRAYER_RP_VAPORISE = 14835;
+	public static final int PRAYER_RP_FUMUS_VOW = 14845;
+	public static final int PRAYER_RP_UMBRA_VOW = 14847;
+	public static final int PRAYER_RP_CRUORS_VOW = 14846;
+	public static final int PRAYER_RP_GLACIES_VOW = 14848;
+	public static final int PRAYER_RP_WRATH = 14842;
+	public static final int PRAYER_RP_INTENSIFY = 14965;
+
+	/**
 	 * Diary Entries
 	 */
 	public static final int DIARY_ARDOUGNE_EASY = 4458;
@@ -760,6 +788,13 @@ public final class Varbits
 	 * 101 &lt;= Teleblock active, remaining ticks of blocking effect
 	 */
 	public static final int TELEBLOCK = 4163;
+
+	/**
+	 * Cooldown timer remaining before eligible to restore at a god wars dungeon altar.
+	 * Number of game ticks remaining is in intervals of 100; for a value X there are 100 * X game ticks remaining.
+	 * A player can pray at a god wars altar once this reaches 0.
+	 */
+	public static final int GOD_WARS_ALTAR_COOLDOWN = 4099;
 
 	/**
 	 * Farmer's Affinity effect timer

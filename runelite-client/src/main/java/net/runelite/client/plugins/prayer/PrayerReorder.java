@@ -56,6 +56,7 @@ import net.runelite.client.chat.ChatMessageManager;
 import net.runelite.client.chat.QueuedMessage;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
+import net.runelite.client.events.ProfileChanged;
 import net.runelite.client.menus.MenuManager;
 import net.runelite.client.menus.WidgetMenuOption;
 import org.apache.commons.lang3.ArrayUtils;
@@ -118,6 +119,7 @@ class PrayerReorder
 	{
 		reordering = false;
 		clearPrayerTabMenus();
+		clientThread.invokeLater(() -> rebuildPrayers(false));
 		clientThread.invokeLater(this::redrawPrayers);
 	}
 
@@ -493,5 +495,11 @@ class PrayerReorder
 				}
 			}
 		}
+	}
+
+	@Subscribe
+	public void onProfileChanged(ProfileChanged e)
+	{
+		clientThread.invokeLater(this::redrawPrayers);
 	}
 }
