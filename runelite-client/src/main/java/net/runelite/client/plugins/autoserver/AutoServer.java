@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpServer;
 import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.Deque;
+import net.runelite.api.GameState;
 import net.runelite.api.Projectile;
 import net.runelite.api.events.GameTick;
 import net.runelite.client.callback.ClientThread;
@@ -281,7 +282,6 @@ public class AutoServer extends Plugin {
             }
 
             if (jsonObject.get("gameObjectsV2") != null) {
-                System.out.println("in v2 game");
                 ObjectUtil go = new ObjectUtil();
                 JsonObject s = jsonObject.get("gameObjectsV2").getAsJsonObject();
                 invokeAndWait(() -> {
@@ -506,6 +506,30 @@ public class AutoServer extends Plugin {
                 });
             }
 
+            if (jsonObject.get("projectilesV2") != null && jsonObject.get("projectilesV2").getAsBoolean()) {
+                Projectiles p = new Projectiles();
+                invokeAndWait(() -> {
+                    gip.projectilesV2 = p.getProjectiles(client);
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("activePrayers") != null && jsonObject.get("activePrayers").getAsBoolean()) {
+                Player p = new Player();
+                invokeAndWait(() -> {
+                    gip.activePrayers = p.activePrayer(client);
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("gameCycle") != null && jsonObject.get("gameCycle").getAsBoolean()) {
+                Player p = new Player();
+                invokeAndWait(() -> {
+                    gip.gameCycle = client.getGameCycle();
+                    return null;
+                });
+            }
+
 
             if (jsonObject.get("getTargetNPC") != null && jsonObject.get("getTargetNPC").getAsBoolean()) {
                 Plugin qhp = pluginManager.getPlugins().stream()
@@ -538,6 +562,32 @@ public class AutoServer extends Plugin {
 
                     invokeAndWait(() -> {
                         gip.allGroundItems = go.getGroundItemsAnyId(client, s);
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println("eeee");
+                    System.out.println(e);
+                }
+            }
+
+            if (jsonObject.get("gameState") != null) {
+                try {
+
+                    invokeAndWait(() -> {
+                        gip.gameState = client.getGameState();
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println("eeee");
+                    System.out.println(e);
+                }
+            }
+
+            if (jsonObject.get("login") != null) {
+                try {
+
+                    invokeAndWait(() -> {
+                        client.setGameState(GameState.LOGGING_IN);
                         return null;
                     });
                 } catch (Exception e) {

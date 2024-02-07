@@ -3,12 +3,10 @@ package net.runelite.client.plugins.autoserver;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import lombok.Value;
-import net.runelite.api.AnimationID;
-import net.runelite.api.Client;
-import net.runelite.api.GraphicID;
-import net.runelite.api.Skill;
+import net.runelite.api.*;
 import net.runelite.client.plugins.autolode.Pickaxe;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -55,11 +53,8 @@ public class Player {
     }
 
     public String getInteractingWith(Client client) {
-        System.out.println("herjk");
         if (client.getLocalPlayer() != null) {
-            System.out.println("123");
             if (client.getLocalPlayer().getInteracting() != null) {
-                System.out.println("567");
                 System.out.println(client.getLocalPlayer().getInteracting().getName());
                 return client.getLocalPlayer().getInteracting().getName();
             }
@@ -72,5 +67,17 @@ public class Player {
                 && client.getLocalPlayer().getInteracting().getName().contains("Fishing spot")
                 && client.getLocalPlayer().getInteracting().getGraphic() != GraphicID.FLYING_FISH
                 && FISHING_ANIMATIONS.contains(client.getLocalPlayer().getAnimation());
+    }
+
+    public ArrayList<Integer> activePrayer(Client client) {
+        ArrayList<Integer> activePrayers = new ArrayList<>();
+        for (Prayer prayer : Prayer.values())
+        {
+            if (client.isPrayerActive(prayer))
+            {
+                activePrayers.add(prayer.getVarbit());
+            }
+        }
+        return activePrayers;
     }
 }

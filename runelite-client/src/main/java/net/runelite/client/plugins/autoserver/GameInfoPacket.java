@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.autoserver;
 
 import net.runelite.api.Deque;
+import net.runelite.api.GameState;
 import net.runelite.api.Projectile;
 
 import java.time.Instant;
@@ -42,10 +43,14 @@ public class GameInfoPacket {
     HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> allGroundItems;
     int targetObj;
     int targetNPC;
+    int gameCycle;
     List<Inventory.Slot> equipmentInv;
     java.awt.List menuEntries;
     HashSet<Integer> projectiles;
+    List<Projectiles.IncomingProjectile> projectilesV2;
     Interfaces.RightClickMenu rightClickMenu;
     String[] chatLines;
     Interfaces.CanvasData canvas;
+    GameState gameState;
+    ArrayList<Integer> activePrayers;
 }

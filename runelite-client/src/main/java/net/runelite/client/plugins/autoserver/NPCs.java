@@ -24,6 +24,8 @@ public class NPCs {
         int scale;
         int x_coord;
         int y_coord;
+        String overheadText;
+        int compositionID;
     }
 
     public ArrayList<NpcPacket> getNPCsByName(Client client, HashSet<String> npcsToFind) {
@@ -32,7 +34,7 @@ public class NPCs {
         for (NPC npc : npcs) {
             String n = npc.getName();
             if (n != null && npcsToFind.contains(npc.getName())) {
-                Polygon poly = npc.getCanvasTilePoly();
+                Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
                 Utilities u = new Utilities();
@@ -49,7 +51,9 @@ public class NPCs {
                             npc.getGraphic(),
                             npc.getHealthRatio(), npc.getHealthScale(),
                             npc.getWorldLocation().getX(),
-                            npc.getWorldLocation().getY()
+                            npc.getWorldLocation().getY(),
+                            npc.getOverheadText(),
+                            npc.getComposition().getId()
                     );
                     alnp.add(np);
                 }
@@ -64,8 +68,8 @@ public class NPCs {
         ArrayList<NpcPacket> alnp = new ArrayList<>();
         for (NPC npc : npcs) {
             String n = npc.getName();
-            if (n != null && npcsToFind.contains(Integer.toString(npc.getId()))) {
-                Polygon poly = npc.getCanvasTilePoly();
+            if (n != null && (npcsToFind.contains(Integer.toString(npc.getId())) || npcsToFind.contains(Integer.toString(npc.getComposition().getId())))) {
+                Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
                 Utilities u = new Utilities();
@@ -82,7 +86,9 @@ public class NPCs {
                             npc.getGraphic(),
                             npc.getHealthRatio(), npc.getHealthScale(),
                             npc.getWorldLocation().getX(),
-                            npc.getWorldLocation().getY()
+                            npc.getWorldLocation().getY(),
+                            npc.getOverheadText(),
+                            npc.getComposition().getId()
                     );
                     alnp.add(np);
                 }
@@ -119,7 +125,9 @@ public class NPCs {
                                 npc.getGraphic(),
                                 npc.getHealthRatio(), npc.getHealthScale(),
                                 npc.getWorldLocation().getX(),
-                                npc.getWorldLocation().getY()
+                                npc.getWorldLocation().getY(),
+                                npc.getOverheadText(),
+                                npc.getComposition().getId()
                         );
                         alnp.add(np);
                     }
