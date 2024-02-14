@@ -43,7 +43,7 @@ import net.runelite.client.ui.DynamicGridLayout;
 import net.runelite.client.ui.FontManager;
 import net.runelite.client.ui.PluginPanel;
 import net.runelite.client.ui.components.ColorJButton;
-import net.runelite.client.ui.components.ComboBoxListRenderer;
+import net.runelite.client.ui.components.TitleCaseListCellRenderer;
 import net.runelite.client.ui.components.colorpicker.ColorPickerManager;
 import net.runelite.client.ui.components.colorpicker.RuneliteColorPicker;
 import net.runelite.client.util.ColorUtil;
@@ -100,7 +100,7 @@ class ConfigPanel extends PluginPanel
 	private final ExternalPluginManager externalPluginManager;
 	private final ColorPickerManager colorPickerManager;
 
-	private final ListCellRenderer<Enum<?>> listCellRenderer = new ComboBoxListRenderer<>();
+	private final TitleCaseListCellRenderer listCellRenderer = new TitleCaseListCellRenderer();
 
 	private final FixedWidthPanel mainPanel;
 	private final JLabel title;

@@ -33,6 +33,7 @@ public class GameInfoPacket {
     int poseAnimation;
     int playerAnimation;
     int varBit;
+    HashMap<String, Integer> varBits;
     Interfaces.EnrichedInterfaceData widget;
     HashMap<String, Interfaces.EnrichedInterfaceData> widgets;
     Utilities.PointData playerWorldPoint;

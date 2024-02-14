@@ -113,10 +113,7 @@ public class GoonLitePlugin extends Plugin
 			// Expand config panel for plugin
 			SwingUtilities.invokeLater(() ->
 			{
-				if (!navButton.isSelected())
-				{
-					navButton.getOnSelect().run();
-				}
+				clientToolbar.openPanel(navButton);
 				topLevelConfigPanel.openConfigurationPanel(plugin.getName());
 			});
 		}
