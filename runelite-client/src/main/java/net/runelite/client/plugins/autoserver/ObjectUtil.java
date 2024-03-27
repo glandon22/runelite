@@ -169,10 +169,13 @@ public class ObjectUtil {
 
             for (TileObject g : objects) {
                 // Return all objects if not looking for a specific one
-                if (g != null && (RELEVANT_OBJECTS.contains(g.getId()) || RELEVANT_OBJECTS.isEmpty()) && g.getCanvasTilePoly() != null) {
+                if (
+                        g != null && (RELEVANT_OBJECTS.contains(g.getId()) || RELEVANT_OBJECTS.isEmpty())
+                                && g.getCanvasTilePoly() != null
+                ) {
                     Shape poly = g.getClickbox();
                     if (poly == null) {
-                        poly = g.getCanvasTilePoly();
+                        poly = g.getClickbox();
                     }
                     if (poly == null) {
                         continue;
@@ -535,6 +538,66 @@ public class ObjectUtil {
     }
 
     public HashMap<Integer, ArrayList<EnhancedObjData>> getGroundItemsAnyId(Client client, JsonArray itemsToFind) {
+        HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
+
+        ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
+        ArrayList<WorldPoint> wps = ptao.wps;
+
+        Tile[][][] tiles = client.getScene().getTiles();
+        Utilities u = new Utilities();
+        for (WorldPoint wp: wps) {
+            final LocalPoint localLocation = LocalPoint.fromWorld(client, wp);
+            if (localLocation != null) {
+                Tile tile = tiles[client.getPlane()][localLocation.getSceneX()][localLocation.getSceneY()];
+                if (tile != null) {
+                    List<TileItem> wo = tile.getGroundItems();
+                    if (wo != null) {
+                        for (TileItem ti: wo) {
+                            System.out.println("wp coords");
+                            System.out.println(wp.getX());
+                            System.out.println(wp.getY());
+                            final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
+                            Rectangle r = poly.getBounds();
+                            HashMap<Character, Integer> center = u.getCenter(r);
+                            if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
+                                if (returnData.get(ti.getId()) != null) {
+                                    ArrayList<EnhancedObjData> gobj = returnData.get(ti.getId());
+                                    gobj.add(new EnhancedObjData(
+                                            center.get('x'),
+                                            center.get('y'),
+                                            tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                            wp.getX(),
+                                            wp.getY(),
+                                            ti.getId())
+                                    );
+                                    returnData.put(ti.getId(), gobj);
+                                }
+
+                                else {
+                                    ArrayList<EnhancedObjData> gobj = new ArrayList<>();
+                                    gobj.add(
+                                            new EnhancedObjData(
+                                                    center.get('x'),
+                                                    center.get('y'),
+                                                    tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                    wp.getX(),
+                                                    wp.getY(),
+                                                    ti.getId()
+                                            )
+                                    );
+                                    returnData.put(ti.getId(), gobj);
+                                }
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return returnData;
+    }
+
+    public HashMap<Integer, ArrayList<EnhancedObjData>> getDecorativeItemsAnyId(Client client, JsonArray itemsToFind) {
         HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
