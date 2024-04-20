@@ -58,10 +58,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Slf4j
 @Singleton
 class PluginListPanel extends PluginPanel
 {
+	private static final Logger logger = LoggerFactory.getLogger(PluginListPanel.class);
 	private static final String RUNELITE_GROUP_NAME = RuneLiteConfig.class.getAnnotation(ConfigGroup.class).value();
 	private static final String PINNED_PLUGINS_CONFIG_KEY = "pinnedPlugins";
 	private static final ImmutableList<String> CATEGORY_TAGS = ImmutableList.of(
@@ -83,6 +87,7 @@ class PluginListPanel extends PluginPanel
 	private final JScrollPane scrollPane;
 	private final FixedWidthPanel mainPanel;
 	private List<PluginListItem> pluginList;
+
 
 	@Inject
 	public PluginListPanel(
@@ -166,7 +171,7 @@ class PluginListPanel extends PluginPanel
 
 	void rebuildPluginList()
 	{
-		System.out.println("gooning");
+		logger.info("gooning");
 		final List<String> pinnedPlugins = getPinnedPluginNames();
 
 		// populate pluginList with all non-hidden plugins
@@ -211,7 +216,7 @@ class PluginListPanel extends PluginPanel
 			.collect(Collectors.toList());
 
 		mainPanel.removeAll();
-		System.out.println(pluginList.size());
+		logger.info(String.valueOf(pluginList.size()));
 		refresh();
 	}
 

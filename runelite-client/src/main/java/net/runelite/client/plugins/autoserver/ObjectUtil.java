@@ -8,18 +8,21 @@ import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
-import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginManager;
 
 import javax.inject.Inject;
 import java.awt.*;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ObjectUtil {
+    private static final Logger logger = LoggerFactory.getLogger(ObjectUtil.class);
+
     @Inject
     private PluginManager pluginManager;
 
@@ -79,12 +82,12 @@ public class ObjectUtil {
                 );
                 RELEVANT_OBJECTS.add(gameObjectToFind);
             } catch (Exception e) {
-                System.out.println("Failed to find game object data for tile: ");
-                System.out.println(s);
+                logger.info("Failed to find game object data for tile: ");
+                logger.info(s.toString());
             }
         }
-        System.out.println("Successfully parsed tiles and objects / npcs to find. Searching the following tiles: ");
-        System.out.println(new Gson().toJson(wps));
+        logger.info("Successfully parsed tiles and objects / npcs to find. Searching the following tiles: ");
+        logger.info(new Gson().toJson(wps));
         return new ParsedTilesAndObjects(
                 RELEVANT_OBJECTS,
                 wps
@@ -118,8 +121,8 @@ public class ObjectUtil {
                 relevantObjects.add(object.getAsInt());
             }
         } catch (Exception e) {
-            System.out.println("Failed to find game object data for tile: ");
-            System.out.println(e.getMessage());
+            logger.info("Failed to find game object data for tile: ");
+            logger.info(e.getMessage());
         }
         return new ParsedTilesAndObjects(
                 relevantObjects,
@@ -248,7 +251,7 @@ public class ObjectUtil {
                 }
             }
         }
-        System.out.println("Successfully found game objects.");
+        logger.info("Successfully found game objects.");
         return returnData;
     }
 
@@ -553,9 +556,9 @@ public class ObjectUtil {
                     List<TileItem> wo = tile.getGroundItems();
                     if (wo != null) {
                         for (TileItem ti: wo) {
-                            System.out.println("wp coords");
-                            System.out.println(wp.getX());
-                            System.out.println(wp.getY());
+                            logger.info("wp coords");
+                            logger.info(String.valueOf(wp.getX()));
+                            logger.info(String.valueOf(wp.getY()));
                             final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
                             Rectangle r = poly.getBounds();
                             HashMap<Character, Integer> center = u.getCenter(r);
@@ -613,9 +616,9 @@ public class ObjectUtil {
                     List<TileItem> wo = tile.getGroundItems();
                     if (wo != null) {
                         for (TileItem ti: wo) {
-                            System.out.println("wp coords");
-                            System.out.println(wp.getX());
-                            System.out.println(wp.getY());
+                            logger.info("wp coords");
+                            logger.info(String.valueOf(wp.getX()));
+                            logger.info(String.valueOf(wp.getY()));
                             final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
                             Rectangle r = poly.getBounds();
                             HashMap<Character, Integer> center = u.getCenter(r);

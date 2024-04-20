@@ -15,7 +15,6 @@ import lombok.Value;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.cannon.CannonConfig;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.apache.commons.compress.utils.IOUtils;
 
@@ -61,7 +60,6 @@ public class GlPotMakerPlugin extends Plugin {
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final Charset CHARSET = StandardCharsets.UTF_8;
     ProcessBuilder processBuilder;
-    Process process;
 
     @Value
     private static class StatusRes {
@@ -147,8 +145,6 @@ public class GlPotMakerPlugin extends Plugin {
         server.setExecutor(threadPoolExecutor);
         server.start();
         String command = "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool/herblore/make_pots_v2.py";
-        System.out.println("my comm");
-        System.out.println(command);
         processBuilder = new ProcessBuilder(
                 "python3",
                 System.getProperty("user.dir") + command,
@@ -170,7 +166,7 @@ public class GlPotMakerPlugin extends Plugin {
     @Override
     protected void shutDown() throws Exception
     {
-        Process p = new ProcessBuilder(
+        new ProcessBuilder(
                 "/bin/sh",
                 "-c",
                 "pgrep -f '.*AutoOldSchool/herblore/make_pots_v2.py' | xargs kill -9").start();

@@ -25,9 +25,6 @@
 package net.runelite.client.plugins.goonlite;
 
 import net.runelite.api.MenuAction;
-import net.runelite.client.config.ChatColorConfig;
-import net.runelite.client.config.ConfigManager;
-import net.runelite.client.config.RuneLiteConfig;
 import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.events.OverlayMenuClicked;
 import net.runelite.client.plugins.Plugin;
@@ -58,15 +55,6 @@ public class GoonLitePlugin extends Plugin
 
 	@Inject
 	private Provider<TopLevelConfigPanel> topLevelConfigPanelProvider;
-
-	@Inject
-	private ConfigManager configManager;
-
-	@Inject
-	private RuneLiteConfig runeLiteConfig;
-
-	@Inject
-	private ChatColorConfig chatColorConfig;
 
 	private TopLevelConfigPanel topLevelConfigPanel;
 

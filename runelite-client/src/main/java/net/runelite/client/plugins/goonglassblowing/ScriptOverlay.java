@@ -3,7 +3,6 @@ package net.runelite.client.plugins.goonglassblowing;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
-import net.runelite.client.util.QuantityFormatter;
 
 import javax.inject.Inject;
 

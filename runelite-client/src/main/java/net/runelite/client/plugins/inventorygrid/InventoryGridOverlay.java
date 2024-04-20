@@ -111,9 +111,6 @@ class InventoryGridOverlay extends Overlay
 		{
 			final WidgetItem targetWidgetItem = getWidgetItem(inventoryWidget, i);
 			final Rectangle bounds = targetWidgetItem.getCanvasBounds(false);
-			System.out.println("box");
-			System.out.println(i);
-			System.out.println(bounds);
 			boolean inBounds = bounds.contains(mousePoint);
 
 			if (config.showItem() && inBounds)

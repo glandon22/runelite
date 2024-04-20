@@ -8,13 +8,8 @@ import com.sun.net.httpserver.HttpServer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
-import net.runelite.api.GameObject;
-import net.runelite.api.GameState;
-import net.runelite.api.Projectile;
-import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
-import net.runelite.client.plugins.autoserver.*;
 import net.runelite.client.ui.overlay.OverlayManager;
 import org.apache.commons.compress.utils.IOUtils;
 
@@ -24,8 +19,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -68,11 +61,9 @@ public class GoonGlassBlowingPlugin extends Plugin {
     private class MyHttpHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange httpExchange) throws IOException {
-            String requestParamValue = null;
             try {
                 handleResponse(httpExchange, httpExchange.getRequestBody());
-            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                e.printStackTrace();
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException ignored) {
             }
         }
 
@@ -81,7 +72,7 @@ public class GoonGlassBlowingPlugin extends Plugin {
             byte[] bytes = IOUtils.toByteArray(reqBody);
             String text = new String(bytes, CHARSET);
             try {
-                JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
+                new JsonParser().parse(text).getAsJsonObject();
             } catch (Exception e) {
                 String resText = "Exception while trying to parse request body.";
                 httpExchange.sendResponseHeaders(403, resText.length());

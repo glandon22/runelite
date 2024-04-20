@@ -32,9 +32,7 @@ public class Player {
                         client.getBoostedSkillLevel(Skill.valueOf(skillName))
                 );
                 skillData.put(skillName.toLowerCase(Locale.ROOT), skd);
-            } catch (Exception e) {
-                System.out.println("Failed to find data for skill: ");
-                System.out.println(elem);
+            } catch (Exception ignored) {
             }
         }
         return skillData;
@@ -55,7 +53,6 @@ public class Player {
     public String getInteractingWith(Client client) {
         if (client.getLocalPlayer() != null) {
             if (client.getLocalPlayer().getInteracting() != null) {
-                System.out.println(client.getLocalPlayer().getInteracting().getName());
                 return client.getLocalPlayer().getInteracting().getName();
             }
         }
