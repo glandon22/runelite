@@ -106,8 +106,8 @@ public class Interfaces {
                     targetWidget.getItemId(),
                     (int) r.getX(),
                     (int) ( r.getX() + r.getWidth()),
-                    (int) r.getY(),
-                    (int) (r.getY() + r.getHeight())
+                    (int) r.getY() + 23,
+                    (int) (r.getY() + r.getHeight() + 23)
             );
         }
         return null;
@@ -207,9 +207,10 @@ public class Interfaces {
         Canvas c = client.getCanvas();
         Rectangle r = c.getBounds();
         double xMin = c.getLocationOnScreen().getX();
-        double xMax = c.getLocationOnScreen().getX() + r.getWidth();
+        double xMax = xMin + r.getWidth();
+        // Account for the runelite title bar
         double yMin = c.getLocationOnScreen().getY();
-        double yMax = c.getLocationOnScreen().getY() + r.getHeight();
+        double yMax = yMin + r.getHeight();
         return new CanvasData(
                 (int) xMin,
                 (int) xMax,

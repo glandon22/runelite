@@ -3,6 +3,7 @@ package net.runelite.client.plugins.autoserver;
 import net.runelite.api.Deque;
 import net.runelite.api.GameState;
 import net.runelite.api.Projectile;
+import net.runelite.client.plugins.herbiboars.HerbiboarPlugin;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -54,4 +55,7 @@ public class GameInfoPacket {
     Interfaces.CanvasData canvas;
     GameState gameState;
     ArrayList<Integer> activePrayers;
+    AutoServer.herbiboarData herbiboar;
+    Utilities.PointData destinationTile;
+    HashMap<String, Integer> canvasArea;
 }

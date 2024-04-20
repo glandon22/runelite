@@ -27,15 +27,14 @@ package net.runelite.client.plugins.herbiboars;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Provides;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 import javax.inject.Inject;
 import lombok.Getter;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
@@ -140,6 +139,7 @@ public class HerbiboarPlugin extends Plugin
 	 */
 	private final List<HerbiboarSearchSpot> currentPath = Lists.newArrayList();
 
+	public boolean finished;
 	private boolean inHerbiboarArea;
 	private TrailToSpot nextTrail;
 	private HerbiboarSearchSpot.Group currentGroup;
@@ -148,6 +148,24 @@ public class HerbiboarPlugin extends Plugin
 	private boolean started;
 	private WorldPoint startPoint;
 	private HerbiboarStart startSpot;
+
+	@Value
+	public static class EnhancedObjData
+	{
+		int x;
+		int y;
+		int id;
+		int x_coord;
+		int y_coord;
+	}
+
+	public HashMap<String, Integer> getNextStop() {
+		return overlay.stop;
+	}
+
+	public boolean hasFinished() {
+		return finished;
+	}
 
 	@Provides
 	HerbiboarConfig provideConfig(ConfigManager configManager)
@@ -224,7 +242,7 @@ public class HerbiboarPlugin extends Plugin
 		// The started varbit doesn't get set until the first spot of the rotation has been searched
 		// so we need to use the current group as an indicator of the rotation being started
 		started = client.getVarbitValue(Varbits.HB_STARTED) > 0 || currentGroup != null;
-		boolean finished = !pathActive && started;
+		finished = !pathActive && started;
 
 		if (!wasStarted && started)
 		{
@@ -234,6 +252,10 @@ public class HerbiboarPlugin extends Plugin
 		if (finished)
 		{
 			resetTrailData();
+		}
+		Iterator<Integer> namesIterator = shownTrails.iterator();
+		while(namesIterator.hasNext()) {
+			System.out.println(namesIterator.next());
 		}
 	}
 
@@ -265,6 +287,7 @@ public class HerbiboarPlugin extends Plugin
 		started = false;
 		startPoint = null;
 		startSpot = null;
+		overlay.stop = null;
 	}
 
 	private void clearCache()

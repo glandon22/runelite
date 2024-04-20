@@ -46,22 +46,26 @@ public class Tiles {
                     final LocalPoint location = LocalPoint.fromWorld(client, tile.getWorldLocation());
                     if (location != null) {
                         final Polygon poly = Perspective.getCanvasTilePoly(client, location);
-                        Rectangle r = poly.getBounds();
-                        HashMap<Character, Integer> center = u.getCenter(r);
-                        if (
-                                center.get('x') > 0 && center.get('x') < 1920 &&
-                                        center.get('y') > 0 && center.get('y') < 1035
-                        ) {
-                            String parsedKey = Integer.toString(wp.getX()) + Integer.toString(wp.getY()) + Integer.toString(wp.getPlane());
-                            String parsedKeyV2 = Integer.toString(
-                                    wp.getX()) +
-                                    ',' +
-                                    Integer.toString(wp.getY()) +
-                                    ',' +
-                                    Integer.toString(wp.getPlane()
-                            );
-                            tileDataPacket.put(parsedKey, new TileData(center.get('x'), center.get('y')));
-                            tileDataPacket.put(parsedKeyV2, new TileData(center.get('x'), center.get('y')));
+                        if (poly != null) {
+                            Rectangle r = poly.getBounds();
+                            if (r != null) {
+                                HashMap<Character, Integer> center = u.getCenter(r);
+                                if (
+                                        center.get('x') > 0 && center.get('x') < 1920 &&
+                                                center.get('y') > 0 && center.get('y') < 1035
+                                ) {
+                                    String parsedKey = Integer.toString(wp.getX()) + Integer.toString(wp.getY()) + Integer.toString(wp.getPlane());
+                                    String parsedKeyV2 = Integer.toString(
+                                            wp.getX()) +
+                                            ',' +
+                                            Integer.toString(wp.getY()) +
+                                            ',' +
+                                            Integer.toString(wp.getPlane()
+                                            );
+                                    tileDataPacket.put(parsedKey, new TileData(center.get('x'), center.get('y')));
+                                    tileDataPacket.put(parsedKeyV2, new TileData(center.get('x'), center.get('y')));
+                                }
+                            }
                         }
                     }
                 }

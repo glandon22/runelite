@@ -5,17 +5,19 @@ import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.Value;
 import net.runelite.api.Client;
-import net.runelite.api.Deque;
 import net.runelite.api.GameState;
 import net.runelite.api.Projectile;
-import net.runelite.api.events.GameTick;
+import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.callback.ClientThread;
-import net.runelite.client.eventbus.Subscribe;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
+import net.runelite.client.ui.overlay.OverlayManager;
 import org.apache.commons.compress.utils.IOUtils;
 
 import javax.inject.Inject;
@@ -26,8 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -41,6 +42,23 @@ import java.util.concurrent.atomic.AtomicReference;
         enabledByDefault = false
 )
 public class AutoServer extends Plugin {
+    @Getter(AccessLevel.PACKAGE)
+    private String status = "test";
+
+    @Getter(AccessLevel.PACKAGE)
+    private String break_start = "pl";
+
+    @Getter(AccessLevel.PACKAGE)
+    private String break_end = "fsdf";
+
+    @Getter(AccessLevel.PACKAGE)
+    private HashMap<String, String> scriptStats;
+
+    @Inject
+    private OverlayManager overlayManager;
+
+    @Inject
+    private ScriptOverlay overlay;
     private HttpServer server = null;
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
     private static final Charset CHARSET = StandardCharsets.UTF_8;
@@ -48,6 +66,13 @@ public class AutoServer extends Plugin {
     @Value
     public static class osrsData {
         List<Inventory.Slot> inv;
+    }
+
+    @Value
+    public static class herbiboarData
+    {
+        HashMap<String, Integer> nextStop;
+        boolean finished;
     }
 
     @Inject private PluginManager pluginManager;
@@ -281,6 +306,17 @@ public class AutoServer extends Plugin {
                 });
             }
 
+            if (jsonObject.get("scriptStats") != null) {
+                JsonObject s = jsonObject.get("scriptStats").getAsJsonObject();
+                invokeAndWait(() -> {
+                    Gson gson = new Gson();
+                    // Parse my input as SearchV2 class
+                    HashMap<String, String> search = gson.fromJson(s, HashMap.class);
+                    scriptStats = search;
+                    return null;
+                });
+            }
+
             if (jsonObject.get("gameObjectsV2") != null) {
                 ObjectUtil go = new ObjectUtil();
                 JsonObject s = jsonObject.get("gameObjectsV2").getAsJsonObject();
@@ -483,6 +519,34 @@ public class AutoServer extends Plugin {
                 }
             }
 
+            if (jsonObject.get("herbiboar") != null && jsonObject.get("herbiboar").getAsBoolean()) {
+                Plugin qhp = pluginManager.getPlugins().stream()
+                        .filter(e -> e.getName().equals("Herbiboar"))
+                        .findAny().orElse(null);
+                if (qhp == null) {
+                    gip.herbiboar = new herbiboarData(null, false);
+                }
+
+                else {
+                    HashMap<String, Integer> nextStop = null;
+                    boolean hasFinished = false;
+
+                    Object qh = qhp.getClass().getMethod("getNextStop").invoke(qhp);
+                    if (qh != null) {
+                        nextStop = (HashMap<String, Integer>) qh;
+                    }
+
+                    Object qh2 = qhp.getClass().getMethod("hasFinished").invoke(qhp);
+                    if (qh2 != null) {
+                        hasFinished = (boolean) qh2;
+                    }
+
+                    gip.herbiboar = new herbiboarData(nextStop, hasFinished);
+                }
+
+
+            }
+
             if (jsonObject.get("getTargetObj") != null && jsonObject.get("getTargetObj").getAsBoolean()) {
                 Plugin qhp = pluginManager.getPlugins().stream()
                         .filter(e -> e.getName().equals("Interact Highlight"))
@@ -518,6 +582,26 @@ public class AutoServer extends Plugin {
                 Player p = new Player();
                 invokeAndWait(() -> {
                     gip.activePrayers = p.activePrayer(client);
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("destinationTile") != null && jsonObject.get("destinationTile").getAsBoolean()) {
+                invokeAndWait(() -> {
+                    LocalPoint lp = client.getLocalDestinationLocation();
+                    if (lp == null) {
+                        gip.destinationTile = null;
+                    }
+
+                    else {
+                        WorldPoint wp = WorldPoint.fromLocal(client, lp);
+                        Utilities.PointData pd = new Utilities.PointData();
+                        pd.x = wp.getX();
+                        pd.y = wp.getY();
+                        pd.z = wp.getPlane();
+                        gip.destinationTile = pd;
+                    }
+
                     return null;
                 });
             }
@@ -583,6 +667,13 @@ public class AutoServer extends Plugin {
                 }
             }
 
+            /**
+             * blocking areas -
+             * minimap - 161,95
+             * inv interace - 161,97
+             * chat buttons on bottom 162,1
+             */
+
             if (jsonObject.get("login") != null) {
                 try {
 
@@ -618,10 +709,12 @@ public class AutoServer extends Plugin {
         server.createContext("/osrs", new  MyHttpHandler());
         server.setExecutor(threadPoolExecutor);
         server.start();
+        overlayManager.add(overlay);
     }
 
     @Override
     protected void shutDown() throws Exception {
         server.stop(0);
+        overlayManager.remove(overlay);
     }
 }

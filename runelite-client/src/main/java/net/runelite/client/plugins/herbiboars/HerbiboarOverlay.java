@@ -30,6 +30,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.Shape;
+import java.util.HashMap;
 import java.util.Set;
 import net.runelite.api.TileObject;
 import net.runelite.api.coords.WorldPoint;
@@ -43,6 +44,7 @@ class HerbiboarOverlay extends Overlay
 {
 	private final HerbiboarPlugin plugin;
 	private final HerbiboarConfig config;
+	public HashMap<String, Integer> stop;
 
 	@Inject
 	public HerbiboarOverlay(HerbiboarPlugin plugin, HerbiboarConfig config)
@@ -90,6 +92,10 @@ class HerbiboarOverlay extends Overlay
 		{
 			WorldPoint correct = Iterables.getLast(plugin.getCurrentPath()).getLocation();
 			TileObject object = plugin.getTrailObjects().get(correct);
+			stop = new HashMap<>();
+			stop.put("x_coord", correct.getX());
+			stop.put("y_coord", correct.getY());
+			stop.put("id", object.getId());
 			drawObjectLocation(graphics, object, config.getObjectColor());
 		}
 
@@ -98,6 +104,9 @@ class HerbiboarOverlay extends Overlay
 		{
 			WorldPoint finishLoc = plugin.getEndLocations().get(finishId - 1);
 			TileObject object = plugin.getTunnels().get(finishLoc);
+			stop.put("x_coord", finishLoc.getX());
+			stop.put("y_coord", finishLoc.getY());
+			stop.put("id", object.getId());
 			drawObjectLocation(graphics, object, config.getTunnelColor());
 		}
 
