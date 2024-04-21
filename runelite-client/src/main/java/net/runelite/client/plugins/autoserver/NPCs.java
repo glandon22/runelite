@@ -5,9 +5,7 @@ import net.runelite.api.Client;
 import net.runelite.api.NPC;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
 
 public class NPCs {
@@ -33,7 +31,7 @@ public class NPCs {
         ArrayList<NpcPacket> alnp = new ArrayList<>();
         for (NPC npc : npcs) {
             String n = npc.getName();
-            if (n != null && npcsToFind.contains(npc.getName())) {
+            if (n != null && npcsToFind.contains(npc.getName().toUpperCase(Locale.ROOT))) {
                 Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
