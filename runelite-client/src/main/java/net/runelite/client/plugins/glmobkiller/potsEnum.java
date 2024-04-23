@@ -6,10 +6,10 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum potsEnum {
-    SC("SUPER COMBATS"),
-    SASS("SUPER STRENGTH AND ATTACK"),
-    RANGE("RANGING POTION"),
-    MAGIC("MAGIC POTION"),
+    SC("SUPER_COMBATS"),
+    SASS("SUPER_STRENGTH_AND_ATTACK"),
+    RANGE("RANGING_POTION"),
+    MAGIC("MAGIC_POTION"),
     NONE("NONE");
 
     private final String name;

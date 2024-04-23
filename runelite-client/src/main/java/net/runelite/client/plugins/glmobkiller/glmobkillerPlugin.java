@@ -26,6 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -56,15 +57,10 @@ public class glmobkillerPlugin extends Plugin {
     {
         return configManager.getConfig(glmobkillerConfig.class);
     }
-    private HttpServer server = null;
-    private static final String HEADER_CONTENT_TYPE = "Content-Type";
-    private static final Charset CHARSET = StandardCharsets.UTF_8;
-    ProcessBuilder processBuilder;
 
-    @Value
-    private static class StatusRes {
-        boolean terminate;
-    }
+    ProcessBuilder processBuilder;
+    Process p;
+
 
     @Override
     protected void startUp() throws Exception
@@ -74,29 +70,59 @@ public class glmobkillerPlugin extends Plugin {
         status = "Starting up.";
         break_end = "Unknown";
         String command = "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool/combat/kill_and_loot_v2.py";
-        processBuilder = new ProcessBuilder(
-                "python3",
-                System.getProperty("user.dir") + command,
-                config.npcToKill(),
-                config.pot().getName(),
-                String.valueOf(config.potInterval()),
-                String.valueOf(config.minEat())
-        );
-        processBuilder.redirectOutput(new File("./last_script_run_logs.txt"));
-        // Get the environment variables from the ProcessBuilder instance
-        Map<String, String> environment = processBuilder.environment();
 
-        // Set a new environment variable
-        environment.put("PYTHONPATH", System.getProperty("user.dir") + "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool");
-        processBuilder.start();
+        if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")) {
+            System.out.println("dddd");
+            String env_p = System.getProperty("user.dir") + "\\runelite-client\\src\\main\\resources\\net\\runelite\\client\\AutoOldSchool";
+
+            String cmd = "python " + System.getProperty("user.dir") + command + ' ' + config.npcToKill() + ' ' + config.pot().getName() + ' ' + String.valueOf(config.potInterval()) + ' ' + String.valueOf(config.minEat());
+            processBuilder = new ProcessBuilder(
+                    "C:\\Windows\\system32\\cmd.exe", "/c", cmd
+            );
+            processBuilder.redirectOutput(new File("last_script_run_logs.txt"));
+            // Get the environment variables from the ProcessBuilder instance
+            Map<String, String> environment = processBuilder.environment();
+            environment.put("PYTHONPATH", env_p);
+            for (Map.Entry<String, String> entry : environment.entrySet()) {
+                System.out.println(entry.getKey() + ":" + entry.getValue());
+            }
+        }
+
+        else {
+            System.out.println("sdsdsdsd");
+
+            processBuilder = new ProcessBuilder(
+                    "python3",
+                    System.getProperty("user.dir") + command,
+                    config.npcToKill(),
+                    config.pot().getName(),
+                    String.valueOf(config.potInterval()),
+                    String.valueOf(config.minEat())
+            );
+            processBuilder.redirectOutput(new File("last_script_run_logs.txt"));
+            // Get the environment variables from the ProcessBuilder instance
+            Map<String, String> environment = processBuilder.environment();
+
+            // Set a new environment variable
+            environment.put("PYTHONPATH", System.getProperty("user.dir") + "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool");
+        }
+
+        p = processBuilder.start();
     }
 
     @Override
     protected void shutDown() throws Exception
     {
-        new ProcessBuilder(
-                "/bin/sh",
-                "-c",
-                "pgrep -f '.*AutoOldSchool/combat/kill_and_loot_v2.py' | xargs kill -9").start();
+        if (System.getProperty("os.name").toUpperCase(Locale.ROOT).contains("WINDOWS")) {
+            new ProcessBuilder(
+                    "C:\\Windows\\system32\\cmd.exe", "/c", "taskkill /IM python.exe /F"
+            ).start();
+        }
+        else {
+            new ProcessBuilder(
+                    "/bin/sh",
+                    "-c",
+                    "pgrep -f '.*AutoOldSchool/combat/kill_and_loot_v2.py' | xargs kill -9").start();
+        }
     }
 }
