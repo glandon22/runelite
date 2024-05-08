@@ -58,4 +58,8 @@ public class GameInfoPacket {
     AutoServer.herbiboarData herbiboar;
     Utilities.PointData destinationTile;
     HashMap<String, Integer> canvasArea;
+    HashMap<String, String> slayer;
+    HashMap<String, String> varPlayer;
+    ArrayList<String> players;
+    int world;
 }

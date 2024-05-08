@@ -75,7 +75,7 @@ public class glmobkillerPlugin extends Plugin {
             System.out.println("dddd");
             String env_p = System.getProperty("user.dir") + "\\runelite-client\\src\\main\\resources\\net\\runelite\\client\\AutoOldSchool";
 
-            String cmd = "python " + System.getProperty("user.dir") + command + ' ' + config.npcToKill() + ' ' + config.pot().getName() + ' ' + String.valueOf(config.potInterval()) + ' ' + String.valueOf(config.minEat());
+            String cmd = "python " + System.getProperty("user.dir") + command + ' ' + config.npcToKill().replaceAll("\\s+","_") + ' ' + config.pot().getName() + ' ' + String.valueOf(config.potInterval()) + ' ' + String.valueOf(config.minEat());
             processBuilder = new ProcessBuilder(
                     "C:\\Windows\\system32\\cmd.exe", "/c", cmd
             );
@@ -83,9 +83,6 @@ public class glmobkillerPlugin extends Plugin {
             // Get the environment variables from the ProcessBuilder instance
             Map<String, String> environment = processBuilder.environment();
             environment.put("PYTHONPATH", env_p);
-            for (Map.Entry<String, String> entry : environment.entrySet()) {
-                System.out.println(entry.getKey() + ":" + entry.getValue());
-            }
         }
 
         else {
@@ -97,7 +94,10 @@ public class glmobkillerPlugin extends Plugin {
                     config.npcToKill(),
                     config.pot().getName(),
                     String.valueOf(config.potInterval()),
-                    String.valueOf(config.minEat())
+                    String.valueOf(config.minEat()),
+                    String.valueOf(config.safeSpotX()),
+                    String.valueOf(config.safeSpotY()),
+                    String.valueOf(config.safeSpotZ())
             );
             processBuilder.redirectOutput(new File("last_script_run_logs.txt"));
             // Get the environment variables from the ProcessBuilder instance

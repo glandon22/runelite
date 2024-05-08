@@ -26,19 +26,27 @@ public class ScriptOverlay extends OverlayPanel {
     @Override
     public Dimension render(Graphics2D graphics)
     {
-        HashMap<String, String> search = plugin.getScriptStats();
-        for (Map.Entry<String, String> entry : search.entrySet()) {
-            panelComponent.getChildren().add(LineComponent.builder()
-                    .left(entry.getKey() + ": ")
-                    .right(entry.getValue())
-                    .build());
+        try {
+            HashMap<String, String> search = plugin.getScriptStats();
+            if (search == null) {
+                return null;
+            }
+            for (Map.Entry<String, String> entry : search.entrySet()) {
+                panelComponent.getChildren().add(LineComponent.builder()
+                        .left(entry.getKey() + ": ")
+                        .right(entry.getValue())
+                        .build());
 
-            panelComponent.setPreferredSize(new Dimension(
-                    graphics.getFontMetrics().stringWidth(entry.getKey() + ": " + entry.getValue()) + 10, 0)
-            );
+                panelComponent.setPreferredSize(new Dimension(
+                        graphics.getFontMetrics().stringWidth(entry.getKey() + ": " + entry.getValue()) + 10, 0)
+                );
 
+            }
+            return super.render(graphics);
+        } catch (Exception e) {
+            System.out.println("encountered error rendering autoserver script overlay.");
         }
-        return super.render(graphics);
+        return null;
     }
 
 }

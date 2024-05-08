@@ -60,4 +60,49 @@ public interface glmobkillerConfig extends Config {
         return 20;
     }
 
+    @Range(
+            max = 4500,
+            min = -1
+    )
+    @ConfigItem(
+            keyName = "safeSpotX",
+            name = "Safe Spot: X Coord",
+            description = "X coordinate of safespot to stand on",
+            position = 5
+    )
+    default int safeSpotX()
+    {
+        return -1;
+    }
+
+    @Range(
+            max = 15000,
+            min = -1
+    )
+    @ConfigItem(
+            keyName = "safeSpotY",
+            name = "Safe Spot: Y Coord",
+            description = "Y coordinate of safespot to stand on",
+            position = 6
+    )
+    default int safeSpotY()
+    {
+        return -1;
+    }
+
+    @Range(
+            max = 4,
+            min = -1
+    )
+    @ConfigItem(
+            keyName = "safeSpotZ",
+            name = "Safe Spot: Z Coord",
+            description = "Z coordinate of safespot to stand on",
+            position = 7
+    )
+    default int safeSpotZ()
+    {
+        return -1;
+    }
+
 }

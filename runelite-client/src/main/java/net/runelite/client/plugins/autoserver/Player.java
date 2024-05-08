@@ -6,9 +6,7 @@ import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.client.plugins.autolode.Pickaxe;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.*;
 
 import static net.runelite.client.plugins.fishing.FishingOverlay.FISHING_ANIMATIONS;
 
@@ -76,5 +74,17 @@ public class Player {
             }
         }
         return activePrayers;
+    }
+
+    public HashMap<String, String> varPlayer(Client client, HashSet<String> varps) {
+        HashMap<String, String> output = new HashMap<>();
+
+        for (String varp : varps) {
+
+            Integer value = client.getVarpValue(Integer.parseInt(varp));
+            output.put(varp, String.valueOf(value));
+        }
+
+        return output;
     }
 }

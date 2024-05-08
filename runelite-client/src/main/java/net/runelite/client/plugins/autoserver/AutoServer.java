@@ -8,9 +8,7 @@ import com.sun.net.httpserver.HttpServer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
-import net.runelite.api.Client;
-import net.runelite.api.GameState;
-import net.runelite.api.Projectile;
+import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.callback.ClientThread;
@@ -196,6 +194,26 @@ public class AutoServer extends Plugin {
                 });
             }
 
+            if (jsonObject.get("varPlayer") != null) {
+                JsonArray test = jsonObject.get("varPlayer").getAsJsonArray();
+                HashSet<String> npcsToFind = new HashSet<>();
+                for (JsonElement elem : test) {
+                    try {
+                        String tileHash = elem.toString().replace("\"", "");
+                        npcsToFind.add(tileHash);
+
+                    } catch (Exception e) {
+                        System.out.println("Failed to find tile data for npc: ");
+                        System.out.println(elem);
+                    }
+                }
+                Player p = new Player();
+                invokeAndWait(() -> {
+                    gip.varPlayer = p.varPlayer(client, npcsToFind);
+                    return null;
+                });
+            }
+
             if (jsonObject.get("npcsID") != null) {
                 JsonArray test = jsonObject.get("npcsID").getAsJsonArray();
                 HashSet<String> npcsToFind = new HashSet<>();
@@ -282,6 +300,54 @@ public class AutoServer extends Plugin {
                 Interfaces ifce = new Interfaces();
                 invokeAndWait(() -> {
                     gip.widgets = ifce.getWidgets(client, jsonObject.get("widgets").getAsJsonArray());
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("widgetsV2") != null) {
+                Interfaces ifce = new Interfaces();
+                invokeAndWait(() -> {
+                    gip.widgets = ifce.getWidgetsV2(client, jsonObject.get("widgetsV2").getAsJsonArray());
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("slayer") != null) {
+                invokeAndWait(() -> {
+                    HashMap<String, String> data = new HashMap<>();
+                    int amount = client.getVarpValue(VarPlayer.SLAYER_TASK_SIZE);
+                    data.put("amount", String.valueOf(amount));
+                    data.put("monster", "");
+                    data.put("area", "");
+                    if (amount > 0)
+                    {
+                        int taskId = client.getVarpValue(VarPlayer.SLAYER_TASK_CREATURE);
+                        String taskName;
+                        if (taskId == 98 /* Bosses, from [proc,helper_slayer_current_assignment] */)
+                        {
+                            int structId = client.getEnum(EnumID.SLAYER_TASK)
+                                    .getIntValue(client.getVarbitValue(Varbits.SLAYER_TASK_BOSS));
+                            taskName = client.getStructComposition(structId)
+                                    .getStringValue(ParamID.SLAYER_TASK_NAME);
+                            data.put("monster", taskName);
+                        }
+                        else
+                        {
+                            taskName = client.getEnum(EnumID.SLAYER_TASK_CREATURE)
+                                    .getStringValue(taskId);
+                            data.put("monster", taskName);
+                        }
+
+                        int areaId = client.getVarpValue(VarPlayer.SLAYER_TASK_LOCATION);
+                        String taskLocation = null;
+                        if (areaId > 0)
+                        {
+                            taskLocation = client.getEnum(EnumID.SLAYER_TASK_LOCATION)
+                                    .getStringValue(areaId);
+                            data.put("area", taskLocation);
+                        }
+                        gip.slayer = data;
+                    }
                     return null;
                 });
             }
@@ -472,6 +538,29 @@ public class AutoServer extends Plugin {
                 Interfaces ifce = new Interfaces();
                 invokeAndWait(() -> {
                     gip.menuEntries = ifce.getMenuEntries(client);
+                    return null;
+                });
+            }
+
+            if (
+                    jsonObject.get("players") != null && jsonObject.get("players").getAsBoolean()
+            ) {
+                invokeAndWait(() -> {
+                    List<net.runelite.api.Player> p = client.getPlayers();
+                    ArrayList<String> ps = new ArrayList<>();
+                    for (net.runelite.api.Player pl : p) {
+                        ps.add(pl.getName());
+                    }
+                    gip.players = ps;
+                    return null;
+                });
+            }
+
+            if (
+                    jsonObject.get("world") != null && jsonObject.get("world").getAsBoolean()
+            ) {
+                invokeAndWait(() -> {
+                    gip.world = client.getWorld();
                     return null;
                 });
             }

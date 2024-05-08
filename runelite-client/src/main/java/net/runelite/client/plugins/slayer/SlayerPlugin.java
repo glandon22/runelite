@@ -33,10 +33,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -364,7 +361,11 @@ public class SlayerPlugin extends Plugin
 
 	private void updateTask()
 	{
+		HashMap<String, String> data = new HashMap<>();
 		int amount = client.getVarpValue(VarPlayer.SLAYER_TASK_SIZE);
+		data.put("amount", String.valueOf(amount));
+		data.put("monster", "");
+		data.put("area", "");
 		if (amount > 0)
 		{
 			int taskId = client.getVarpValue(VarPlayer.SLAYER_TASK_CREATURE);
@@ -375,11 +376,13 @@ public class SlayerPlugin extends Plugin
 					.getIntValue(client.getVarbitValue(Varbits.SLAYER_TASK_BOSS));
 				taskName = client.getStructComposition(structId)
 					.getStringValue(ParamID.SLAYER_TASK_NAME);
+				data.put("monster", taskName);
 			}
 			else
 			{
 				taskName = client.getEnum(EnumID.SLAYER_TASK_CREATURE)
 					.getStringValue(taskId);
+				data.put("monster", taskName);
 			}
 
 			int areaId = client.getVarpValue(VarPlayer.SLAYER_TASK_LOCATION);
@@ -388,6 +391,7 @@ public class SlayerPlugin extends Plugin
 			{
 				taskLocation = client.getEnum(EnumID.SLAYER_TASK_LOCATION)
 					.getStringValue(areaId);
+				data.put("area", String.valueOf(areaId));
 			}
 
 			if (loginFlag)

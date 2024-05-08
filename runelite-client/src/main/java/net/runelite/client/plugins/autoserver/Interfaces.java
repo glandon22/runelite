@@ -7,6 +7,7 @@ import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
 import net.runelite.api.widgets.WidgetItem;
@@ -128,6 +129,50 @@ public class Interfaces {
 
         for (String widget: widgetList) {
             widgetDataPacket.put(widget, getWidget(client, widget));
+        }
+
+        return widgetDataPacket;
+    }
+
+    public EnrichedInterfaceData getWidgetV2(Client client, int widget) {
+        Widget targetWidget = client.getWidget(widget);
+
+        if (targetWidget != null) {
+
+            Rectangle r = targetWidget.getBounds();
+            Utilities u = new Utilities();
+            HashMap<Character, Integer> center = u.getCenter(r);
+            return new EnrichedInterfaceData(
+                    center.get('x'),
+                    center.get('y'),
+                    targetWidget.getText(),
+                    targetWidget.getSpriteId(),
+                    targetWidget.getName(),
+                    targetWidget.getItemId(),
+                    (int) r.getX(),
+                    (int) ( r.getX() + r.getWidth()),
+                    (int) r.getY() + 23,
+                    (int) (r.getY() + r.getHeight() + 23)
+            );
+        }
+        return null;
+    }
+
+    public HashMap<String, EnrichedInterfaceData> getWidgetsV2(Client client, JsonArray widgetsToFind) {
+        ArrayList<String> widgetList = new ArrayList<>();
+        HashMap<String, EnrichedInterfaceData> widgetDataPacket = new HashMap<>();
+        for (JsonElement elem : widgetsToFind) {
+            try {
+                String widget = elem.toString().replace("\"", "");
+                widgetList.add(widget);
+            } catch (Exception e) {
+                System.out.println("Failed to find data for widget: ");
+                System.out.println(elem);
+            }
+        }
+
+        for (String widget: widgetList) {
+            widgetDataPacket.put(String.valueOf(widget), getWidgetV2(client, Integer.parseInt(widget)));
         }
 
         return widgetDataPacket;

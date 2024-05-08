@@ -24,6 +24,7 @@ public class NPCs {
         int y_coord;
         String overheadText;
         int compositionID;
+        String interacting;
     }
 
     public ArrayList<NpcPacket> getNPCsByName(Client client, HashSet<String> npcsToFind) {
@@ -31,7 +32,7 @@ public class NPCs {
         ArrayList<NpcPacket> alnp = new ArrayList<>();
         for (NPC npc : npcs) {
             String n = npc.getName();
-            if (n != null && npcsToFind.contains(npc.getName().toUpperCase(Locale.ROOT))) {
+            if ((n != null && npcsToFind.contains(npc.getName().toUpperCase(Locale.ROOT))) || npcsToFind.isEmpty()) {
                 Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
@@ -40,6 +41,10 @@ public class NPCs {
                 // For some reason, right as I open an interface it sometimes says the points are all located
                 // in a small 50x50 corner of the upper right-hand screen.
                 if (center.get('x') > 50 && center.get('y') > 50) {
+                    String name = null;
+                    if (npc.getInteracting() != null) {
+                        name = npc.getInteracting().getName();
+                    }
                     NpcPacket np = new NpcPacket(
                             center.get('x'),
                             center.get('y'),
@@ -51,7 +56,8 @@ public class NPCs {
                             npc.getWorldLocation().getX(),
                             npc.getWorldLocation().getY(),
                             npc.getOverheadText(),
-                            npc.getComposition().getId()
+                            npc.getComposition().getId(),
+                            name
                     );
                     alnp.add(np);
                 }
@@ -86,7 +92,8 @@ public class NPCs {
                             npc.getWorldLocation().getX(),
                             npc.getWorldLocation().getY(),
                             npc.getOverheadText(),
-                            npc.getComposition().getId()
+                            npc.getComposition().getId(),
+                            npc.isInteracting() ? npc.getInteracting().getName() : null
                     );
                     alnp.add(np);
                 }
@@ -125,7 +132,8 @@ public class NPCs {
                                 npc.getWorldLocation().getX(),
                                 npc.getWorldLocation().getY(),
                                 npc.getOverheadText(),
-                                npc.getComposition().getId()
+                                npc.getComposition().getId(),
+                                npc.isInteracting() ? npc.getInteracting().getName() : null
                         );
                         alnp.add(np);
                     }
