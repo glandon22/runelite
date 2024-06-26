@@ -45,6 +45,18 @@ public class ObjectUtil {
     }
 
     @Value
+    public static class GroundItemData
+    {
+        int x;
+        int y;
+        int dist;
+        int x_coord;
+        int y_coord;
+        int id;
+        int quantity;
+    }
+
+    @Value
     public static class ParsedTilesAndObjects
     {
         HashSet<Integer> RELEVANT_OBJECTS;
@@ -600,63 +612,41 @@ public class ObjectUtil {
         return returnData;
     }
 
-    public HashMap<Integer, ArrayList<EnhancedObjData>> getDecorativeItemsAnyId(Client client, JsonArray itemsToFind) {
-        HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
-
+    public ArrayList<GroundItemData> getGroundItemsV2(Client client, JsonArray itemsToFind) {
+        ArrayList<GroundItemData> output = new ArrayList<>();
         ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
         ArrayList<WorldPoint> wps = ptao.wps;
 
-        Tile[][][] tiles = client.getScene().getTiles();
+        Tile[][][] tiles = client.getTopLevelWorldView().getScene().getTiles();
         Utilities u = new Utilities();
         for (WorldPoint wp: wps) {
-            final LocalPoint localLocation = LocalPoint.fromWorld(client, wp);
-            if (localLocation != null) {
-                Tile tile = tiles[client.getPlane()][localLocation.getSceneX()][localLocation.getSceneY()];
-                if (tile != null) {
-                    List<TileItem> wo = tile.getGroundItems();
-                    if (wo != null) {
-                        for (TileItem ti: wo) {
-                            logger.info("wp coords");
-                            logger.info(String.valueOf(wp.getX()));
-                            logger.info(String.valueOf(wp.getY()));
-                            final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
-                            Rectangle r = poly.getBounds();
-                            HashMap<Character, Integer> center = u.getCenter(r);
-                            if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
-                                if (returnData.get(ti.getId()) != null) {
-                                    ArrayList<EnhancedObjData> gobj = returnData.get(ti.getId());
-                                    gobj.add(new EnhancedObjData(
-                                            center.get('x'),
-                                            center.get('y'),
-                                            tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                            wp.getX(),
-                                            wp.getY(),
-                                            ti.getId())
-                                    );
-                                    returnData.put(ti.getId(), gobj);
-                                }
+            final LocalPoint localLocation = LocalPoint.fromWorld(client.getTopLevelWorldView(), wp);
+            if (localLocation == null) continue;
 
-                                else {
-                                    ArrayList<EnhancedObjData> gobj = new ArrayList<>();
-                                    gobj.add(
-                                            new EnhancedObjData(
-                                                    center.get('x'),
-                                                    center.get('y'),
-                                                    tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                                    wp.getX(),
-                                                    wp.getY(),
-                                                    ti.getId()
-                                            )
-                                    );
-                                    returnData.put(ti.getId(), gobj);
-                                }
+            Tile tile = tiles[client.getTopLevelWorldView().getPlane()][localLocation.getSceneX()][localLocation.getSceneY()];
 
-                            }
-                        }
-                    }
-                }
+            if (tile == null) continue;
+
+            List<TileItem> groundItemList = tile.getGroundItems();
+
+            if (groundItemList == null) continue;
+
+            for (TileItem tileItem : groundItemList) {
+                final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
+                Rectangle r = poly.getBounds();
+                HashMap<Character, Integer> center = u.getCenter(r);
+                output.add(new GroundItemData(
+                        center.get('x'),
+                        center.get('y'),
+                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                        wp.getX(),
+                        wp.getY(),
+                        tileItem.getId(),
+                        tileItem.getQuantity()
+                ));
             }
         }
-        return returnData;
+
+        return output;
     }
 }

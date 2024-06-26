@@ -37,10 +37,22 @@ public class Interfaces {
     }
 
     @Value
+    public static class RightClickMenuV2 {
+        int x;
+        int y;
+        int server_x;
+        int server_y;
+        int width;
+        int height;
+        ArrayList<ArrayList<String>> entries;
+    }
+
+    @Value
     public static class EnrichedInterfaceData {
         int x;
         int y;
         String text;
+        int textColor;
         int spriteID;
         String name;
         int itemID;
@@ -102,6 +114,7 @@ public class Interfaces {
                     center.get('x'),
                     center.get('y'),
                     targetWidget.getText(),
+                    targetWidget.getTextColor(),
                     targetWidget.getSpriteId(),
                     targetWidget.getName(),
                     targetWidget.getItemId(),
@@ -146,6 +159,7 @@ public class Interfaces {
                     center.get('x'),
                     center.get('y'),
                     targetWidget.getText(),
+                    targetWidget.getTextColor(),
                     targetWidget.getSpriteId(),
                     targetWidget.getName(),
                     targetWidget.getItemId(),
@@ -222,6 +236,30 @@ public class Interfaces {
             options.add(mu.getOption());
         }
         return new RightClickMenu(
+                menuX,
+                menuY,
+                client.getMouseCanvasPosition().getX(),
+                client.getMouseCanvasPosition().getY(),
+                menuWidth,
+                menuH,
+                options
+        );
+    }
+
+    public RightClickMenuV2 getRightClickMenuEntriesV2(Client client) {
+        final int menuX = client.getMenuX();
+        final int menuY = client.getMenuY();
+        final int menuWidth = client.getMenuWidth();
+        final int menuH = client.getMenuHeight();
+        ArrayList<ArrayList<String>> options = new ArrayList<>();
+        final MenuEntry[] menuEntries = client.getMenuEntries();
+        for(MenuEntry mu : menuEntries) {
+            ArrayList<String> opts = new ArrayList<>();
+            opts.add(mu.getOption());
+            opts.add(String.valueOf(mu.getIdentifier()));
+            options.add(opts);
+        }
+        return new RightClickMenuV2(
                 menuX,
                 menuY,
                 client.getMouseCanvasPosition().getX(),

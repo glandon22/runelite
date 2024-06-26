@@ -402,6 +402,18 @@ public class AutoServer extends Plugin {
                 });
             }
 
+            if (jsonObject.get("spotAnims") != null) {
+                invokeAndWait(() -> {
+                    ArrayList<Integer> output = new ArrayList<>();
+                    IterableHashTable<ActorSpotAnim> asa = client.getLocalPlayer().getSpotAnims();
+                    for (ActorSpotAnim a : asa) {
+                        output.add(a.getId());
+                    }
+                    gip.spotAnims = output;
+                    return null;
+                });
+            }
+
             if (jsonObject.get("wallObjectsV2") != null) {
                 System.out.println("in v2 wall");
                 ObjectUtil go = new ObjectUtil();
@@ -608,6 +620,21 @@ public class AutoServer extends Plugin {
                 }
             }
 
+            if (jsonObject.get("groundItemsV2") != null) {
+                JsonArray s = jsonObject.get("groundItemsV2").getAsJsonArray();
+                ObjectUtil go = new ObjectUtil();
+                try {
+
+                    invokeAndWait(() -> {
+                        gip.groundItemsV2 = go.getGroundItemsV2(client, s);
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println("eeee");
+                    System.out.println(e);
+                }
+            }
+
             if (jsonObject.get("herbiboar") != null && jsonObject.get("herbiboar").getAsBoolean()) {
                 Plugin qhp = pluginManager.getPlugins().stream()
                         .filter(e -> e.getName().equals("Herbiboar"))
@@ -720,6 +747,19 @@ public class AutoServer extends Plugin {
                 try {
                     invokeAndWait(() -> {
                         gip.rightClickMenu = i.getRightClickMenuEntries(client);
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println("eeee");
+                    System.out.println(e);
+                }
+            }
+
+            if (jsonObject.get("rightClickV2") != null && jsonObject.get("rightClickV2").getAsBoolean()) {
+                Interfaces i = new Interfaces();
+                try {
+                    invokeAndWait(() -> {
+                        gip.rightClickV2 = i.getRightClickMenuEntriesV2(client);
                         return null;
                     });
                 } catch (Exception e) {

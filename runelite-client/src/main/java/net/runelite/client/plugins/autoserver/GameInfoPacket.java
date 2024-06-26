@@ -43,6 +43,7 @@ public class GameInfoPacket {
     HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> decorativeObjects;
     HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> groundItems;
     HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> allGroundItems;
+    ArrayList<ObjectUtil.GroundItemData> groundItemsV2;
     int targetObj;
     int targetNPC;
     int gameCycle;
@@ -51,6 +52,7 @@ public class GameInfoPacket {
     HashSet<Integer> projectiles;
     List<Projectiles.IncomingProjectile> projectilesV2;
     Interfaces.RightClickMenu rightClickMenu;
+    Interfaces.RightClickMenuV2 rightClickV2;
     String[] chatLines;
     Interfaces.CanvasData canvas;
     GameState gameState;
@@ -62,4 +64,5 @@ public class GameInfoPacket {
     HashMap<String, String> varPlayer;
     ArrayList<String> players;
     int world;
+    ArrayList<Integer> spotAnims;
 }
