@@ -60,6 +60,7 @@ public class Interfaces {
         int xMax;
         int yMin;
         int yMax;
+        boolean isHidden;
     }
 
     @Value
@@ -121,7 +122,8 @@ public class Interfaces {
                     (int) r.getX(),
                     (int) ( r.getX() + r.getWidth()),
                     (int) r.getY() + 23,
-                    (int) (r.getY() + r.getHeight() + 23)
+                    (int) (r.getY() + r.getHeight() + 23),
+                    targetWidget.isHidden()
             );
         }
         return null;
@@ -166,7 +168,8 @@ public class Interfaces {
                     (int) r.getX(),
                     (int) ( r.getX() + r.getWidth()),
                     (int) r.getY() + 23,
-                    (int) (r.getY() + r.getHeight() + 23)
+                    (int) (r.getY() + r.getHeight() + 23),
+                    targetWidget.isHidden()
             );
         }
         return null;

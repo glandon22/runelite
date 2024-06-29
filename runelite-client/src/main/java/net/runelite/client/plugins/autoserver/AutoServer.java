@@ -307,7 +307,13 @@ public class AutoServer extends Plugin {
             if (jsonObject.get("widgetsV2") != null) {
                 Interfaces ifce = new Interfaces();
                 invokeAndWait(() -> {
-                    gip.widgets = ifce.getWidgetsV2(client, jsonObject.get("widgetsV2").getAsJsonArray());
+                    if (gip.widgets != null) {
+                        gip.widgets.putAll(ifce.getWidgetsV2(client, jsonObject.get("widgetsV2").getAsJsonArray()));
+                    }
+
+                    else {
+                        gip.widgets = ifce.getWidgetsV2(client, jsonObject.get("widgetsV2").getAsJsonArray());
+                    }
                     return null;
                 });
             }
@@ -368,6 +374,15 @@ public class AutoServer extends Plugin {
                 JsonArray s = jsonObject.get("gameObjects").getAsJsonArray();
                 invokeAndWait(() -> {
                     gip.gameObjects = go.findGameObjects(client, s);
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("allObjects") != null) {
+                ObjectUtil go = new ObjectUtil();
+                JsonObject s = jsonObject.get("allObjects").getAsJsonObject();
+                invokeAndWait(() -> {
+                    gip.allObjects = go.getAllObjects(client, s);
                     return null;
                 });
             }
