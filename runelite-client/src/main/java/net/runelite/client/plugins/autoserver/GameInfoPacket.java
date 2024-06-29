@@ -65,4 +65,5 @@ public class GameInfoPacket {
     ArrayList<String> players;
     int world;
     ArrayList<Integer> spotAnims;
+    HashMap<String, ArrayList<ObjectUtil.ObjectAndGroundItemData>> allObjects;
 }
