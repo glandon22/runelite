@@ -25,6 +25,7 @@ public class NPCs {
         String overheadText;
         int compositionID;
         String interacting;
+        int cbLvl;
     }
 
     public ArrayList<NpcPacket> getNPCsByName(Client client, HashSet<String> npcsToFind) {
@@ -57,7 +58,8 @@ public class NPCs {
                             npc.getWorldLocation().getY(),
                             npc.getOverheadText(),
                             npc.getComposition().getId(),
-                            name
+                            name,
+                            npc.getCombatLevel()
                     );
                     alnp.add(np);
                 }
@@ -93,7 +95,8 @@ public class NPCs {
                             npc.getWorldLocation().getY(),
                             npc.getOverheadText(),
                             npc.getComposition().getId(),
-                            npc.isInteracting() ? npc.getInteracting().getName() : null
+                            npc.isInteracting() ? npc.getInteracting().getName() : null,
+                            npc.getCombatLevel()
                     );
                     alnp.add(np);
                 }
@@ -133,7 +136,8 @@ public class NPCs {
                                 npc.getWorldLocation().getY(),
                                 npc.getOverheadText(),
                                 npc.getComposition().getId(),
-                                npc.isInteracting() ? npc.getInteracting().getName() : null
+                                npc.isInteracting() ? npc.getInteracting().getName() : null,
+                                npc.getCombatLevel()
                         );
                         alnp.add(np);
                     }

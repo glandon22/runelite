@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>net.runelite</groupId>
 		<artifactId>runelite-parent</artifactId>
-		<version>1.10.33</version>
+		<version>1.10.33.1</version>
 	</parent>
 
 	<artifactId>client</artifactId>
@@ -304,7 +304,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-compress</artifactId>
-            <version>1.21</version>
+            <version>1.10</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
