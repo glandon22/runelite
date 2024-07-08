@@ -96,6 +96,7 @@ public class ObjectUtil {
         JsonArray game;
         JsonArray wall;
         JsonArray decorative;
+        JsonArray ground_items;
         JsonArray ground;
     }
 
@@ -695,6 +696,12 @@ public class ObjectUtil {
             decorObjectIds.add(id);
         }
         res.put("decorative", decorObjectIds);
+        ArrayList<Integer> groundItemIds = new ArrayList<>();
+        for (JsonElement e : search.ground_items) {
+            int id = Integer.parseInt(e.toString());
+            groundItemIds.add(id);
+        }
+        res.put("ground", groundItemIds);
         ArrayList<Integer> groundObjectIds = new ArrayList<>();
         for (JsonElement e : search.ground) {
             int id = Integer.parseInt(e.toString());
@@ -715,106 +722,129 @@ public class ObjectUtil {
         ArrayList<ObjectAndGroundItemData> gameObjectData = new ArrayList<>();
         ArrayList<ObjectAndGroundItemData> wallObjectData = new ArrayList<>();
         ArrayList<ObjectAndGroundItemData> decorativeObjectData = new ArrayList<>();
+        ArrayList<ObjectAndGroundItemData> groundObjectData = new ArrayList<>();
         ArrayList<ObjectAndGroundItemData> groundItemData = new ArrayList<>();
         Tile[][][] tiles = client.getTopLevelWorldView().getScene().getTiles();
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 104; j++) {
-                for (int k = 0; k < 104; k++) {
-                    Tile tile = tiles[i][j][k];
-                    if (tile == null) continue;
-                    GameObject[] gameObjects = tile.getGameObjects();
-                    for (GameObject gameObject : gameObjects) {
-                        if (gameObject != null && gameObject.getConvexHull() != null && parsedQuery.get("game").contains(gameObject.getId())) {
-                            Shape s = gameObject.getClickbox();
-                            if (s == null) continue;
-                            Rectangle r = s.getBounds();
-                            if (r == null) continue;
-                            HashMap<Character, Integer> center = u.getCenter(r);
-                            Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
-                            if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
-                                gameObjectData.add(
-                                        new ObjectAndGroundItemData(
-                                                center.get('x'),
-                                                center.get('y'),
-                                                tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                                tile.getSceneLocation().getX(),
-                                                tile.getSceneLocation().getY(),
-                                                gameObject.getId(),
-                                                1
-                                        )
-                                );
-                            }
-                        }
-                    }
-
-                    WallObject wallObject = tile.getWallObject();
-                    if (wallObject != null && wallObject.getConvexHull() != null && parsedQuery.get("wall").contains(wallObject.getId())) {
-                        Shape s = wallObject.getClickbox();
+        int plane = client.getLocalPlayer().getWorldLocation().getPlane();
+        for (int j = 0; j < 104; j++) {
+            for (int k = 0; k < 104; k++) {
+                Tile tile = tiles[plane][j][k];
+                if (tile == null) continue;
+                GameObject[] gameObjects = tile.getGameObjects();
+                for (GameObject gameObject : gameObjects) {
+                    if (gameObject != null && gameObject.getConvexHull() != null && parsedQuery.get("game").contains(gameObject.getId())) {
+                        Shape s = gameObject.getClickbox();
                         if (s == null) continue;
                         Rectangle r = s.getBounds();
                         if (r == null) continue;
                         HashMap<Character, Integer> center = u.getCenter(r);
                         Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
                         if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
-                            wallObjectData.add(
+                            gameObjectData.add(
                                     new ObjectAndGroundItemData(
                                             center.get('x'),
                                             center.get('y'),
                                             tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                            tile.getSceneLocation().getX(),
-                                            tile.getSceneLocation().getY(),
-                                            wallObject.getId(),
+                                            tile.getWorldLocation().getX(),
+                                            tile.getWorldLocation().getY(),
+                                            gameObject.getId(),
                                             1
                                     )
                             );
                         }
                     }
+                }
 
-                    DecorativeObject decorativeObject = tile.getDecorativeObject();
-                    if (decorativeObject != null && decorativeObject.getConvexHull() != null && parsedQuery.get("decoratie").contains(decorativeObject.getId())) {
-                        Shape s = decorativeObject.getClickbox();
-                        if (s == null) continue;
-                        Rectangle r = s.getBounds();
-                        if (r == null) continue;
-                        HashMap<Character, Integer> center = u.getCenter(r);
-                        Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
-                        if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
-                            decorativeObjectData.add(
-                                    new ObjectAndGroundItemData(
-                                            center.get('x'),
-                                            center.get('y'),
-                                            tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                            tile.getSceneLocation().getX(),
-                                            tile.getSceneLocation().getY(),
-                                            decorativeObject.getId(),
-                                            1
-                                    )
-                            );
-                        }
+                WallObject wallObject = tile.getWallObject();
+                if (wallObject != null && wallObject.getConvexHull() != null && parsedQuery.get("wall").contains(wallObject.getId())) {
+                    Shape s = wallObject.getClickbox();
+                    if (s == null) continue;
+                    Rectangle r = s.getBounds();
+                    if (r == null) continue;
+                    HashMap<Character, Integer> center = u.getCenter(r);
+                    Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
+                    if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                        wallObjectData.add(
+                                new ObjectAndGroundItemData(
+                                        center.get('x'),
+                                        center.get('y'),
+                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                        tile.getWorldLocation().getX(),
+                                        tile.getWorldLocation().getY(),
+                                        wallObject.getId(),
+                                        1
+                                )
+                        );
                     }
+                }
 
-                    List<TileItem> groundItemList = tile.getGroundItems();
-                    if (groundItemList == null) continue;
-                    for (TileItem item : groundItemList) {
-                        final Polygon poly = Perspective.getCanvasTilePoly(client, tile.getLocalLocation());
-                        if (poly == null) continue;
-                        Rectangle r = poly.getBounds();
-                        if (r == null) continue;
-                        HashMap<Character, Integer> center = u.getCenter(r);
-                        Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
-                        if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
-                            groundItemData.add(
-                                    new ObjectAndGroundItemData(
-                                            center.get('x'),
-                                            center.get('y'),
-                                            tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                            tile.getSceneLocation().getX(),
-                                            tile.getSceneLocation().getY(),
-                                            item.getId(),
-                                            item.getQuantity()
-                                    )
-                            );
-                        }
+                GroundObject groundObject = tile.getGroundObject();
+                if (groundObject != null && groundObject.getConvexHull() != null && parsedQuery.get("ground").contains(groundObject.getId())) {
+                    Shape s = groundObject.getClickbox();
+                    if (s == null) continue;
+                    Rectangle r = s.getBounds();
+                    if (r == null) continue;
+                    HashMap<Character, Integer> center = u.getCenter(r);
+                    Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
+                    if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                        groundObjectData.add(
+                                new ObjectAndGroundItemData(
+                                        center.get('x'),
+                                        center.get('y'),
+                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                        tile.getWorldLocation().getX(),
+                                        tile.getWorldLocation().getY(),
+                                        groundObject.getId(),
+                                        1
+                                )
+                        );
+                    }
+                }
+
+                DecorativeObject decorativeObject = tile.getDecorativeObject();
+                if (decorativeObject != null && decorativeObject.getConvexHull() != null && parsedQuery.get("decorative").contains(decorativeObject.getId())) {
+                    Shape s = decorativeObject.getClickbox();
+                    if (s == null) continue;
+                    Rectangle r = s.getBounds();
+                    if (r == null) continue;
+                    HashMap<Character, Integer> center = u.getCenter(r);
+                    Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
+                    if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                        decorativeObjectData.add(
+                                new ObjectAndGroundItemData(
+                                        center.get('x'),
+                                        center.get('y'),
+                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                        tile.getWorldLocation().getX(),
+                                        tile.getWorldLocation().getY(),
+                                        decorativeObject.getId(),
+                                        1
+                                )
+                        );
+                    }
+                }
+
+                List<TileItem> groundItemList = tile.getGroundItems();
+                if (groundItemList == null) continue;
+                for (TileItem item : groundItemList) {
+                    final Polygon poly = Perspective.getCanvasTilePoly(client, tile.getLocalLocation());
+                    if (poly == null) continue;
+                    Rectangle r = poly.getBounds();
+                    if (r == null) continue;
+                    HashMap<Character, Integer> center = u.getCenter(r);
+                    Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
+                    if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                        groundItemData.add(
+                                new ObjectAndGroundItemData(
+                                        center.get('x'),
+                                        center.get('y'),
+                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                        tile.getWorldLocation().getX(),
+                                        tile.getWorldLocation().getY(),
+                                        item.getId(),
+                                        item.getQuantity()
+                                )
+                        );
                     }
                 }
             }
@@ -823,7 +853,8 @@ public class ObjectUtil {
         returnData.put("game", gameObjectData);
         returnData.put("wall", wallObjectData);
         returnData.put("decorative", decorativeObjectData);
-        returnData.put("ground", groundItemData);
+        returnData.put("ground", groundObjectData);
+        returnData.put("ground_items", groundItemData);
         return returnData;
     }
 }
