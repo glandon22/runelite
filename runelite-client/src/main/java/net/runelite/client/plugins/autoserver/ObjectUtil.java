@@ -67,6 +67,7 @@ public class ObjectUtil {
         int y_coord;
         int id;
         int quantity;
+        int ownership;
     }
 
     @Value
@@ -712,11 +713,6 @@ public class ObjectUtil {
     }
 
     public HashMap<String, ArrayList<ObjectAndGroundItemData>> getAllObjects(Client client, JsonObject itemsToFind) {
-        /*
-        TODO: should probably only have the ground items one search for any item id
-        otherwise i want to make the query and object and specify items to search for game, wall, decorative, and ground
-         */
-
         HashMap<String, ArrayList<Integer>> parsedQuery = allObjectQueryParser(itemsToFind);
         Interfaces.CanvasData canvas = interfaceHelper.getCanvasData(client);
         ArrayList<ObjectAndGroundItemData> gameObjectData = new ArrayList<>();
@@ -748,7 +744,8 @@ public class ObjectUtil {
                                             tile.getWorldLocation().getX(),
                                             tile.getWorldLocation().getY(),
                                             gameObject.getId(),
-                                            1
+                                            1,
+                                            -1
                                     )
                             );
                         }
@@ -772,7 +769,8 @@ public class ObjectUtil {
                                         tile.getWorldLocation().getX(),
                                         tile.getWorldLocation().getY(),
                                         wallObject.getId(),
-                                        1
+                                        1,
+                                        -1
                                 )
                         );
                     }
@@ -795,7 +793,8 @@ public class ObjectUtil {
                                         tile.getWorldLocation().getX(),
                                         tile.getWorldLocation().getY(),
                                         groundObject.getId(),
-                                        1
+                                        1,
+                                        -1
                                 )
                         );
                     }
@@ -818,7 +817,8 @@ public class ObjectUtil {
                                         tile.getWorldLocation().getX(),
                                         tile.getWorldLocation().getY(),
                                         decorativeObject.getId(),
-                                        1
+                                        1,
+                                        -1
                                 )
                         );
                     }
@@ -842,7 +842,9 @@ public class ObjectUtil {
                                         tile.getWorldLocation().getX(),
                                         tile.getWorldLocation().getY(),
                                         item.getId(),
-                                        item.getQuantity()
+                                        item.getQuantity(),
+                                        item.getOwnership()
+
                                 )
                         );
                     }
