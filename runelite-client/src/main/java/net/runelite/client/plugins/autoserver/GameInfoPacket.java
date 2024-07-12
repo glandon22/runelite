@@ -47,7 +47,7 @@ public class GameInfoPacket {
     int targetObj;
     int targetNPC;
     int gameCycle;
-    List<Inventory.Slot> equipmentInv;
+    int[] equipment;
     java.awt.List menuEntries;
     HashSet<Integer> projectiles;
     List<Projectiles.IncomingProjectile> projectilesV2;
