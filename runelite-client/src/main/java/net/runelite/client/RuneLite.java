@@ -178,7 +178,9 @@ public class RuneLite
 		parser.accepts("disable-telemetry", "Disable telemetry");
 		parser.accepts("profile", "Configuration profile to use").withRequiredArg();
 		parser.accepts("noupdate", "Skips the launcher update");
-
+		parser.accepts("name", "player name")
+				.withRequiredArg()
+				.defaultsTo("none");
 		final ArgumentAcceptingOptionSpec<File> sessionfile = parser.accepts("sessionfile", "Use a specified session file")
 			.withRequiredArg()
 			.withValuesConvertedBy(new ConfigFileConverter())
@@ -223,6 +225,9 @@ public class RuneLite
 				log.error("Classes are out of date; Build with maven again.");
 			}
 		});
+		if (options.has("name")) {
+			RuneLiteProperties.setName((String) options.valueOf("name"));
+		}
 
 		final OkHttpClient okHttpClient = buildHttpClient(options.has("insecure-skip-tls-verification"));
 		RuneLiteAPI.CLIENT = okHttpClient;

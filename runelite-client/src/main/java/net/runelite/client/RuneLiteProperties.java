@@ -119,6 +119,15 @@ public class RuneLiteProperties
 	{
 		return properties.getProperty(JAV_CONFIG_BACKUP);
 	}
+	public static void setName(String item)
+	{
+		properties.setProperty("player", item);
+	}
+
+	public static String getName()
+	{
+		return properties.getProperty("player");
+	}
 
 	public static String getPluginHubVersion()
 	{

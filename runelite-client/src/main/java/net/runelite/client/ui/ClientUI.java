@@ -214,7 +214,7 @@ public class ClientUI
 		this.clientThreadProvider = clientThreadProvider;
 		this.eventBus = eventBus;
 		this.safeMode = safeMode;
-		this.title = title + (safeMode ? " (safe mode)" : "");
+		this.title = title + " " + RuneLiteProperties.getName();
 
 		normalBoundsTimer = new Timer(250, _ev -> setLastNormalBounds());
 		normalBoundsTimer.setRepeats(false);
@@ -315,7 +315,7 @@ public class ClientUI
 				return false;
 			}
 
-			frame.setTitle(title + " - " + name);
+			frame.setTitle(title);
 			return true;
 		});
 	}
@@ -1229,7 +1229,7 @@ public class ClientUI
 
 			if (player != null && player.getName() != null)
 			{
-				frame.setTitle(title + " - " + player.getName());
+				frame.setTitle(title);
 			}
 		}
 		else
