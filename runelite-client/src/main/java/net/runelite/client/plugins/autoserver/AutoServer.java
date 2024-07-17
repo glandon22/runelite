@@ -164,12 +164,11 @@ public class AutoServer extends Plugin {
             }
 
             if (
-                    jsonObject.get("equipmentInv") != null &&
-                            (Boolean) jsonObject.get("equipmentInv").getAsBoolean()
+                    jsonObject.get("equipment") != null &&
+                            (Boolean) jsonObject.get("equipment").getAsBoolean()
             ) {
-                Inventory inventory = new Inventory();
                 invokeAndWait(() -> {
-                    gip.equipmentInv = inventory.getEquipmentInventory(client);
+                    gip.equipment = client.getLocalPlayer().getPlayerComposition().getEquipmentIds();
                     return null;
                 });
             }

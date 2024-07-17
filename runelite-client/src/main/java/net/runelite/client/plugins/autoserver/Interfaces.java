@@ -106,7 +106,7 @@ public class Interfaces {
             targetWidget = targetWidget.getChild(Integer.parseInt(childAndParent[2]));
         }
 
-        if (targetWidget != null) {
+        if (targetWidget != null && !targetWidget.isHidden()) {
 
             Rectangle r = targetWidget.getBounds();
             Utilities u = new Utilities();
@@ -152,7 +152,7 @@ public class Interfaces {
     public EnrichedInterfaceData getWidgetV2(Client client, int widget) {
         Widget targetWidget = client.getWidget(widget);
 
-        if (targetWidget != null) {
+        if (targetWidget != null && !targetWidget.isHidden()) {
 
             Rectangle r = targetWidget.getBounds();
             Utilities u = new Utilities();
