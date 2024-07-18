@@ -1,9 +1,6 @@
 package net.runelite.client.plugins.autoserver;
 
-import net.runelite.api.Deque;
 import net.runelite.api.GameState;
-import net.runelite.api.Projectile;
-import net.runelite.client.plugins.herbiboars.HerbiboarPlugin;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -64,6 +61,7 @@ public class GameInfoPacket {
     HashMap<String, String> varPlayer;
     ArrayList<String> players;
     int world;
+    int orientation;
     ArrayList<Integer> spotAnims;
     HashMap<String, ArrayList<ObjectUtil.ObjectAndGroundItemData>> allObjects;
 }

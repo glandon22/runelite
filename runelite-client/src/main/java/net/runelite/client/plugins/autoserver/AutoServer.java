@@ -279,6 +279,16 @@ public class AutoServer extends Plugin {
                 });
             }
 
+            if (
+                    jsonObject.get("orientation") != null &&
+                            jsonObject.get("orientation").getAsBoolean()
+            ) {
+                invokeAndWait(() -> {
+                    gip.orientation = client.getLocalPlayer().getCurrentOrientation();
+                    return null;
+                });
+            }
+
             if (jsonObject.get("tiles") != null) {
                 Tiles tileUtil = new Tiles();
                 invokeAndWait(() -> {
