@@ -181,6 +181,9 @@ public class RuneLite
 		parser.accepts("name", "player name")
 				.withRequiredArg()
 				.defaultsTo("none");
+		parser.accepts("port", "auto server port")
+				.withRequiredArg()
+				.defaultsTo("56799");
 		final ArgumentAcceptingOptionSpec<File> sessionfile = parser.accepts("sessionfile", "Use a specified session file")
 			.withRequiredArg()
 			.withValuesConvertedBy(new ConfigFileConverter())
@@ -227,6 +230,9 @@ public class RuneLite
 		});
 		if (options.has("name")) {
 			RuneLiteProperties.setName((String) options.valueOf("name"));
+		}
+		if (options.has("port")) {
+			RuneLiteProperties.setPort((String) options.valueOf("port"));
 		}
 
 		final OkHttpClient okHttpClient = buildHttpClient(options.has("insecure-skip-tls-verification"));

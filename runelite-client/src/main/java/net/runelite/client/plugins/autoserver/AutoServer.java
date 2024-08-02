@@ -1,6 +1,7 @@
 package net.runelite.client.plugins.autoserver;
 
 import com.google.gson.*;
+import com.google.inject.Provides;
 import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -11,7 +12,9 @@ import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.client.RuneLiteProperties;
 import net.runelite.client.callback.ClientThread;
+import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
@@ -56,6 +59,9 @@ public class AutoServer extends Plugin {
     private OverlayManager overlayManager;
 
     @Inject
+    AutoServerConfig autoServerConfig;
+
+    @Inject
     private ScriptOverlay overlay;
     private HttpServer server = null;
     private static final String HEADER_CONTENT_TYPE = "Content-Type";
@@ -80,6 +86,11 @@ public class AutoServer extends Plugin {
 
     @Inject
     private ClientThread clientThread;
+
+    @Provides
+    AutoServerConfig provideConfig(ConfigManager configManager) {
+        return configManager.getConfig(AutoServerConfig.class);
+    }
 
     private <T> T invokeAndWait(Callable<T> r)
     {
@@ -139,6 +150,7 @@ public class AutoServer extends Plugin {
                 outputStream.close();
                 return;
             }
+            System.out.println("handling request!");
             final JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
             if (jsonObject.get("varBit") != null) {
                 try {
@@ -857,7 +869,9 @@ public class AutoServer extends Plugin {
     @Override
     protected void startUp() throws Exception
     {
-        server = HttpServer.create(new InetSocketAddress("localhost", 56799), 0);
+        int port = Integer.parseInt(RuneLiteProperties.getPort());
+        System.out.println("starting server on port: " + port);
+        server = HttpServer.create(new InetSocketAddress("localhost", port), 0);
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
         server.createContext("/osrs", new  MyHttpHandler());
         server.setExecutor(threadPoolExecutor);

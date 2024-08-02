@@ -12,6 +12,7 @@ import com.sun.net.httpserver.HttpServer;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
+import net.runelite.client.RuneLiteProperties;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
@@ -78,12 +79,16 @@ public class glvartabberPlugin extends Plugin {
                 "python3",
                 System.getProperty("user.dir") + command
         );
-        processBuilder.redirectOutput(new File("./last_script_run_logs.txt"));
+        processBuilder.redirectOutput(new File("last_script_run_logs.txt"));
+        processBuilder.redirectError(new File("myerrs"));
         // Get the environment variables from the ProcessBuilder instance
         Map<String, String> environment = processBuilder.environment();
-
+    
         // Set a new environment variable
         environment.put("PYTHONPATH", System.getProperty("user.dir") + "/runelite-client/src/main/resources/net/runelite/client/AutoOldSchool");
+        System.out.println("starting var tab maker server on port: " + RuneLiteProperties.getPort());
+        environment.put("SERVER_PORT", RuneLiteProperties.getPort());
+        environment.put("USERNAME", RuneLiteProperties.getName());
         processBuilder.start();
     }
 
