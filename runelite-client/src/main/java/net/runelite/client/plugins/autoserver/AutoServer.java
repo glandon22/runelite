@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
+import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.RuneLiteProperties;
 import net.runelite.client.callback.ClientThread;
@@ -171,6 +172,18 @@ public class AutoServer extends Plugin {
                 Inventory inventory = new Inventory();
                 invokeAndWait(() -> {
                     gip.inv = inventory.getInventory(client);
+                    return null;
+                });
+            }
+
+            // this is what is in your inventory when the bank screen is open
+            if (
+                    jsonObject.get("bankInv") != null &&
+                            jsonObject.get("bankInv").getAsBoolean()
+            ) {
+                Inventory inventory = new Inventory();
+                invokeAndWait(() -> {
+                    gip.bankInv = inventory.getBankInventory(client);
                     return null;
                 });
             }

@@ -11,6 +11,7 @@ import java.util.List;
 public class GameInfoPacket {
     long timestamp = Instant.now().getEpochSecond();
     List<Inventory.Slot> inv;
+    List<Inventory.Slot> bankInv;
     ArrayList<NPCs.NpcPacket> npcs;
     ArrayList<Bank.BankSlot> bankItems;
     ArrayList<Bank.BankSlot> depositBox;

@@ -31,6 +31,9 @@ public class Inventory {
     {
         assert parentWidget.isIf3();
         Widget wi = parentWidget.getChild(idx);
+        if (wi == null) {
+            return null;
+        }
         return new WidgetItem(wi.getItemId(), wi.getItemQuantity(), wi.getBounds(), parentWidget, wi.getBounds());
     }
 
@@ -45,6 +48,40 @@ public class Inventory {
                 for (int i = 0; i < items.length; ++i) {
                     if (items[i] != null && items[i].getId() > 0 && invWidget != null) {
                         final WidgetItem targetWidgetItem = getWidgetItem(invWidget, i);
+                        final Rectangle r = targetWidgetItem.getCanvasBounds(false);
+                        Utilities u = new Utilities();
+                        HashMap<Character, Integer> center = u.getCenter(r);
+                        // For some reason, right as I open an interface it sometimes says the points are all located
+                        // in a small 50x50 corner of the upper right-hand screen.
+                        if (center.get('x') > 50 && center.get('y') > 50) {
+                            Slot slot = new Slot(center.get('x'), center.get('y'), i, items[i].getId(), items[i].getQuantity());
+                            inv.add(slot);
+                        }
+                    }
+                }
+            }
+            return inv;
+        } catch (Exception e) {
+            System.out.println("Exception while parsing inventory111111");
+            System.out.println(e.getMessage());
+            System.out.println(e.getCause());
+            System.out.println(Arrays.toString(e.getStackTrace()));
+        }
+        return new ArrayList<Slot>();
+    }
+
+    public List<Slot> getBankInventory(Client client) {
+        try {
+            List<Slot> inv = null;
+            ItemContainer ic = client.getItemContainer(InventoryID.BANK);
+            if (ic != null) {
+                Item[] items = ic.getItems();
+                inv = new ArrayList<Slot>();
+                Widget invWidget = client.getWidget(WidgetInfo.BANK_INVENTORY_ITEMS_CONTAINER);
+                for (int i = 0; i < items.length; ++i) {
+                    if (items[i] != null && items[i].getId() > 0 && invWidget != null) {
+                        final WidgetItem targetWidgetItem = getWidgetItem(invWidget, i);
+                        if (targetWidgetItem == null) continue;
                         final Rectangle r = targetWidgetItem.getCanvasBounds(false);
                         Utilities u = new Utilities();
                         HashMap<Character, Integer> center = u.getCenter(r);

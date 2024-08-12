@@ -3,6 +3,7 @@ package net.runelite.client.plugins.autoserver;
 import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.NPC;
+import net.runelite.api.coords.WorldArea;
 
 import java.awt.*;
 import java.util.*;
@@ -46,6 +47,9 @@ public class NPCs {
                     if (npc.getInteracting() != null) {
                         name = npc.getInteracting().getName();
                     }
+                    WorldArea area = client.getLocalPlayer().getWorldArea();
+                    System.out.println("can see?");
+                    System.out.println(area.hasLineOfSightTo(client.getTopLevelWorldView(), npc.getWorldArea()));
                     NpcPacket np = new NpcPacket(
                             center.get('x'),
                             center.get('y'),

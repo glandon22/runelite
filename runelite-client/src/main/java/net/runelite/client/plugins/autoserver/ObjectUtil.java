@@ -68,6 +68,7 @@ public class ObjectUtil {
         int id;
         int quantity;
         int ownership;
+        int animation;
     }
 
     @Value
@@ -736,6 +737,15 @@ public class ObjectUtil {
                         HashMap<Character, Integer> center = u.getCenter(r);
                         Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
                         if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                            int objAnimation = -1;
+                            if (gameObject.getRenderable() instanceof DynamicObject)
+                            {
+                                Animation animation = ((DynamicObject) gameObject.getRenderable()).getAnimation();
+                                if (animation != null)
+                                {
+                                    objAnimation = animation.getId();
+                                }
+                            }
                             gameObjectData.add(
                                     new ObjectAndGroundItemData(
                                             center.get('x'),
@@ -745,7 +755,8 @@ public class ObjectUtil {
                                             tile.getWorldLocation().getY(),
                                             gameObject.getId(),
                                             1,
-                                            -1
+                                            -1,
+                                            objAnimation
                                     )
                             );
                         }
@@ -770,6 +781,7 @@ public class ObjectUtil {
                                         tile.getWorldLocation().getY(),
                                         wallObject.getId(),
                                         1,
+                                        -1,
                                         -1
                                 )
                         );
@@ -794,6 +806,7 @@ public class ObjectUtil {
                                         tile.getWorldLocation().getY(),
                                         groundObject.getId(),
                                         1,
+                                        -1,
                                         -1
                                 )
                         );
@@ -818,6 +831,7 @@ public class ObjectUtil {
                                         tile.getWorldLocation().getY(),
                                         decorativeObject.getId(),
                                         1,
+                                        -1,
                                         -1
                                 )
                         );
@@ -843,8 +857,8 @@ public class ObjectUtil {
                                         tile.getWorldLocation().getY(),
                                         item.getId(),
                                         item.getQuantity(),
-                                        item.getOwnership()
-
+                                        item.getOwnership(),
+                                        -1
                                 )
                         );
                     }
