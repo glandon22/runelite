@@ -21,7 +21,10 @@ public class Bank {
         int quantity;
     }
 
+    Interfaces i = new Interfaces();
+
     public ArrayList<BankSlot> getBankItems(Client client) {
+        Interfaces.CanvasData canvasData = i.getCanvasData(client);
         final Widget bankItemContainer = client.getWidget(WidgetInfo.BANK_ITEM_CONTAINER);
         ItemContainer bankContainer = null;
         Widget[] children = null;
@@ -39,7 +42,7 @@ public class Bank {
                 if (child != null && !child.isSelfHidden() && child.getItemId() > -1) {
                     Rectangle r = child.getBounds();
                     Utilities u = new Utilities();
-                    HashMap<Character, Integer> center = u.getCenter(r);
+                    HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                     // For some reason, right as I open an interface it sometimes says the points are all located
                     // in a small 50x50 corner of the upper right-hand screen.
                     if (center.get('x') > 50 && center.get('y') > 50) {
@@ -55,6 +58,7 @@ public class Bank {
 
 
     public ArrayList<BankSlot> getDepositItems(Client client) {
+        Interfaces.CanvasData canvasData = i.getCanvasData(client);
         final Widget bankItemContainer = client.getWidget(192,2);
         Widget[] children = null;
         if (bankItemContainer != null) {
@@ -69,7 +73,7 @@ public class Bank {
                 if (child != null && !child.isSelfHidden() && child.getItemId() > -1 && !child.getName().isEmpty()) {
                     Rectangle r = child.getBounds();
                     Utilities u = new Utilities();
-                    HashMap<Character, Integer> center = u.getCenter(r);
+                    HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                     // For some reason, right as I open an interface it sometimes says the points are all located
                     // in a small 50x50 corner of the upper right-hand screen.
                     if (center.get('x') > 50 && center.get('y') > 50) {
@@ -83,11 +87,12 @@ public class Bank {
         return bankStuff;
     }
     public HashMap<Character, Integer> getDumpInventoryLoc(Client client) {
+        Interfaces.CanvasData canvasData = i.getCanvasData(client);
         final Widget bankDumpContainer = client.getWidget(WidgetInfo.BANK_DEPOSIT_INVENTORY);
         if (bankDumpContainer != null) {
             Rectangle r = bankDumpContainer.getBounds();
             Utilities u = new Utilities();
-            HashMap<Character, Integer> center = u.getCenter(r);
+            HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
             // For some reason, right as I open an interface it sometimes says the points are all located
             // in a small 50x50 corner of the upper right-hand screen.
             if (center.get('x') > 50 && center.get('y') > 50) {

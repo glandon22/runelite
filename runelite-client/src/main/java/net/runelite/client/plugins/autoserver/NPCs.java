@@ -29,7 +29,10 @@ public class NPCs {
         int cbLvl;
     }
 
+    Interfaces i = new Interfaces();
+
     public ArrayList<NpcPacket> getNPCsByName(Client client, HashSet<String> npcsToFind) {
+        Interfaces.CanvasData canvasData = i.getCanvasData(client);
         List<NPC> npcs = client.getNpcs();
         ArrayList<NpcPacket> alnp = new ArrayList<>();
         for (NPC npc : npcs) {
@@ -39,7 +42,7 @@ public class NPCs {
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
                 Utilities u = new Utilities();
-                HashMap<Character, Integer> center = u.getCenter(r);
+                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                 // For some reason, right as I open an interface it sometimes says the points are all located
                 // in a small 50x50 corner of the upper right-hand screen.
                 if (center.get('x') > 50 && center.get('y') > 50) {
@@ -74,6 +77,7 @@ public class NPCs {
     }
 
     public ArrayList<NpcPacket> getNPCsByID(Client client, HashSet<String> npcsToFind) {
+        Interfaces.CanvasData canvasData = i.getCanvasData(client);
         List<NPC> npcs = client.getNpcs();
         ArrayList<NpcPacket> alnp = new ArrayList<>();
         for (NPC npc : npcs) {
@@ -83,7 +87,7 @@ public class NPCs {
                 if (poly == null) {continue;}
                 Rectangle r = poly.getBounds();
                 Utilities u = new Utilities();
-                HashMap<Character, Integer> center = u.getCenter(r);
+                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                 // For some reason, right as I open an interface it sometimes says the points are all located
                 // in a small 50x50 corner of the upper right-hand screen.
                 if (center.get('x') > 50 && center.get('y') > 50) {
@@ -110,7 +114,7 @@ public class NPCs {
     }
 
     public ArrayList<NpcPacket> getNPCsByToKill(Client client, HashSet<String> npcsToFind) {
-        System.out.println("getting convex");
+        Interfaces.CanvasData canvasData = i.getCanvasData(client);
         List<NPC> npcs = client.getNpcs();
         ArrayList<NpcPacket> alnp = new ArrayList<>();
         for (NPC npc : npcs) {
@@ -124,7 +128,7 @@ public class NPCs {
                     Rectangle r = poly.getBounds();
                     System.out.println("Got poly bounds");
                     Utilities u = new Utilities();
-                    HashMap<Character, Integer> center = u.getCenter(r);
+                    HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                     // For some reason, right as I open an interface it sometimes says the points are all located
                     // in a small 50x50 corner of the upper right-hand screen.
                     if (center.get('x') > 50 && center.get('y') > 50) {

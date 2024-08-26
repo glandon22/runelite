@@ -15,13 +15,17 @@ public class Utilities {
         int z;
     }
 
-    public HashMap<Character, Integer> getCenter(@NotNull Rectangle r) {
-        double x = r.getX();
-        double y = r.getY();
+    public HashMap<Character, Integer> getCenter(@NotNull Rectangle r, int xOffset, int yOffset) {
+        System.out.println(r.getX());
+        System.out.println(xOffset);
+        System.out.println(r.getY());
+        System.out.println(yOffset);
+        double x = r.getX() + xOffset;
+        double y = r.getY() + yOffset;
         double w = r.getWidth();
         double h = r.getHeight();
         int cx = (int)(x + (w/2));
-        int cy = (int)(y + 23 + (h /2));
+        int cy = (int)(y + (h /2));
         HashMap<Character, Integer> ret = new HashMap<Character, Integer>();
         ret.put('x', cx);
         ret.put('y', cy);

@@ -8,6 +8,7 @@ import net.runelite.api.Perspective;
 import net.runelite.api.Tile;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
+import org.w3c.dom.css.Rect;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -21,6 +22,9 @@ public class Tiles {
     }
 
     public HashMap<String,TileData> getTileData(Client client, JsonArray tilesToFind) {
+        Interfaces i = new Interfaces();
+        Interfaces.CanvasData canvasData = i.getCanvasData(client);
+
         ArrayList<WorldPoint> wps = new ArrayList<>();
         HashMap<String, TileData> tileDataPacket = new HashMap<>();
         for (JsonElement elem : tilesToFind) {
@@ -49,10 +53,12 @@ public class Tiles {
                         if (poly != null) {
                             Rectangle r = poly.getBounds();
                             if (r != null) {
-                                HashMap<Character, Integer> center = u.getCenter(r);
+                                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                                 if (
-                                        center.get('x') > 0 && center.get('x') < 1920 &&
-                                                center.get('y') > 0 && center.get('y') < 1035
+                                        center.get('x') > canvasData.getXMin()
+                                        && center.get('x') < canvasData.getXMax()
+                                        && center.get('y') > canvasData.getYMin()
+                                        && center.get('y') < canvasData.getYMax()
                                 ) {
                                     String parsedKey = Integer.toString(wp.getX()) + Integer.toString(wp.getY()) + Integer.toString(wp.getPlane());
                                     String parsedKeyV2 = Integer.toString(

@@ -27,6 +27,8 @@ public class Inventory {
         int quantity;
     }
 
+    Interfaces i = new Interfaces();
+
     private static WidgetItem getWidgetItem(Widget parentWidget, int idx)
     {
         assert parentWidget.isIf3();
@@ -39,6 +41,7 @@ public class Inventory {
 
     public List<Slot> getInventory(Client client) {
         try {
+            Interfaces.CanvasData canvasData = i.getCanvasData(client);
             List<Slot> inv = null;
             ItemContainer ic = client.getItemContainer(InventoryID.INVENTORY);
             if (ic != null) {
@@ -50,7 +53,7 @@ public class Inventory {
                         final WidgetItem targetWidgetItem = getWidgetItem(invWidget, i);
                         final Rectangle r = targetWidgetItem.getCanvasBounds(false);
                         Utilities u = new Utilities();
-                        HashMap<Character, Integer> center = u.getCenter(r);
+                        HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                         // For some reason, right as I open an interface it sometimes says the points are all located
                         // in a small 50x50 corner of the upper right-hand screen.
                         if (center.get('x') > 50 && center.get('y') > 50) {
@@ -72,6 +75,7 @@ public class Inventory {
 
     public List<Slot> getBankInventory(Client client) {
         try {
+            Interfaces.CanvasData canvasData = i.getCanvasData(client);
             List<Slot> inv = null;
             ItemContainer ic = client.getItemContainer(InventoryID.BANK);
             if (ic != null) {
@@ -84,7 +88,7 @@ public class Inventory {
                         if (targetWidgetItem == null) continue;
                         final Rectangle r = targetWidgetItem.getCanvasBounds(false);
                         Utilities u = new Utilities();
-                        HashMap<Character, Integer> center = u.getCenter(r);
+                        HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getXOffset());
                         // For some reason, right as I open an interface it sometimes says the points are all located
                         // in a small 50x50 corner of the upper right-hand screen.
                         if (center.get('x') > 50 && center.get('y') > 50) {

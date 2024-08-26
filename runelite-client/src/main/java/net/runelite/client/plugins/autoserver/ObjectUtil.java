@@ -169,6 +169,7 @@ public class ObjectUtil {
     }
 
     public HashMap<Integer, ArrayList<EnhancedObjData>> gameObjects(Client client, JsonObject gameObjectsToFind, SearchObjectType searchType) {
+        Interfaces.CanvasData canvasData = interfaceHelper.getCanvasData(client);
         HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjectsV2(gameObjectsToFind);
@@ -222,7 +223,7 @@ public class ObjectUtil {
                         continue;
                     }
                     Rectangle r = poly.getBounds();
-                    HashMap<Character, Integer> center = u.getCenter(r);
+                    HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                     if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                         EnhancedObjData data = new EnhancedObjData(
                                 center.get('x'),
@@ -253,6 +254,7 @@ public class ObjectUtil {
     }
 
     public HashMap<Integer, EnhancedObjData> findGameObjects(Client client, JsonArray gameObjectsToFind) {
+        Interfaces.CanvasData canvasData = interfaceHelper.getCanvasData(client);
         HashMap<Integer, EnhancedObjData> returnData = new HashMap<>();
         ParsedTilesAndObjects ptao = parseTilesAndObjects(gameObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
@@ -271,7 +273,7 @@ public class ObjectUtil {
                             Shape poly = g.getClickbox();
                             if (poly != null) {
                                 Rectangle r = poly.getBounds();
-                                HashMap<Character, Integer> center = u.getCenter(r);
+                                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                                 if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                     //return key value pair key object id and values of x adn y
                                     returnData.put(g.getId(), new EnhancedObjData(
@@ -294,6 +296,7 @@ public class ObjectUtil {
     }
 
     public HashMap<Integer, EnhancedObjData> findGroundObjects(Client client, JsonArray groundObjectsToFind) {
+        Interfaces.CanvasData canvasData = interfaceHelper.getCanvasData(client);
         HashMap<Integer, EnhancedObjData> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(groundObjectsToFind);
@@ -314,7 +317,7 @@ public class ObjectUtil {
                             continue;
                         }
                         Rectangle r = s.getBounds();
-                        HashMap<Character, Integer> center = u.getCenter(r);
+                        HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                         if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                             returnData.put(
                                     wo.getId(),
@@ -336,6 +339,7 @@ public class ObjectUtil {
     }
 
     public HashMap<Integer, ArrayList<EnhancedObjData>> findWallObjects(Client client, JsonArray wallObjectsToFind) {
+        Interfaces.CanvasData canvasData = interfaceHelper.getCanvasData(client);
         HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(wallObjectsToFind);
@@ -355,7 +359,7 @@ public class ObjectUtil {
                             Shape s = wo.getClickbox();
                             if (s != null) {
                                 Rectangle r = s.getBounds();
-                                HashMap<Character, Integer> center = u.getCenter(r);
+                                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                                 if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                     if (returnData.get(wo.getId()) != null) {
                                         ArrayList<EnhancedObjData> gobj = returnData.get(wo.getId());
@@ -397,6 +401,7 @@ public class ObjectUtil {
 
     public HashMap<Integer, ArrayList<EnhancedObjData>> findMultipleGameObjects(Client client, JsonArray gameObjectsToFind) {
         HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
+        Interfaces.CanvasData canvasData = interfaceHelper.getCanvasData(client);
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(gameObjectsToFind);
         HashSet<Integer> RELEVANT_OBJECTS = ptao.RELEVANT_OBJECTS;
@@ -414,7 +419,7 @@ public class ObjectUtil {
                         if (g != null && RELEVANT_OBJECTS.contains(g.getId()) && g.getCanvasTilePoly() != null) {
                             Shape poly = g.getClickbox();
                             Rectangle r = poly.getBounds();
-                            HashMap<Character, Integer> center = u.getCenter(r);
+                            HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                             if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                 //return key value pair key object id and values of x adn y
                                 //returnData.put(g.getId(), new GameObjData(center.get('x'), center.get('y'), g.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())));
@@ -458,6 +463,7 @@ public class ObjectUtil {
     }
 
     public HashMap<Integer, ArrayList<EnhancedObjData>> findDecorativeObjects(Client client, JsonArray wallObjectsToFind) {
+        Interfaces.CanvasData canvasData = interfaceHelper.getCanvasData(client);
         HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(wallObjectsToFind);
@@ -477,7 +483,7 @@ public class ObjectUtil {
                             Shape s = wo.getClickbox();
                             if (s != null) {
                                 Rectangle r = s.getBounds();
-                                HashMap<Character, Integer> center = u.getCenter(r);
+                                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                                 if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                     if (returnData.get(wo.getId()) != null) {
                                         ArrayList<EnhancedObjData> gobj = returnData.get(wo.getId());
@@ -516,6 +522,7 @@ public class ObjectUtil {
     }
 
     public HashMap<Integer, ArrayList<EnhancedObjData>> getGroundItems(Client client, JsonArray itemsToFind) {
+        Interfaces.CanvasData canvasData = interfaceHelper.getCanvasData(client);
         HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
@@ -536,7 +543,7 @@ public class ObjectUtil {
                             if (RELEVANT_OBJECTS.contains(9999999) || RELEVANT_OBJECTS.contains(ti.getId())) {
                                 final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
                                 Rectangle r = poly.getBounds();
-                                HashMap<Character, Integer> center = u.getCenter(r);
+                                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                                 if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                     if (returnData.get(ti.getId()) != null) {
                                         ArrayList<EnhancedObjData> gobj = returnData.get(ti.getId());
@@ -580,6 +587,7 @@ public class ObjectUtil {
 
     public HashMap<Integer, ArrayList<EnhancedObjData>> getGroundItemsAnyId(Client client, JsonArray itemsToFind) {
         HashMap<Integer, ArrayList<EnhancedObjData>> returnData = new HashMap<>();
+        Interfaces.CanvasData canvasData = interfaceHelper.getCanvasData(client);
 
         ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
         ArrayList<WorldPoint> wps = ptao.wps;
@@ -599,7 +607,7 @@ public class ObjectUtil {
                             logger.info(String.valueOf(wp.getY()));
                             final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
                             Rectangle r = poly.getBounds();
-                            HashMap<Character, Integer> center = u.getCenter(r);
+                            HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                             if (center.get('x') > 0 && center.get('x') < 1920 && center.get('y') > 0 && center.get('y') < 1035) {
                                 if (returnData.get(ti.getId()) != null) {
                                     ArrayList<EnhancedObjData> gobj = returnData.get(ti.getId());
@@ -639,6 +647,7 @@ public class ObjectUtil {
     }
 
     public ArrayList<GroundItemData> getGroundItemsV2(Client client, JsonArray itemsToFind) {
+        Interfaces.CanvasData canvasData = interfaceHelper.getCanvasData(client);
         ArrayList<GroundItemData> output = new ArrayList<>();
         ParsedTilesAndObjects ptao = parseTilesAndObjects(itemsToFind);
         ArrayList<WorldPoint> wps = ptao.wps;
@@ -660,7 +669,7 @@ public class ObjectUtil {
             for (TileItem tileItem : groundItemList) {
                 final Polygon poly = Perspective.getCanvasTilePoly(client, localLocation);
                 Rectangle r = poly.getBounds();
-                HashMap<Character, Integer> center = u.getCenter(r);
+                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                 output.add(new GroundItemData(
                         center.get('x'),
                         center.get('y'),
@@ -734,7 +743,7 @@ public class ObjectUtil {
                         if (s == null) continue;
                         Rectangle r = s.getBounds();
                         if (r == null) continue;
-                        HashMap<Character, Integer> center = u.getCenter(r);
+                        HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
                         Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
                         if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
                             int objAnimation = -1;
@@ -769,7 +778,7 @@ public class ObjectUtil {
                     if (s == null) continue;
                     Rectangle r = s.getBounds();
                     if (r == null) continue;
-                    HashMap<Character, Integer> center = u.getCenter(r);
+                    HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
                     Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
                     if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
                         wallObjectData.add(
@@ -794,7 +803,7 @@ public class ObjectUtil {
                     if (s == null) continue;
                     Rectangle r = s.getBounds();
                     if (r == null) continue;
-                    HashMap<Character, Integer> center = u.getCenter(r);
+                    HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
                     Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
                     if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
                         groundObjectData.add(
@@ -819,7 +828,7 @@ public class ObjectUtil {
                     if (s == null) continue;
                     Rectangle r = s.getBounds();
                     if (r == null) continue;
-                    HashMap<Character, Integer> center = u.getCenter(r);
+                    HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
                     Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
                     if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
                         decorativeObjectData.add(
@@ -845,7 +854,7 @@ public class ObjectUtil {
                     if (poly == null) continue;
                     Rectangle r = poly.getBounds();
                     if (r == null) continue;
-                    HashMap<Character, Integer> center = u.getCenter(r);
+                    HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
                     Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
                     if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
                         groundItemData.add(

@@ -69,9 +69,14 @@ public class Interfaces {
         int xMax;
         int yMin;
         int yMax;
+        int xOffset;
+        int yOffset;
+        int height;
+        int width;
     }
 
     public InterfaceData getClickToPlay(Client client) {
+        CanvasData canvasData = getCanvasData(client);
         GameState gs = client.getGameState();
         String state = gs.toString();
         if (Objects.equals(state, "LOGGED_IN")) {
@@ -79,7 +84,7 @@ public class Interfaces {
             if (clickToPlayButton != null) {
                 Rectangle r = clickToPlayButton.getBounds();
                 Utilities u = new Utilities();
-                HashMap<Character, Integer> center = u.getCenter(r);
+                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
                 if (center.get('x') > 50 && center.get('y') > 50) {
                     return new InterfaceData(
                             center.get('x'),
@@ -94,6 +99,7 @@ public class Interfaces {
     }
 
     public EnrichedInterfaceData getWidget(Client client, String widget) {
+        CanvasData canvasData = getCanvasData(client);
         String[] childAndParent = widget.split(",");
         Widget targetWidget = client.getWidget(
             Integer.parseInt(childAndParent[0]),
@@ -101,8 +107,6 @@ public class Interfaces {
         );
 
         if (targetWidget != null && childAndParent.length == 3) {
-            System.out.println("child");
-            System.out.println(Integer.parseInt(childAndParent[2]));
             targetWidget = targetWidget.getChild(Integer.parseInt(childAndParent[2]));
         }
 
@@ -110,7 +114,7 @@ public class Interfaces {
 
             Rectangle r = targetWidget.getBounds();
             Utilities u = new Utilities();
-            HashMap<Character, Integer> center = u.getCenter(r);
+            HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
             return new EnrichedInterfaceData(
                     center.get('x'),
                     center.get('y'),
@@ -151,12 +155,12 @@ public class Interfaces {
 
     public EnrichedInterfaceData getWidgetV2(Client client, int widget) {
         Widget targetWidget = client.getWidget(widget);
-
+        CanvasData canvasData = getCanvasData(client);
         if (targetWidget != null && !targetWidget.isHidden()) {
 
             Rectangle r = targetWidget.getBounds();
             Utilities u = new Utilities();
-            HashMap<Character, Integer> center = u.getCenter(r);
+            HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
             return new EnrichedInterfaceData(
                     center.get('x'),
                     center.get('y'),
@@ -291,17 +295,25 @@ public class Interfaces {
 
     public CanvasData getCanvasData(Client client) {
         Canvas c = client.getCanvas();
+        // These values account for headers on the OS as well as if the game screen
+        // is not in fullscreen
+        int xOffset = (int) c.getParent().getLocationOnScreen().getX();
+        int yOffset = (int) c.getParent().getLocationOnScreen().getY();
         Rectangle r = c.getBounds();
-        double xMin = c.getLocationOnScreen().getX();
-        double xMax = xMin + r.getWidth();
+        double xMin = c.getLocationOnScreen().getX() + xOffset;
+        double xMax = xMin + r.getWidth() - xOffset;
         // Account for the runelite title bar
-        double yMin = c.getLocationOnScreen().getY();
-        double yMax = yMin + r.getHeight();
+        double yMin = c.getLocationOnScreen().getY() + yOffset;
+        double yMax = yMin + r.getHeight() - yOffset;
         return new CanvasData(
                 (int) xMin,
                 (int) xMax,
                 (int) yMin,
-                (int) yMax
+                (int) yMax,
+                xOffset,
+                yOffset,
+                (int) r.getHeight(),
+                (int) r.getWidth()
         );
     }
 }
