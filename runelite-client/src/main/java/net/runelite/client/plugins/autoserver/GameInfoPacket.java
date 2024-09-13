@@ -60,9 +60,9 @@ public class GameInfoPacket {
     HashMap<String, Integer> canvasArea;
     HashMap<String, String> slayer;
     HashMap<String, String> varPlayer;
-    ArrayList<String> players;
     int world;
     int orientation;
     ArrayList<Integer> spotAnims;
     HashMap<String, ArrayList<ObjectUtil.ObjectAndGroundItemData>> allObjects;
+    List<Player.OtherPlayerData> players;
 }

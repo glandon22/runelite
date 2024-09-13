@@ -607,12 +607,8 @@ public class AutoServer extends Plugin {
                     jsonObject.get("players") != null && jsonObject.get("players").getAsBoolean()
             ) {
                 invokeAndWait(() -> {
-                    List<net.runelite.api.Player> p = client.getPlayers();
-                    ArrayList<String> ps = new ArrayList<>();
-                    for (net.runelite.api.Player pl : p) {
-                        ps.add(pl.getName());
-                    }
-                    gip.players = ps;
+                    Player p = new Player();
+                    gip.players = p.otherPlayers(client);
                     return null;
                 });
             }

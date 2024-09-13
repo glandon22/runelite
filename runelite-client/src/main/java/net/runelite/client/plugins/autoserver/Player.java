@@ -4,18 +4,31 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import lombok.Value;
 import net.runelite.api.*;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.autolode.Pickaxe;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.runelite.client.plugins.fishing.FishingOverlay.FISHING_ANIMATIONS;
 
 public class Player {
+    Interfaces i = new Interfaces();
     @Value
     public static class SkillData {
         int level;
         int xp;
         int boostedLevel;
+    }
+
+    @Value
+    public static class OtherPlayerData {
+        String name;
+        WorldPoint worldPoint;
+        int x;
+        int y;
     }
 
     public HashMap<String, SkillData> getSkillData(Client client, JsonArray skills) {
@@ -86,5 +99,29 @@ public class Player {
         }
 
         return output;
+    }
+
+    public List<OtherPlayerData> otherPlayers(Client client) {
+        Interfaces.CanvasData canvasData = i.getCanvasData(client);
+        List<OtherPlayerData> OtherPlayerData = new ArrayList<>();
+        WorldView wv = client.getTopLevelWorldView();
+        List<net.runelite.api.Player> players = wv == null ? Collections.emptyList() : wv.players()
+                .stream()
+                .collect(Collectors.toCollection(ArrayList::new));
+        for (net.runelite.api.Player player : players) {
+            Shape poly = player.getConvexHull();
+            if (poly == null) {continue;}
+            Rectangle r = poly.getBounds();
+            Utilities u = new Utilities();
+            HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
+            OtherPlayerData.add(new OtherPlayerData(
+                player.getName(),
+                    player.getWorldLocation(),
+                    center.get('x'),
+                    center.get('y')
+            ));
+        }
+
+        return OtherPlayerData;
     }
 }
