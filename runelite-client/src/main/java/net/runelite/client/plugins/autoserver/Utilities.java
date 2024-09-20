@@ -1,12 +1,15 @@
 package net.runelite.client.plugins.autoserver;
 
 import net.runelite.api.Client;
+import net.runelite.api.WorldView;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.HashMap;
+import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Utilities {
     public static class PointData {
@@ -42,12 +45,19 @@ public class Utilities {
     }
 
     public PointData getPlayerWorldPoint(Client client) {
-        LocalPoint lp = client.getLocalPlayer().getLocalLocation();
-        WorldPoint wp = WorldPoint.fromLocal(client, lp);
+        Interfaces i = new Interfaces();
         PointData pd = new PointData();
-        pd.x = wp.getX();
-        pd.y = wp.getY();
-        pd.z = wp.getPlane();
+        WorldView wv = client.getTopLevelWorldView();
+        List<net.runelite.api.Player> players = wv == null ? Collections.emptyList() : wv.players()
+                .stream()
+                .collect(Collectors.toCollection(ArrayList::new));
+        for (net.runelite.api.Player player : players) {
+            if (Objects.requireNonNull(player.getName()).equalsIgnoreCase(Objects.requireNonNull(client.getLocalPlayer().getName()))) {
+                pd.x = player.getWorldLocation().getX();
+                pd.y = player.getWorldLocation().getY();
+                pd.z = player.getWorldLocation().getPlane();
+            }
+        }
         return pd;
     }
 }

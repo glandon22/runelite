@@ -3,6 +3,7 @@ package net.runelite.client.plugins.autoserver;
 import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.Projectile;
+import net.runelite.api.coords.WorldPoint;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -18,16 +19,18 @@ public class Projectiles {
         int id;
         int startCycle;
         int endCycle;
+        WorldPoint destination;
     }
     public List<IncomingProjectile> getProjectiles(Client client) {
         List<IncomingProjectile> projs = new ArrayList<>();
-        for (Projectile p : client.getProjectiles()) {
+        for (Projectile p : client.getTopLevelWorldView().getProjectiles()) {
             IncomingProjectile ip = new IncomingProjectile(
                     p.getX(),
                     p.getY(),
                     p.getId(),
                     p.getStartCycle(),
-                    p.getEndCycle()
+                    p.getEndCycle(),
+                    WorldPoint.fromLocal(client, p.getTarget())
             );
             projs.add(ip);
         }
