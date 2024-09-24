@@ -92,6 +92,7 @@ public class AlchemyRoom extends MTARoom
 	private AlchemyItem best;
 	private Cupboard suggestion;
 	private boolean hintSet;
+	public GameObject bestItemExternal;
 
 	@Inject
 	private AlchemyRoom(Client client, MTAConfig config, MTAPlugin plugin, ItemManager itemManager, InfoBoxManager infoBoxManager)
@@ -127,7 +128,7 @@ public class AlchemyRoom extends MTARoom
 			Arrays.stream(cupboards)
 				.filter(Objects::nonNull)
 				.forEach(e -> e.alchemyItem = AlchemyItem.UNKNOWN);
-
+			bestItemExternal = null;
 			client.clearHintArrow();
 		}
 
@@ -207,6 +208,7 @@ public class AlchemyRoom extends MTARoom
 				reset();
 				if (hintSet)
 				{
+					bestItemExternal = null;
 					client.clearHintArrow();
 					hintSet = false;
 				}
@@ -354,6 +356,7 @@ public class AlchemyRoom extends MTARoom
 
 			if (alchemyItem == best)
 			{
+				bestItemExternal = object;
 				client.setHintArrow(object.getWorldLocation());
 				found = true;
 				hintSet = true;

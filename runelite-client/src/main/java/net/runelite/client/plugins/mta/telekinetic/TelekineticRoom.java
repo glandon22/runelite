@@ -82,7 +82,7 @@ public class TelekineticRoom extends MTARoom
 	private Rectangle bounds;
 	private NPC guardian;
 	private int numMazeWalls;
-
+	public WorldPoint optimalTile;
 	@Inject
 	private TelekineticRoom(MTAConfig config, Client client)
 	{
@@ -247,7 +247,7 @@ public class TelekineticRoom extends MTARoom
 				}
 
 				WorldPoint optimal = optimal(0);
-
+				optimalTile = optimal;
 				if (optimal != null)
 				{
 					client.setHintArrow(optimal);

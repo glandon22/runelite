@@ -176,6 +176,33 @@ public class AutoServer extends Plugin {
                 });
             }
 
+            if (
+                    jsonObject.get("mta") != null &&
+                            jsonObject.get("mta").getAsBoolean()
+            ) {
+                invokeAndWait(() -> {
+                    gip.mta = new HashMap<>();
+                    Plugin qhp = pluginManager.getPlugins().stream()
+                            .filter(e -> e.getName().equals("Mage Training Arena"))
+                            .findAny().orElse(null);
+                    if (qhp == null) {
+                        gip.mta = new HashMap<>();
+                        return null;
+                    }
+                    Object qh = qhp.getClass().getMethod("getTeleTile").invoke(qhp);
+                    if (qh != null) gip.mta.put("teleTile", qh);
+
+                    Object qh1 = qhp.getClass().getMethod("getAlchItem").invoke(qhp);
+                    if (qh1 != null) {
+                        System.out.println("hhh");
+                        System.out.println(qh1);
+                        gip.mta.put("getAlchItem", qh1);
+                    }
+
+                    return null;
+                });
+            }
+
             // this is what is in your inventory when the bank screen is open
             if (
                     jsonObject.get("bankInv") != null &&
@@ -193,7 +220,18 @@ public class AutoServer extends Plugin {
                             (Boolean) jsonObject.get("equipment").getAsBoolean()
             ) {
                 invokeAndWait(() -> {
-                    gip.equipment = client.getLocalPlayer().getPlayerComposition().getEquipmentIds();
+                    List<Integer> inv = new ArrayList<>();
+                    ItemContainer ic = client.getItemContainer(InventoryID.EQUIPMENT);
+                    if (ic != null) {
+                        Item[] items = ic.getItems();
+                        for (int i = 0; i < items.length; i++) {
+                            Item item = items[i];
+                            if (item != null && item.getId() > 0) {
+                                inv.add(item.getId());
+                            }
+                        }
+                    }
+                    gip.equipment = inv;
                     return null;
                 });
             }

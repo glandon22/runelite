@@ -28,6 +28,8 @@ import com.google.inject.Provides;
 import javax.inject.Inject;
 import lombok.AccessLevel;
 import lombok.Getter;
+import net.runelite.api.GameObject;
+import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.EventBus;
 import net.runelite.client.plugins.Plugin;
@@ -37,6 +39,8 @@ import net.runelite.client.plugins.mta.enchantment.EnchantmentRoom;
 import net.runelite.client.plugins.mta.graveyard.GraveyardRoom;
 import net.runelite.client.plugins.mta.telekinetic.TelekineticRoom;
 import net.runelite.client.ui.overlay.OverlayManager;
+
+import java.util.HashMap;
 
 @PluginDescriptor(
 	name = "Mage Training Arena",
@@ -67,6 +71,20 @@ public class MTAPlugin extends Plugin
 
 	@Getter(AccessLevel.PROTECTED)
 	private MTARoom[] rooms;
+
+	public WorldPoint getTeleTile() {
+		return telekineticRoom.optimalTile;
+	}
+
+
+	public HashMap<String, Object> getAlchItem() {
+		HashMap<String, Object> ret = new HashMap<>();
+		if (alchemyRoom.bestItemExternal != null) {
+			ret.put("location", (Object)alchemyRoom.bestItemExternal.getWorldLocation());
+			ret.put("id", (Object)alchemyRoom.bestItemExternal.getId());
+		}
+		return ret;
+	}
 
 	@Provides
 	public MTAConfig getConfig(ConfigManager manager)

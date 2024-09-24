@@ -45,7 +45,7 @@ public class GameInfoPacket {
     int targetObj;
     int targetNPC;
     int gameCycle;
-    int[] equipment;
+    List<Integer> equipment;
     java.awt.List menuEntries;
     HashSet<Integer> projectiles;
     List<Projectiles.IncomingProjectile> projectilesV2;
@@ -65,4 +65,5 @@ public class GameInfoPacket {
     ArrayList<Integer> spotAnims;
     HashMap<String, ArrayList<ObjectUtil.ObjectAndGroundItemData>> allObjects;
     List<Player.OtherPlayerData> players;
+    HashMap<String,Object> mta;
 }
