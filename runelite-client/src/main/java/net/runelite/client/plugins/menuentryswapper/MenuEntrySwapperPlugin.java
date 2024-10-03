@@ -162,7 +162,8 @@ public class MenuEntrySwapperPlugin extends Plugin
 	private NpcUtil npcUtil;
 
 	private final Multimap<String, Swap> swaps = LinkedHashMultimap.create();
-	private final ArrayListMultimap<String, Integer> optionIndexes = ArrayListMultimap.create();
+	private final ArrayListMultimap<String, Integer> cacheOptionIndexes = ArrayListMultimap.create();
+	private Menu cacheOptionMenu;
 	private final Multimap<Integer, TeleportSwap> teleportSwaps = HashMultimap.create();
 	private boolean lastShift, curShift;
 
@@ -196,6 +197,9 @@ public class MenuEntrySwapperPlugin extends Plugin
 		swap("talk-to", "help", config::swapHelp);
 		// make sure assignment swap is higher priority than trade swap for slayer masters
 		swap("talk-to", "assignment", config::swapAssignment);
+		// make sure pay swaps are higher priority than trade swap for farmers
+		swap("talk-to", "pay", config::swapPay);
+		swapContains("talk-to", alwaysTrue(), "pay (", config::swapPay);
 		swap("talk-to", "trade", config::swapTrade);
 		swap("talk-to", "trade-with", config::swapTrade);
 		swap("talk-to", "shop", config::swapTrade);
@@ -214,8 +218,6 @@ public class MenuEntrySwapperPlugin extends Plugin
 		swap("talk-to", "miscellania", config::swapTravel);
 		swap("talk-to", "follow", config::swapTravel);
 		swap("talk-to", "transport", config::swapTravel);
-		swap("talk-to", "pay", config::swapPay);
-		swapContains("talk-to", alwaysTrue(), "pay (", config::swapPay);
 		swap("talk-to", "quick-travel", config::swapQuick);
 		swap("talk-to", ESSENCE_MINE_NPCS::contains, "teleport", config::swapEssenceMineTeleport);
 		swap("talk-to", "deposit-items", config::swapDepositItems);
@@ -1206,7 +1208,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 							.setOption("Swap left click")
 							.setType(MenuAction.RUNELITE);
 						swapShiftClick = client.createMenuEntry(2)
-							.setOption("Swap left click")
+							.setOption("Swap shift click")
 							.setType(MenuAction.RUNELITE);
 						subLeft = swapLeftClick.createSubMenu();
 						subShift = swapShiftClick.createSubMenu();
@@ -1337,7 +1339,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 		};
 	}
 
-	private boolean swapBank(MenuEntry menuEntry, MenuAction type)
+	private boolean swapBank(Menu menu, MenuEntry menuEntry, MenuAction type)
 	{
 		if (type != MenuAction.CC_OP && type != MenuAction.CC_OP_LOW_PRIORITY)
 		{
@@ -1362,7 +1364,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 				: isGroupStoragePlayerInventory ? shiftDepositMode.getIdentifierGroupStorage()
 				: shiftDepositMode.getIdentifier();
 			final MenuAction action = opId >= 6 ? MenuAction.CC_OP_LOW_PRIORITY : MenuAction.CC_OP;
-			bankModeSwap(action, opId);
+			bankModeSwap(menu, action, opId);
 			return true;
 		}
 
@@ -1385,16 +1387,16 @@ public class MenuEntrySwapperPlugin extends Plugin
 				action = shiftWithdrawMode.getMenuAction();
 				opId = shiftWithdrawMode.getIdentifier();
 			}
-			bankModeSwap(action, opId);
+			bankModeSwap(menu, action, opId);
 			return true;
 		}
 
 		return false;
 	}
 
-	private void bankModeSwap(MenuAction entryType, int entryIdentifier)
+	private void bankModeSwap(Menu menu, MenuAction entryType, int entryIdentifier)
 	{
-		MenuEntry[] menuEntries = client.getMenuEntries();
+		MenuEntry[] menuEntries = menu.getMenuEntries();
 
 		for (int i = menuEntries.length - 1; i >= 0; --i)
 		{
@@ -1408,13 +1410,13 @@ public class MenuEntrySwapperPlugin extends Plugin
 				menuEntries[i] = menuEntries[menuEntries.length - 1];
 				menuEntries[menuEntries.length - 1] = entry;
 
-				client.setMenuEntries(menuEntries);
+				menu.setMenuEntries(menuEntries);
 				break;
 			}
 		}
 	}
 
-	private void swapMenuEntry(MenuEntry parent, MenuEntry[] menuEntries, int index, MenuEntry menuEntry)
+	private void swapMenuEntry(MenuEntry parent, Menu menu, MenuEntry[] menuEntries, int index, MenuEntry menuEntry)
 	{
 		Menu sub = menuEntry.getSubMenu();
 		if (sub != null)
@@ -1423,7 +1425,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 			MenuEntry[] subEntries = sub.getMenuEntries();
 			for (MenuEntry subEntry : subEntries)
 			{
-				swapMenuEntry(menuEntry, subEntries, subidx++, subEntry);
+				swapMenuEntry(menuEntry, sub, subEntries, subidx++, subEntry);
 			}
 		}
 
@@ -1442,11 +1444,11 @@ public class MenuEntrySwapperPlugin extends Plugin
 			{
 				if (swapIndex == -1)
 				{
-					swap(menuEntries, "use", target, index, true);
+					swap(menu, menuEntries, "use", target, index, true);
 				}
 				else if (swapIndex + 1 == menuEntry.getItemOp())
 				{
-					swap(optionIndexes, menuEntries, index, menuEntries.length - 1);
+					swap(menu, menuEntries, index, menuEntries.length - 1);
 				}
 				// Submenu swap. The swapIndex is actually the option hashCode.
 				else if (parent != null && menuEntry.getOption().hashCode() == swapIndex)
@@ -1472,7 +1474,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 				{
 					if (wornItemSwapConfig == menuEntry.getIdentifier())
 					{
-						swap(optionIndexes, menuEntries, index, menuEntries.length - 1);
+						swap(menu, menuEntries, index, menuEntries.length - 1);
 					}
 					// Submenu swap.
 					else if (parent != null && menuEntry.getOption().hashCode() == wornItemSwapConfig)
@@ -1505,7 +1507,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 				MenuAction swapAction = OBJECT_MENU_TYPES.get(customOption);
 				if (swapAction == menuAction)
 				{
-					swap(optionIndexes, menuEntries, index, menuEntries.length - 1);
+					swap(menu, menuEntries, index, menuEntries.length - 1);
 					return;
 				}
 			}
@@ -1531,7 +1533,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 						++i;
 					}
 
-					swap(optionIndexes, menuEntries, index, i);
+					swap(menu, menuEntries, index, i);
 					return;
 				}
 			}
@@ -1553,13 +1555,13 @@ public class MenuEntrySwapperPlugin extends Plugin
 				final Integer op = getUiSwapConfig(shiftModifier(), componentId, itemId);
 				if (op != null && op == menuEntry.getIdentifier())
 				{
-					swap(optionIndexes, menuEntries, index, menuEntries.length - 1);
+					swap(menu, menuEntries, index, menuEntries.length - 1);
 					return;
 				}
 			}
 		}
 
-		if (swapBank(menuEntry, menuAction))
+		if (swapBank(menu, menuEntry, menuAction))
 		{
 			return;
 		}
@@ -1580,7 +1582,7 @@ public class MenuEntrySwapperPlugin extends Plugin
 		{
 			if (swap.getTargetPredicate().test(target) && swap.getEnabled().get())
 			{
-				if (swap(menuEntries, swap.getSwappedOption(), target, index, swap.isStrict()))
+				if (swap(menu, menuEntries, swap.getSwappedOption(), target, index, swap.isStrict()))
 				{
 					break;
 				}
@@ -1669,28 +1671,24 @@ public class MenuEntrySwapperPlugin extends Plugin
 			return;
 		}
 
-		MenuEntry[] menuEntries = client.getMenuEntries();
-
-		// Build option map for quick lookup in findIndex
-		int idx = 0;
-		optionIndexes.clear();
-		for (MenuEntry entry : menuEntries)
-		{
-			String option = Text.removeTags(entry.getOption()).toLowerCase();
-			optionIndexes.put(option, idx++);
-		}
+		Menu root = client.getMenu();
+		MenuEntry[] menuEntries = root.getMenuEntries();
 
 		// Perform swaps
-		idx = 0;
+		int idx = 0;
 		for (MenuEntry entry : menuEntries)
 		{
-			swapMenuEntry(null, menuEntries, idx++, entry);
+			swapMenuEntry(null, root, menuEntries, idx++, entry);
 		}
 
 		if (config.removeDeadNpcMenus())
 		{
 			removeDeadNpcs();
 		}
+
+		// invalidate option index cache
+		cacheOptionIndexes.clear();
+		cacheOptionMenu = null;
 	}
 
 	private void removeDeadNpcs()
@@ -1709,25 +1707,25 @@ public class MenuEntrySwapperPlugin extends Plugin
 		}
 	}
 
-	private boolean swap(MenuEntry[] menuEntries, String option, String target, int index, boolean strict)
+	private boolean swap(Menu menu, MenuEntry[] menuEntries, String option, String target, int index, boolean strict)
 	{
 		// find option to swap with
-		int optionIdx = findIndex(menuEntries, index, option, target, strict);
+		int optionIdx = findIndex(menu, menuEntries, index, option, target, strict);
 
 		if (optionIdx >= 0)
 		{
-			swap(optionIndexes, menuEntries, optionIdx, index);
+			swap(menu, menuEntries, optionIdx, index);
 			return true;
 		}
 
 		return false;
 	}
 
-	private int findIndex(MenuEntry[] entries, int limit, String option, String target, boolean strict)
+	private int findIndex(Menu menu, MenuEntry[] entries, int limit, String option, String target, boolean strict)
 	{
 		if (strict)
 		{
-			List<Integer> indexes = optionIndexes.get(option);
+			List<Integer> indexes = findOptionIndex(menu, option);
 
 			// We want the last index which matches the target, as that is what is top-most
 			// on the menu
@@ -1764,7 +1762,24 @@ public class MenuEntrySwapperPlugin extends Plugin
 		return -1;
 	}
 
-	private void swap(ArrayListMultimap<String, Integer> optionIndexes, MenuEntry[] entries, int index1, int index2)
+	private List<Integer> findOptionIndex(Menu menu, String option)
+	{
+		if (cacheOptionMenu == null || cacheOptionIndexes.isEmpty())
+		{
+			int idx = 0;
+			cacheOptionMenu = menu;
+			cacheOptionIndexes.clear();
+			for (MenuEntry entry : menu.getMenuEntries())
+			{
+				String opt = Text.removeTags(entry.getOption()).toLowerCase();
+				cacheOptionIndexes.put(opt, idx++);
+			}
+			log.trace("[{}] Rebuilt option index cache with {} entries", client.getGameCycle(), idx);
+		}
+		return cacheOptionIndexes.get(option);
+	}
+
+	private void swap(Menu menu, MenuEntry[] entries, int index1, int index2)
 	{
 		if (index1 == index2)
 		{
@@ -1788,21 +1803,26 @@ public class MenuEntrySwapperPlugin extends Plugin
 			entry2.setType(MenuAction.CC_OP);
 		}
 
-		client.setMenuEntries(entries);
+		menu.setMenuEntries(entries);
 
 		// Update optionIndexes
-		String option1 = Text.removeTags(entry1.getOption()).toLowerCase(),
-			option2 = Text.removeTags(entry2.getOption()).toLowerCase();
+		if (cacheOptionMenu == menu)
+		{
+			String option1 = Text.removeTags(entry1.getOption()).toLowerCase(),
+				option2 = Text.removeTags(entry2.getOption()).toLowerCase();
 
-		List<Integer> list1 = optionIndexes.get(option1),
-			list2 = optionIndexes.get(option2);
+			List<Integer> list1 = cacheOptionIndexes.get(option1),
+				list2 = cacheOptionIndexes.get(option2);
 
-		// call remove(Object) instead of remove(int)
-		list1.remove((Integer) index1);
-		list2.remove((Integer) index2);
+			// call remove(Object) instead of remove(int)
+			list1.remove((Integer) index1);
+			list2.remove((Integer) index2);
 
-		sortedInsert(list1, index2);
-		sortedInsert(list2, index1);
+			sortedInsert(list1, index2);
+			sortedInsert(list2, index1);
+
+			log.trace("Swapped option index {} <-> {}", index1, index2);
+		}
 	}
 
 	private static <T extends Comparable<? super T>> void sortedInsert(List<T> list, T value)
@@ -1952,9 +1972,10 @@ public class MenuEntrySwapperPlugin extends Plugin
 			.addSub("Pollnivneach", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 3))
 			.addSub("Hosidius", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 4))
 			.addSub("Rellekka", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 5))
-			.addSub("Brimhaven", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6))
-			.addSub("Yanille", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 7))
-			.addSub("Prifddinas", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 8));
+			.addSub("Aldarin", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6))
+			.addSub("Brimhaven", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 7))
+			.addSub("Yanille", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 8))
+			.addSub("Prifddinas", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 9));
 		teleportSwap("Other Teleports", ItemID.MAX_CAPE_13342)
 			.worn()
 			.addSub("Feldip hills", () ->
@@ -2028,20 +2049,25 @@ public class MenuEntrySwapperPlugin extends Plugin
 				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6); // POH Portals
 				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 5);
 			})
-			.addSub("Brimhaven", () ->
+			.addSub("Aldarin", () ->
 			{
 				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6); // POH Portals
 				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6);
 			})
-			.addSub("Yanille", () ->
+			.addSub("Brimhaven", () ->
 			{
 				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6); // POH Portals
 				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 7);
 			})
-			.addSub("Prifddinas", () ->
+			.addSub("Yanille", () ->
 			{
 				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6); // POH Portals
 				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 8);
+			})
+			.addSub("Prifddinas", () ->
+			{
+				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6); // POH Portals
+				pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 9);
 			});
 		// endregion
 
@@ -2055,9 +2081,10 @@ public class MenuEntrySwapperPlugin extends Plugin
 			.addSub("Pollnivneach", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 3))
 			.addSub("Hosidius", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 4))
 			.addSub("Rellekka", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 5))
-			.addSub("Brimhaven", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6))
-			.addSub("Yanille", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 7))
-			.addSub("Prifddinas", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 8));
+			.addSub("Aldarin", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 6))
+			.addSub("Brimhaven", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 7))
+			.addSub("Yanille", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 8))
+			.addSub("Prifddinas", () -> pauseresume(ComponentID.ADVENTURE_LOG_OPTIONS, 9));
 		// endregion
 
 		// region Achievement diary cape
