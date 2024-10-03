@@ -20,17 +20,23 @@ public class Projectiles {
         int startCycle;
         int endCycle;
         WorldPoint destination;
+        String target;
     }
     public List<IncomingProjectile> getProjectiles(Client client) {
         List<IncomingProjectile> projs = new ArrayList<>();
         for (Projectile p : client.getTopLevelWorldView().getProjectiles()) {
+            String target = null;
+            if (p.getInteracting() != null) {
+                target = p.getInteracting().getName();
+            }
             IncomingProjectile ip = new IncomingProjectile(
                     p.getX(),
                     p.getY(),
                     p.getId(),
                     p.getStartCycle(),
                     p.getEndCycle(),
-                    WorldPoint.fromLocal(client, p.getTarget())
+                    WorldPoint.fromLocal(client, p.getTarget()),
+                    target
             );
             projs.add(ip);
         }

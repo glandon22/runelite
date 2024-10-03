@@ -69,6 +69,7 @@ public class ObjectUtil {
         int quantity;
         int ownership;
         int animation;
+        int height;
     }
 
     @Value
@@ -746,6 +747,8 @@ public class ObjectUtil {
                         HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
                         Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
                         if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                            //System.out.println("ll");
+                            //System.out.println(gameObject.getRenderable().getModel().getModelHeight());
                             int objAnimation = -1;
                             if (gameObject.getRenderable() instanceof DynamicObject)
                             {
@@ -765,7 +768,8 @@ public class ObjectUtil {
                                             gameObject.getId(),
                                             1,
                                             -1,
-                                            objAnimation
+                                            objAnimation,
+                                            (int) gameObject.getConvexHull().getBounds().getHeight()
                                     )
                             );
                         }
@@ -791,7 +795,8 @@ public class ObjectUtil {
                                         wallObject.getId(),
                                         1,
                                         -1,
-                                        -1
+                                        -1,
+                                        (int) wallObject.getConvexHull().getBounds().getHeight()
                                 )
                         );
                     }
@@ -816,7 +821,8 @@ public class ObjectUtil {
                                         groundObject.getId(),
                                         1,
                                         -1,
-                                        -1
+                                        -1,
+                                        (int) groundObject.getConvexHull().getBounds().getHeight()
                                 )
                         );
                     }
@@ -841,7 +847,8 @@ public class ObjectUtil {
                                         decorativeObject.getId(),
                                         1,
                                         -1,
-                                        -1
+                                        -1,
+                                        (int) decorativeObject.getConvexHull().getBounds().getHeight()
                                 )
                         );
                     }
@@ -867,6 +874,7 @@ public class ObjectUtil {
                                         item.getId(),
                                         item.getQuantity(),
                                         item.getOwnership(),
+                                        -1,
                                         -1
                                 )
                         );
