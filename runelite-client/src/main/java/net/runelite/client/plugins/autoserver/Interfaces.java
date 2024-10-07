@@ -254,12 +254,12 @@ public class Interfaces {
     }
 
     public RightClickMenuV2 getRightClickMenuEntriesV2(Client client) {
-        final int menuX = client.getMenuX();
-        final int menuY = client.getMenuY();
-        final int menuWidth = client.getMenuWidth();
-        final int menuH = client.getMenuHeight();
+        final int menuX = client.getMenu().getMenuX();
+        final int menuY = client.getMenu().getMenuY();
+        final int menuWidth = client.getMenu().getMenuWidth();
+        final int menuH = client.getMenu().getMenuHeight();
         ArrayList<ArrayList<String>> options = new ArrayList<>();
-        final MenuEntry[] menuEntries = client.getMenuEntries();
+        final MenuEntry[] menuEntries = client.getMenu().getMenuEntries();
         for(MenuEntry mu : menuEntries) {
             ArrayList<String> opts = new ArrayList<>();
             opts.add(mu.getOption());

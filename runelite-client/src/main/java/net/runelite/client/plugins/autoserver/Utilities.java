@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Utilities {
+    Interfaces interfaceHelper = new Interfaces();
     public static class PointData {
         int x;
         int y;
@@ -59,5 +60,71 @@ public class Utilities {
             }
         }
         return pd;
+    }
+
+    public boolean isClickable(Client client, Rectangle r) {
+        Interfaces.CanvasData canvas = interfaceHelper.getCanvasData(client);
+        Interfaces.EnrichedInterfaceData chatButtons = interfaceHelper.getWidget(client, "162,1");
+        Interfaces.EnrichedInterfaceData invInterface = interfaceHelper.getWidget(client, "161,97");
+        Interfaces.EnrichedInterfaceData worldMapInterface = interfaceHelper.getWidget(client, "161,95");
+        HashMap<Character, Integer> center = getCenter(r, canvas.getXOffset(), canvas.getYOffset());
+        Point centerPoint = new Point(center.get('x'), center.get('y'));
+        Rectangle gameScreen = new Rectangle(
+                canvas.getXMin(),
+                canvas.getYMin(),
+                canvas.getXMax() - canvas.getXMin(),
+                canvas.getYMax() - canvas.getYMin()
+        );
+
+        // point is outside of the client area
+        if (!gameScreen.contains(centerPoint)) {
+            return false;
+        }
+
+        if (chatButtons != null) {
+            Rectangle chatArea = new Rectangle(
+                    chatButtons.getXMin(),
+                    chatButtons.getYMin(),
+                    chatButtons.getXMax() - chatButtons.getXMin(),
+                    chatButtons.getYMax() - chatButtons.getYMin()
+            );
+
+            // Point is over one of the chat buttons
+            if (chatArea.contains(centerPoint)) {
+                return false;
+            }
+
+        }
+
+        // point is over the world map
+        if (worldMapInterface != null) {
+            Rectangle worldMapArea = new Rectangle(
+                    worldMapInterface.getXMin(),
+                    canvas.getYOffset(),
+                    worldMapInterface.getXMax() - worldMapInterface.getXMin(),
+                    worldMapInterface.getYMax() - worldMapInterface.getYMin()
+            );
+
+            if (worldMapArea.contains(centerPoint)) {
+                return false;
+            }
+
+        }
+
+        // point is behind the inventory
+        if (invInterface != null) {
+            Rectangle invArea = new Rectangle(
+                    invInterface.getXMin(),
+                    invInterface.getYMin(),
+                    invInterface.getXMax() - invInterface.getXMin(),
+                    invInterface.getYMax() - invInterface.getYMin()
+            );
+
+            if (invArea.contains(centerPoint)) {
+                return false;
+            }
+
+        }
+        return true;
     }
 }

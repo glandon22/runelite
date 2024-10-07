@@ -54,12 +54,7 @@ public class Tiles {
                             Rectangle r = poly.getBounds();
                             if (r != null) {
                                 HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
-                                if (
-                                        center.get('x') > canvasData.getXMin()
-                                        && center.get('x') < canvasData.getXMax()
-                                        && center.get('y') > canvasData.getYMin()
-                                        && center.get('y') < canvasData.getYMax()
-                                ) {
+                                if (u.isClickable(client, r)) {
                                     String parsedKey = Integer.toString(wp.getX()) + Integer.toString(wp.getY()) + Integer.toString(wp.getPlane());
                                     String parsedKeyV2 = Integer.toString(
                                             wp.getX()) +

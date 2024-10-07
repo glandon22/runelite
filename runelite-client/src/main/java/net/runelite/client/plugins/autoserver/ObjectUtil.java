@@ -745,10 +745,7 @@ public class ObjectUtil {
                         Rectangle r = s.getBounds();
                         if (r == null) continue;
                         HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                        Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
-                        if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
-                            //System.out.println("ll");
-                            //System.out.println(gameObject.getRenderable().getModel().getModelHeight());
+                        if (u.isClickable(client, r)) {
                             int objAnimation = -1;
                             if (gameObject.getRenderable() instanceof DynamicObject)
                             {
@@ -783,8 +780,7 @@ public class ObjectUtil {
                     Rectangle r = s.getBounds();
                     if (r == null) continue;
                     HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                    Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
-                    if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                    if (u.isClickable(client, r)) {
                         wallObjectData.add(
                                 new ObjectAndGroundItemData(
                                         center.get('x'),
@@ -809,8 +805,7 @@ public class ObjectUtil {
                     Rectangle r = s.getBounds();
                     if (r == null) continue;
                     HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                    Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
-                    if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                    if (u.isClickable(client, r)) {
                         groundObjectData.add(
                                 new ObjectAndGroundItemData(
                                         center.get('x'),
@@ -835,8 +830,7 @@ public class ObjectUtil {
                     Rectangle r = s.getBounds();
                     if (r == null) continue;
                     HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                    Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
-                    if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                    if (u.isClickable(client, r)) {
                         decorativeObjectData.add(
                                 new ObjectAndGroundItemData(
                                         center.get('x'),
@@ -862,8 +856,7 @@ public class ObjectUtil {
                     Rectangle r = poly.getBounds();
                     if (r == null) continue;
                     HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                    Rectangle gameScreen = new Rectangle(canvas.getXMin(), canvas.getYMin(), canvas.getXMax() - canvas.getXMin(), canvas.getYMax() - canvas.getYMin());
-                    if (gameScreen.contains(new Point(center.get('x'), center.get('y')))) {
+                    if (u.isClickable(client, r)) {
                         groundItemData.add(
                                 new ObjectAndGroundItemData(
                                         center.get('x'),

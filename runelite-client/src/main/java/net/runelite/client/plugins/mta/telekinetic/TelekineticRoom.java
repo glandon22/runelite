@@ -92,6 +92,7 @@ public class TelekineticRoom extends MTARoom
 
 	public void resetRoom()
 	{
+		optimalTile = null;
 		finishLocation = null;
 		telekineticWalls.clear();
 	}
