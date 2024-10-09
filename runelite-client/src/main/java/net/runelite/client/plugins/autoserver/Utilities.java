@@ -4,6 +4,7 @@ import net.runelite.api.Client;
 import net.runelite.api.WorldView;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
+import net.runelite.api.widgets.Widget;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -69,6 +70,9 @@ public class Utilities {
         Interfaces.EnrichedInterfaceData worldMapInterface = interfaceHelper.getWidget(client, "161,95");
         HashMap<Character, Integer> center = getCenter(r, canvas.getXOffset(), canvas.getYOffset());
         Point centerPoint = new Point(center.get('x'), center.get('y'));
+        Widget cb = client.getWidget(162, 1);
+        Widget invWidg = client.getWidget(161, 97);
+        Widget map = client.getWidget(161, 95);
         Rectangle gameScreen = new Rectangle(
                 canvas.getXMin(),
                 canvas.getYMin(),
@@ -81,50 +85,36 @@ public class Utilities {
             return false;
         }
 
-        if (chatButtons != null) {
-            Rectangle chatArea = new Rectangle(
-                    chatButtons.getXMin(),
-                    chatButtons.getYMin(),
-                    chatButtons.getXMax() - chatButtons.getXMin(),
-                    chatButtons.getYMax() - chatButtons.getYMin()
-            );
-
-            // Point is over one of the chat buttons
-            if (chatArea.contains(centerPoint)) {
-                return false;
-            }
-
+        if (cb != null && cb.contains(
+                new net.runelite.api.Point(
+                        (int)(r.getX() + r.getWidth() / 2),
+                        (int)(r.getY() + r.getHeight() / 2)
+                )
+        )
+        ) {
+            return false;
         }
 
-        // point is over the world map
-        if (worldMapInterface != null) {
-            Rectangle worldMapArea = new Rectangle(
-                    worldMapInterface.getXMin(),
-                    canvas.getYOffset(),
-                    worldMapInterface.getXMax() - worldMapInterface.getXMin(),
-                    worldMapInterface.getYMax() - worldMapInterface.getYMin()
-            );
-
-            if (worldMapArea.contains(centerPoint)) {
-                return false;
-            }
-
+        if (map != null && map.contains(
+                new net.runelite.api.Point(
+                        (int)(r.getX() + r.getWidth() / 2),
+                        (int)(r.getY() + r.getHeight() / 2)
+                )
+        )
+        ) {
+            return false;
         }
 
-        // point is behind the inventory
-        if (invInterface != null) {
-            Rectangle invArea = new Rectangle(
-                    invInterface.getXMin(),
-                    invInterface.getYMin(),
-                    invInterface.getXMax() - invInterface.getXMin(),
-                    invInterface.getYMax() - invInterface.getYMin()
-            );
-
-            if (invArea.contains(centerPoint)) {
-                return false;
-            }
-
+        if (invWidg != null && invWidg.contains(
+                new net.runelite.api.Point(
+                        (int)(r.getX() + r.getWidth() / 2),
+                        (int)(r.getY() + r.getHeight() / 2)
+                )
+        )
+        ) {
+            return false;
         }
+
         return true;
     }
 }
