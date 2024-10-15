@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.Perspective;
+import net.runelite.api.Point;
 import net.runelite.api.Tile;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
@@ -51,21 +52,18 @@ public class Tiles {
                     if (location != null) {
                         final Polygon poly = Perspective.getCanvasTilePoly(client, location);
                         if (poly != null) {
-                            Rectangle r = poly.getBounds();
-                            if (r != null) {
-                                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
-                                if (u.isClickable(client, r)) {
-                                    String parsedKey = Integer.toString(wp.getX()) + Integer.toString(wp.getY()) + Integer.toString(wp.getPlane());
-                                    String parsedKeyV2 = Integer.toString(
-                                            wp.getX()) +
-                                            ',' +
-                                            Integer.toString(wp.getY()) +
-                                            ',' +
-                                            Integer.toString(wp.getPlane()
-                                            );
-                                    tileDataPacket.put(parsedKey, new TileData(center.get('x'), center.get('y')));
-                                    tileDataPacket.put(parsedKeyV2, new TileData(center.get('x'), center.get('y')));
-                                }
+                            Point center = u.findCenterPoint(poly, canvasData.getXOffset(), canvasData.getYOffset());
+                            if (u.isClickable(client, center)) {
+                                String parsedKey = Integer.toString(wp.getX()) + Integer.toString(wp.getY()) + Integer.toString(wp.getPlane());
+                                String parsedKeyV2 = Integer.toString(
+                                        wp.getX()) +
+                                        ',' +
+                                        Integer.toString(wp.getY()) +
+                                        ',' +
+                                        Integer.toString(wp.getPlane()
+                                        );
+                                tileDataPacket.put(parsedKey, new TileData(center.getX(), center.getY()));
+                                tileDataPacket.put(parsedKeyV2, new TileData(center.getX(), center.getY()));
                             }
                         }
                     }

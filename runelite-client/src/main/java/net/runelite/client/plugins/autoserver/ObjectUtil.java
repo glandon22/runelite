@@ -6,13 +6,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.Value;
 import net.runelite.api.*;
+import net.runelite.api.Point;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.PluginManager;
 
 import javax.inject.Inject;
 import java.awt.*;
-import java.awt.Point;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -742,10 +743,8 @@ public class ObjectUtil {
                     if (gameObject != null && gameObject.getConvexHull() != null && parsedQuery.get("game").contains(gameObject.getId())) {
                         Shape s = gameObject.getClickbox();
                         if (s == null) continue;
-                        Rectangle r = s.getBounds();
-                        if (r == null) continue;
-                        HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                        if (u.isClickable(client, r)) {
+                        Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
+                        if (u.isClickable(client, center)) {
                             int objAnimation = -1;
                             if (gameObject.getRenderable() instanceof DynamicObject)
                             {
@@ -757,8 +756,8 @@ public class ObjectUtil {
                             }
                             gameObjectData.add(
                                     new ObjectAndGroundItemData(
-                                            center.get('x'),
-                                            center.get('y'),
+                                            center.getX(),
+                                            center.getY(),
                                             tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                             tile.getWorldLocation().getX(),
                                             tile.getWorldLocation().getY(),
@@ -777,14 +776,12 @@ public class ObjectUtil {
                 if (wallObject != null && wallObject.getConvexHull() != null && parsedQuery.get("wall").contains(wallObject.getId())) {
                     Shape s = wallObject.getClickbox();
                     if (s == null) continue;
-                    Rectangle r = s.getBounds();
-                    if (r == null) continue;
-                    HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                    if (u.isClickable(client, r)) {
+                    Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
+                    if (u.isClickable(client, center)) {
                         wallObjectData.add(
                                 new ObjectAndGroundItemData(
-                                        center.get('x'),
-                                        center.get('y'),
+                                        center.getX(),
+                                        center.getY(),
                                         tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                         tile.getWorldLocation().getX(),
                                         tile.getWorldLocation().getY(),
@@ -802,14 +799,12 @@ public class ObjectUtil {
                 if (groundObject != null && groundObject.getConvexHull() != null && parsedQuery.get("ground").contains(groundObject.getId())) {
                     Shape s = groundObject.getClickbox();
                     if (s == null) continue;
-                    Rectangle r = s.getBounds();
-                    if (r == null) continue;
-                    HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                    if (u.isClickable(client, r)) {
+                    Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
+                    if (u.isClickable(client, center)) {
                         groundObjectData.add(
                                 new ObjectAndGroundItemData(
-                                        center.get('x'),
-                                        center.get('y'),
+                                        center.getX(),
+                                        center.getY(),
                                         tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                         tile.getWorldLocation().getX(),
                                         tile.getWorldLocation().getY(),
@@ -827,14 +822,12 @@ public class ObjectUtil {
                 if (decorativeObject != null && decorativeObject.getConvexHull() != null && parsedQuery.get("decorative").contains(decorativeObject.getId())) {
                     Shape s = decorativeObject.getClickbox();
                     if (s == null) continue;
-                    Rectangle r = s.getBounds();
-                    if (r == null) continue;
-                    HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                    if (u.isClickable(client, r)) {
+                    Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
+                    if (u.isClickable(client, center)) {
                         decorativeObjectData.add(
                                 new ObjectAndGroundItemData(
-                                        center.get('x'),
-                                        center.get('y'),
+                                        center.getX(),
+                                        center.getY(),
                                         tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                         tile.getWorldLocation().getX(),
                                         tile.getWorldLocation().getY(),
@@ -853,14 +846,12 @@ public class ObjectUtil {
                 for (TileItem item : groundItemList) {
                     final Polygon poly = Perspective.getCanvasTilePoly(client, tile.getLocalLocation());
                     if (poly == null) continue;
-                    Rectangle r = poly.getBounds();
-                    if (r == null) continue;
-                    HashMap<Character, Integer> center = u.getCenter(r, canvas.getXOffset(), canvas.getYOffset());
-                    if (u.isClickable(client, r)) {
+                    Point center = u.findCenterPoint(poly, canvas.getXOffset(), canvas.getYOffset());
+                    if (u.isClickable(client, center)) {
                         groundItemData.add(
                                 new ObjectAndGroundItemData(
-                                        center.get('x'),
-                                        center.get('y'),
+                                        center.getX(),
+                                        center.getY(),
                                         tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                         tile.getWorldLocation().getX(),
                                         tile.getWorldLocation().getY(),

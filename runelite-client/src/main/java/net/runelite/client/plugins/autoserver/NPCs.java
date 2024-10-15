@@ -3,6 +3,7 @@ package net.runelite.client.plugins.autoserver;
 import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.NPC;
+import net.runelite.api.Point;
 import net.runelite.api.coords.WorldArea;
 
 import java.awt.*;
@@ -41,20 +42,18 @@ public class NPCs {
             if ((n != null && npcsToFind.contains(npc.getName().toUpperCase(Locale.ROOT))) || npcsToFind.isEmpty()) {
                 Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
-                Rectangle r = poly.getBounds();
                 Utilities u = new Utilities();
-                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
+                Point center = u.findCenterPoint(poly, canvasData.getXOffset(), canvasData.getYOffset());
                 // For some reason, right as I open an interface it sometimes says the points are all located
                 // in a small 50x50 corner of the upper right-hand screen.
-                if (u.isClickable(client, r)) {
+                if (u.isClickable(client, center)) {
                     String name = null;
                     if (npc.getInteracting() != null) {
                         name = npc.getInteracting().getName();
                     }
-                    WorldArea area = client.getLocalPlayer().getWorldArea();
                     NpcPacket np = new NpcPacket(
-                            center.get('x'),
-                            center.get('y'),
+                            center.getX(),
+                            center.getY(),
                             npc.getName(),
                             npc.getId(),
                             npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
@@ -84,14 +83,13 @@ public class NPCs {
             if (n != null && (npcsToFind.contains(Integer.toString(npc.getId())) || npcsToFind.contains(Integer.toString(npc.getComposition().getId())))) {
                 Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
-                Rectangle r = poly.getBounds();
-                HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
+                Point center = u.findCenterPoint(poly, canvasData.getXOffset(), canvasData.getYOffset());
                 // For some reason, right as I open an interface it sometimes says the points are all located
                 // in a small 50x50 corner of the upper right-hand screen.
-                if (u.isClickable(client, r)) {
+                if (u.isClickable(client, center)) {
                     NpcPacket np = new NpcPacket(
-                            center.get('x'),
-                            center.get('y'),
+                            center.getX(),
+                            center.getY(),
                             npc.getName(),
                             npc.getId(),
                             npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
@@ -123,15 +121,13 @@ public class NPCs {
                     if (poly == null) {
                         continue;
                     }
-                    Rectangle r = poly.getBounds();
-                    Utilities u = new Utilities();
-                    HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
+                    Point center = u.findCenterPoint(poly, canvasData.getXOffset(), canvasData.getYOffset());
                     // For some reason, right as I open an interface it sometimes says the points are all located
                     // in a small 50x50 corner of the upper right-hand screen.
-                    if (u.isClickable(client, r)) {
+                    if (u.isClickable(client, center)) {
                         NpcPacket np = new NpcPacket(
-                                center.get('x'),
-                                center.get('y'),
+                                center.getX(),
+                                center.getY(),
                                 npc.getName(),
                                 npc.getId(),
                                 npc.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),

@@ -152,6 +152,8 @@ public class AutoServer extends Plugin {
                 return;
             }
             System.out.println("handling request!");
+            System.out.println(text);
+            System.out.println("======================");
             final JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
             if (jsonObject.get("varBit") != null) {
                 try {
