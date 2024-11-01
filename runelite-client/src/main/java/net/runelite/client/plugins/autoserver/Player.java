@@ -24,11 +24,18 @@ public class Player {
     }
 
     @Value
+    public static class DetailedInteractingPacket {
+        String name;
+        int health;
+    }
+
+    @Value
     public static class OtherPlayerData {
         String name;
         WorldPoint worldPoint;
         int x;
         int y;
+        int orientation;
     }
 
     public HashMap<String, SkillData> getSkillData(Client client, JsonArray skills) {
@@ -69,6 +76,20 @@ public class Player {
         }
         return null;
     }
+
+    public DetailedInteractingPacket getInteractingWithDetailed(Client client) {
+        if (client.getLocalPlayer() != null) {
+            if (client.getLocalPlayer().getInteracting() != null) {
+                Actor targ = client.getLocalPlayer().getInteracting();
+                return new DetailedInteractingPacket(
+                  targ.getName(),
+                  targ.getHealthRatio()
+                );
+            }
+        }
+        return null;
+    }
+
 
     public boolean isFishing(Client client) {
         return client.getLocalPlayer().getInteracting() != null
@@ -116,9 +137,10 @@ public class Player {
             HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
             OtherPlayerData.add(new OtherPlayerData(
                 player.getName(),
-                    player.getWorldLocation(),
-                    center.get('x'),
-                    center.get('y')
+                player.getWorldLocation(),
+                center.get('x'),
+                center.get('y'),
+                player.getOrientation()
             ));
         }
 

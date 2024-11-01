@@ -13,10 +13,7 @@ import net.runelite.client.plugins.PluginManager;
 
 import javax.inject.Inject;
 import java.awt.*;
-import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -102,6 +99,8 @@ public class ObjectUtil {
         JsonArray decorative;
         JsonArray ground_items;
         JsonArray ground;
+        JsonArray graphics;
+        int dist;
     }
 
     Utilities u = new Utilities();
@@ -366,12 +365,12 @@ public class ObjectUtil {
                                     if (returnData.get(wo.getId()) != null) {
                                         ArrayList<EnhancedObjData> gobj = returnData.get(wo.getId());
                                         gobj.add(new EnhancedObjData(
-                                                    center.get('x'),
-                                                    center.get('y'),
-                                                    wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                                    tile.getWorldLocation().getX(),
-                                                    tile.getWorldLocation().getY(),
-                                                    wo.getId()
+                                                        center.get('x'),
+                                                        center.get('y'),
+                                                        wo.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                        tile.getWorldLocation().getX(),
+                                                        tile.getWorldLocation().getY(),
+                                                        wo.getId()
                                                 )
                                         );
                                         returnData.put(wo.getId(), gobj);
@@ -697,6 +696,12 @@ public class ObjectUtil {
             gameObjectIds.add(id);
         }
         res.put("game", gameObjectIds);
+        ArrayList<Integer> graphicObjectIds = new ArrayList<>();
+        for (JsonElement e : search.graphics) {
+            int id = Integer.parseInt(e.toString());
+            graphicObjectIds.add(id);
+        }
+        res.put("graphics", graphicObjectIds);
         ArrayList<Integer> wallObjectIds = new ArrayList<>();
         for (JsonElement e : search.wall) {
             int id = Integer.parseInt(e.toString());
@@ -721,6 +726,9 @@ public class ObjectUtil {
             groundObjectIds.add(id);
         }
         res.put("ground", groundObjectIds);
+        ArrayList<Integer> distL = new ArrayList<>();
+        distL.add(search.dist);
+        res.put("dist", distL);
         return res;
     }
 
@@ -732,146 +740,202 @@ public class ObjectUtil {
         ArrayList<ObjectAndGroundItemData> decorativeObjectData = new ArrayList<>();
         ArrayList<ObjectAndGroundItemData> groundObjectData = new ArrayList<>();
         ArrayList<ObjectAndGroundItemData> groundItemData = new ArrayList<>();
+        ArrayList<ObjectAndGroundItemData> graphicsObjectData = new ArrayList<>();
         Tile[][][] tiles = client.getTopLevelWorldView().getScene().getTiles();
+
         int plane = client.getLocalPlayer().getWorldLocation().getPlane();
         for (int j = 0; j < 104; j++) {
             for (int k = 0; k < 104; k++) {
                 Tile tile = tiles[plane][j][k];
                 if (tile == null) continue;
+                // This tile is too far away
+                if (
+                        parsedQuery.get("dist").get(0) != -1 &&
+                                tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()) > parsedQuery.get("dist").get(0)
+                ) {
+                    continue;
+                }
                 GameObject[] gameObjects = tile.getGameObjects();
-                for (GameObject gameObject : gameObjects) {
-                    if (gameObject != null && gameObject.getConvexHull() != null && parsedQuery.get("game").contains(gameObject.getId())) {
-                        Shape s = gameObject.getClickbox();
+                if (!parsedQuery.get("game").isEmpty()) {
+                    for (GameObject gameObject : gameObjects) {
+                        if (gameObject != null && gameObject.getConvexHull() != null && parsedQuery.get("game").contains(gameObject.getId())) {
+                            Shape s = gameObject.getClickbox();
+                            if (s == null) continue;
+                            Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
+                            if (u.isClickable(client, center)) {
+                                int objAnimation = -1;
+                                if (gameObject.getRenderable() instanceof DynamicObject)
+                                {
+                                    Animation animation = ((DynamicObject) gameObject.getRenderable()).getAnimation();
+                                    if (animation != null)
+                                    {
+                                        objAnimation = animation.getId();
+                                    }
+                                }
+                                gameObjectData.add(
+                                        new ObjectAndGroundItemData(
+                                                center.getX(),
+                                                center.getY(),
+                                                tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                                tile.getWorldLocation().getX(),
+                                                tile.getWorldLocation().getY(),
+                                                gameObject.getId(),
+                                                1,
+                                                -1,
+                                                objAnimation,
+                                                (int) gameObject.getConvexHull().getBounds().getHeight()
+                                        )
+                                );
+                            }
+                        }
+                    }
+                }
+
+                if (!parsedQuery.get("wall").isEmpty()) {
+                    WallObject wallObject = tile.getWallObject();
+                    if (wallObject != null && wallObject.getConvexHull() != null && parsedQuery.get("wall").contains(wallObject.getId())) {
+                        Shape s = wallObject.getClickbox();
                         if (s == null) continue;
                         Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
                         if (u.isClickable(client, center)) {
-                            int objAnimation = -1;
-                            if (gameObject.getRenderable() instanceof DynamicObject)
-                            {
-                                Animation animation = ((DynamicObject) gameObject.getRenderable()).getAnimation();
-                                if (animation != null)
-                                {
-                                    objAnimation = animation.getId();
-                                }
-                            }
-                            gameObjectData.add(
+                            wallObjectData.add(
                                     new ObjectAndGroundItemData(
                                             center.getX(),
                                             center.getY(),
                                             tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
                                             tile.getWorldLocation().getX(),
                                             tile.getWorldLocation().getY(),
-                                            gameObject.getId(),
+                                            wallObject.getId(),
                                             1,
                                             -1,
-                                            objAnimation,
-                                            (int) gameObject.getConvexHull().getBounds().getHeight()
+                                            -1,
+                                            (int) wallObject.getConvexHull().getBounds().getHeight()
                                     )
                             );
                         }
                     }
                 }
 
-                WallObject wallObject = tile.getWallObject();
-                if (wallObject != null && wallObject.getConvexHull() != null && parsedQuery.get("wall").contains(wallObject.getId())) {
-                    Shape s = wallObject.getClickbox();
-                    if (s == null) continue;
-                    Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
-                    if (u.isClickable(client, center)) {
-                        wallObjectData.add(
-                                new ObjectAndGroundItemData(
-                                        center.getX(),
-                                        center.getY(),
-                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                        tile.getWorldLocation().getX(),
-                                        tile.getWorldLocation().getY(),
-                                        wallObject.getId(),
-                                        1,
-                                        -1,
-                                        -1,
-                                        (int) wallObject.getConvexHull().getBounds().getHeight()
-                                )
-                        );
+                if (!parsedQuery.get("ground").isEmpty()) {
+                    GroundObject groundObject = tile.getGroundObject();
+                    if (groundObject != null && groundObject.getConvexHull() != null && parsedQuery.get("ground").contains(groundObject.getId())) {
+                        Shape s = groundObject.getClickbox();
+                        if (s == null) continue;
+                        Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
+                        if (u.isClickable(client, center)) {
+                            groundObjectData.add(
+                                    new ObjectAndGroundItemData(
+                                            center.getX(),
+                                            center.getY(),
+                                            tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                            tile.getWorldLocation().getX(),
+                                            tile.getWorldLocation().getY(),
+                                            groundObject.getId(),
+                                            1,
+                                            -1,
+                                            -1,
+                                            (int) groundObject.getConvexHull().getBounds().getHeight()
+                                    )
+                            );
+                        }
                     }
                 }
 
-                GroundObject groundObject = tile.getGroundObject();
-                if (groundObject != null && groundObject.getConvexHull() != null && parsedQuery.get("ground").contains(groundObject.getId())) {
-                    Shape s = groundObject.getClickbox();
-                    if (s == null) continue;
-                    Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
-                    if (u.isClickable(client, center)) {
-                        groundObjectData.add(
-                                new ObjectAndGroundItemData(
-                                        center.getX(),
-                                        center.getY(),
-                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                        tile.getWorldLocation().getX(),
-                                        tile.getWorldLocation().getY(),
-                                        groundObject.getId(),
-                                        1,
-                                        -1,
-                                        -1,
-                                        (int) groundObject.getConvexHull().getBounds().getHeight()
-                                )
-                        );
-                    }
-                }
-
-                DecorativeObject decorativeObject = tile.getDecorativeObject();
-                if (decorativeObject != null && decorativeObject.getConvexHull() != null && parsedQuery.get("decorative").contains(decorativeObject.getId())) {
-                    Shape s = decorativeObject.getClickbox();
-                    if (s == null) continue;
-                    Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
-                    if (u.isClickable(client, center)) {
-                        decorativeObjectData.add(
-                                new ObjectAndGroundItemData(
-                                        center.getX(),
-                                        center.getY(),
-                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                        tile.getWorldLocation().getX(),
-                                        tile.getWorldLocation().getY(),
-                                        decorativeObject.getId(),
-                                        1,
-                                        -1,
-                                        -1,
-                                        (int) decorativeObject.getConvexHull().getBounds().getHeight()
-                                )
-                        );
+                if (!parsedQuery.get("decorative").isEmpty()) {
+                    DecorativeObject decorativeObject = tile.getDecorativeObject();
+                    if (decorativeObject != null && decorativeObject.getConvexHull() != null && parsedQuery.get("decorative").contains(decorativeObject.getId())) {
+                        Shape s = decorativeObject.getClickbox();
+                        if (s == null) continue;
+                        Point center = u.findCenterPoint(s, canvas.getXOffset(), canvas.getYOffset());
+                        if (u.isClickable(client, center)) {
+                            decorativeObjectData.add(
+                                    new ObjectAndGroundItemData(
+                                            center.getX(),
+                                            center.getY(),
+                                            tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                            tile.getWorldLocation().getX(),
+                                            tile.getWorldLocation().getY(),
+                                            decorativeObject.getId(),
+                                            1,
+                                            -1,
+                                            -1,
+                                            (int) decorativeObject.getConvexHull().getBounds().getHeight()
+                                    )
+                            );
+                        }
                     }
                 }
 
                 List<TileItem> groundItemList = tile.getGroundItems();
-                if (groundItemList == null) continue;
-                for (TileItem item : groundItemList) {
-                    final Polygon poly = Perspective.getCanvasTilePoly(client, tile.getLocalLocation());
-                    if (poly == null) continue;
-                    Point center = u.findCenterPoint(poly, canvas.getXOffset(), canvas.getYOffset());
-                    if (u.isClickable(client, center)) {
-                        groundItemData.add(
-                                new ObjectAndGroundItemData(
-                                        center.getX(),
-                                        center.getY(),
-                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
-                                        tile.getWorldLocation().getX(),
-                                        tile.getWorldLocation().getY(),
-                                        item.getId(),
-                                        item.getQuantity(),
-                                        item.getOwnership(),
-                                        -1,
-                                        -1
-                                )
-                        );
+                if (groundItemList != null) {
+                    for (TileItem item : groundItemList) {
+                        final Polygon poly = Perspective.getCanvasTilePoly(client, tile.getLocalLocation());
+                        if (poly == null) continue;
+                        Point center = u.findCenterPoint(poly, canvas.getXOffset(), canvas.getYOffset());
+                        if (u.isClickable(client, center)) {
+                            groundItemData.add(
+                                    new ObjectAndGroundItemData(
+                                            center.getX(),
+                                            center.getY(),
+                                            tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                            tile.getWorldLocation().getX(),
+                                            tile.getWorldLocation().getY(),
+                                            item.getId(),
+                                            item.getQuantity(),
+                                            item.getOwnership(),
+                                            -1,
+                                            -1
+                                    )
+                            );
+                        }
                     }
                 }
             }
         }
+
+        if (!parsedQuery.get("graphics").isEmpty()) {
+            Iterator<GraphicsObject> tt = client.getTopLevelWorldView().getGraphicsObjects().iterator();
+            int ii = 0;
+            while (tt.hasNext()) {
+                ii++;
+                GraphicsObject graphicsObject = tt.next();
+                if (!parsedQuery.get("graphics").contains(graphicsObject.getId())) continue;
+                LocalPoint lp = graphicsObject.getLocation();
+                WorldPoint wp = WorldPoint.fromLocal(client, lp);
+                Polygon poly = Perspective.getCanvasTilePoly(client, lp);
+                if (poly == null) continue;
+                Point center = u.findCenterPoint(poly, canvas.getXOffset(), canvas.getYOffset());
+                if (u.isClickable(client, center)) {
+                    graphicsObjectData.add(
+                            new ObjectAndGroundItemData(
+                                    center.getX(),
+                                    center.getY(),
+                                    wp.distanceTo2D(client.getLocalPlayer().getWorldLocation()),
+                                    wp.getX(),
+                                    wp.getY(),
+                                    graphicsObject.getId(),
+                                    -1,
+                                    -1,
+                                    graphicsObject.getAnimationFrame(),
+                                    -1
+                            )
+                    );
+                }
+            }
+            System.out.println("hhkjhkj");
+            System.out.println(ii);
+            System.out.println("new");
+
+        }
         HashMap<String, ArrayList<ObjectAndGroundItemData>> returnData = new HashMap<>();
+        System.out.println("ttttt");
+        System.out.println(graphicsObjectData.size());
         returnData.put("game", gameObjectData);
         returnData.put("wall", wallObjectData);
         returnData.put("decorative", decorativeObjectData);
         returnData.put("ground", groundObjectData);
         returnData.put("ground_items", groundItemData);
+        returnData.put("graphics", graphicsObjectData);
         return returnData;
     }
 }

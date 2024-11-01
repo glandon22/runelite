@@ -70,6 +70,10 @@ public enum InventoryID
 	 */
 	DRIFT_NET_FISHING_REWARD(307),
 	/**
+	 * shop interface
+	 */
+	SHOP(301),
+	/**
 	 * Kingdom Of Miscellania reward inventory.
 	 */
 	KINGDOM_OF_MISCELLANIA(390),

@@ -20,6 +20,9 @@ public class Tiles {
     public static class TileData {
         int x;
         int y;
+        int x_coord;
+        int y_coord;
+        int dist;
     }
 
     public HashMap<String,TileData> getTileData(Client client, JsonArray tilesToFind) {
@@ -62,8 +65,23 @@ public class Tiles {
                                         ',' +
                                         Integer.toString(wp.getPlane()
                                         );
-                                tileDataPacket.put(parsedKey, new TileData(center.getX(), center.getY()));
-                                tileDataPacket.put(parsedKeyV2, new TileData(center.getX(), center.getY()));
+                                tileDataPacket.put(parsedKey, new TileData(
+                                        center.getX(),
+                                        center.getY(),
+                                        wp.getX(),
+                                        wp.getY(),
+                                        tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())
+                                ));
+                                tileDataPacket.put(
+                                        parsedKeyV2,
+                                        new TileData(
+                                                center.getX(),
+                                                center.getY(),
+                                                wp.getX(),
+                                                wp.getY(),
+                                                tile.getWorldLocation().distanceTo2D(client.getLocalPlayer().getWorldLocation())
+                                        )
+                                );
                             }
                         }
                     }

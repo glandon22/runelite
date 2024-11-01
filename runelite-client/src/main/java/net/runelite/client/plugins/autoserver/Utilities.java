@@ -39,14 +39,13 @@ public class Utilities {
     public net.runelite.api.Point findCenterPoint(@NotNull Shape shape, int xOffset, int yOffset) {
         Rectangle r = shape.getBounds();
         if (shape.contains(new java.awt.Point((int) r.getX(), (int) r.getY()))) {
-            System.out.println("Obj is a standard poly and contains center points. Lazy calculating.");
-            double x = r.getX() + xOffset;
-            double y = r.getY() + yOffset;
+            double x = r.getX();
+            double y = r.getY();
             double w = r.getWidth();
             double h = r.getHeight();
             int cx = (int)(x + (w/2));
             int cy = (int)(y + (h /2));
-            return new Point(cx, cy);
+            return new Point(cx  + xOffset, cy + yOffset);
         }
 
         final double flatness = 0.1;
@@ -108,7 +107,9 @@ public class Utilities {
                 .stream()
                 .collect(Collectors.toCollection(ArrayList::new));
         for (net.runelite.api.Player player : players) {
-            if (Objects.requireNonNull(player.getName()).equalsIgnoreCase(Objects.requireNonNull(client.getLocalPlayer().getName()))) {
+            String playerName = player.getName();
+            String myName = client.getLocalPlayer().getName();
+            if (playerName != null && playerName.equals(myName)) {
                 pd.x = player.getWorldLocation().getX();
                 pd.y = player.getWorldLocation().getY();
                 pd.z = player.getWorldLocation().getPlane();
@@ -117,14 +118,44 @@ public class Utilities {
         return pd;
     }
 
+    public boolean isInGameScreen(Client client, java.awt.Point centerPoint) {
+        Interfaces.CanvasData canvas = interfaceHelper.getCanvasData(client);
+        Rectangle gameScreen = new Rectangle(
+                canvas.getXMin(),
+                canvas.getYMin(),
+                canvas.getXMax() - canvas.getXMin(),
+                canvas.getYMax() - canvas.getYMin()
+        );
+
+        return gameScreen.contains(centerPoint);
+    }
+
     public boolean isClickable(Client client, net.runelite.api.Point centerPoint) {
         Interfaces.CanvasData canvas = interfaceHelper.getCanvasData(client);
-        Interfaces.EnrichedInterfaceData chatButtons = interfaceHelper.getWidget(client, "162,1");
-        Interfaces.EnrichedInterfaceData invInterface = interfaceHelper.getWidget(client, "161,97");
-        Interfaces.EnrichedInterfaceData worldMapInterface = interfaceHelper.getWidget(client, "161,95");
         Widget cb = client.getWidget(162, 1);
+        assert cb != null;
+        Rectangle cbBox = new Rectangle(
+                (int)(cb.getBounds().getX() + canvas.getXOffset()),
+                (int)(cb.getBounds().getY() + canvas.getYOffset()),
+                (int)(cb.getBounds().getWidth()),
+                (int)(cb.getBounds().getHeight())
+                );
         Widget invWidg = client.getWidget(161, 97);
+        assert invWidg != null;
+        Rectangle invBox = new Rectangle(
+                (int)(invWidg.getBounds().getX() + canvas.getXOffset()),
+                (int)(invWidg.getBounds().getY() + canvas.getYOffset()),
+                (int)(invWidg.getBounds().getWidth()),
+                (int)(invWidg.getBounds().getHeight())
+        );
         Widget map = client.getWidget(161, 95);
+        assert map != null;
+        Rectangle mapBox = new Rectangle(
+                (int)(map.getBounds().getX() + canvas.getXOffset()),
+                (int)(map.getBounds().getY() + canvas.getYOffset()),
+                (int)(map.getBounds().getWidth()),
+                (int)(map.getBounds().getHeight())
+        );
         Rectangle gameScreen = new Rectangle(
                 canvas.getXMin(),
                 canvas.getYMin(),
@@ -133,24 +164,19 @@ public class Utilities {
         );
 
         // point is outside of the client area
-        if (!gameScreen.contains(new java.awt.Point(gameScreen.x, gameScreen.y))) {
+        if (!gameScreen.contains(new java.awt.Point(centerPoint.getX(), centerPoint.getY()))) {
             return false;
         }
 
-        if (cb != null && cb.contains(
-                centerPoint
-        )
-        ) {
+        if (cbBox.contains(new java.awt.Point(centerPoint.getX(), centerPoint.getY()))) {
             return false;
         }
 
-        if (map != null && map.contains(centerPoint)
-        ) {
+        if (mapBox.contains(new java.awt.Point(centerPoint.getX(), centerPoint.getY()))) {
             return false;
         }
 
-        if (invWidg != null && invWidg.contains(centerPoint)
-        ) {
+        if (invBox.contains(new java.awt.Point(centerPoint.getX(), centerPoint.getY()))) {
             return false;
         }
 

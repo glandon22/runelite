@@ -61,6 +61,7 @@ public class Interfaces {
         int yMin;
         int yMax;
         boolean isHidden;
+        int quantity;
     }
 
     @Value
@@ -111,24 +112,26 @@ public class Interfaces {
         }
 
         if (targetWidget != null && !targetWidget.isHidden()) {
-
             Rectangle r = targetWidget.getBounds();
             Utilities u = new Utilities();
             HashMap<Character, Integer> center = u.getCenter(r, canvasData.getXOffset(), canvasData.getYOffset());
-            return new EnrichedInterfaceData(
-                    center.get('x'),
-                    center.get('y'),
-                    targetWidget.getText(),
-                    targetWidget.getTextColor(),
-                    targetWidget.getSpriteId(),
-                    targetWidget.getName(),
-                    targetWidget.getItemId(),
-                    (int) r.getX(),
-                    (int) ( r.getX() + r.getWidth()),
-                    (int) r.getY() + 23,
-                    (int) (r.getY() + r.getHeight() + 23),
-                    targetWidget.isHidden()
-            );
+            if (u.isInGameScreen(client, new Point(center.get('x'), center.get('y')))) {
+                return new EnrichedInterfaceData(
+                        center.get('x'),
+                        center.get('y'),
+                        targetWidget.getText(),
+                        targetWidget.getTextColor(),
+                        targetWidget.getSpriteId(),
+                        targetWidget.getName(),
+                        targetWidget.getItemId(),
+                        (int) r.getX(),
+                        (int) ( r.getX() + r.getWidth()),
+                        (int) r.getY() + 23,
+                        (int) (r.getY() + r.getHeight() + 23),
+                        targetWidget.isHidden(),
+                        targetWidget.getItemQuantity()
+                );
+            }
         }
         return null;
     }
@@ -173,7 +176,8 @@ public class Interfaces {
                     (int) ( r.getX() + r.getWidth()),
                     (int) r.getY() + 23,
                     (int) (r.getY() + r.getHeight() + 23),
-                    targetWidget.isHidden()
+                    targetWidget.isHidden(),
+                    targetWidget.getItemQuantity()
             );
         }
         return null;
@@ -264,6 +268,7 @@ public class Interfaces {
             ArrayList<String> opts = new ArrayList<>();
             opts.add(mu.getOption());
             opts.add(String.valueOf(mu.getIdentifier()));
+            opts.add(mu.getTarget());
             options.add(opts);
         }
         return new RightClickMenuV2(

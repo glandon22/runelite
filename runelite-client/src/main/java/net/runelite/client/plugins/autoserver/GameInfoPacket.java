@@ -12,6 +12,7 @@ public class GameInfoPacket {
     long timestamp = Instant.now().getEpochSecond();
     List<Inventory.Slot> inv;
     List<Inventory.Slot> bankInv;
+    List<Inventory.Slot> shopInv;
     ArrayList<NPCs.NpcPacket> npcs;
     ArrayList<Bank.BankSlot> bankItems;
     ArrayList<Bank.BankSlot> depositBox;
@@ -37,6 +38,7 @@ public class GameInfoPacket {
     HashMap<String, Interfaces.EnrichedInterfaceData> widgets;
     Utilities.PointData playerWorldPoint;
     String interactingWith;
+    Player.DetailedInteractingPacket detailedInteracting;
     String[] chatOptions;
     HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> decorativeObjects;
     HashMap<Integer, ArrayList<ObjectUtil.EnhancedObjData>> groundItems;

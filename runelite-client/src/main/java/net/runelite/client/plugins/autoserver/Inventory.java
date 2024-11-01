@@ -108,6 +108,31 @@ public class Inventory {
         return new ArrayList<Slot>();
     }
 
+    public List<Slot> getShopInventory(Client client) {
+        try {
+            Interfaces.CanvasData canvasData = i.getCanvasData(client);
+            List<Slot> inv = new ArrayList<Slot>();
+            for (int j = 0; j < 28; j++) {
+                Interfaces.EnrichedInterfaceData slot = i.getWidget(client, String.format("301,0,%s", j));
+                assert slot != null;
+                inv.add(new Slot(
+                    slot.getX(),
+                    slot.getY(),
+                    j,
+                    slot.getItemID(),
+                    slot.getQuantity()
+                ));
+            }
+            return inv;
+        } catch (Exception e) {
+            System.out.println("Exception while parsing inventory111111");
+            System.out.println(e.getMessage());
+            System.out.println(e.getCause());
+            System.out.println(Arrays.toString(e.getStackTrace()));
+        }
+        return new ArrayList<Slot>();
+    }
+
     public List<Slot> getEquipmentInventory(Client client) {
         try {
             List<Slot> inv = null;

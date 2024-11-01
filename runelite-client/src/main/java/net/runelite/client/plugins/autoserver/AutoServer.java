@@ -16,6 +16,7 @@ import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.RuneLiteProperties;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
+import net.runelite.client.game.NpcUtil;
 import net.runelite.client.plugins.Plugin;
 import net.runelite.client.plugins.PluginDescriptor;
 import net.runelite.client.plugins.PluginManager;
@@ -61,6 +62,9 @@ public class AutoServer extends Plugin {
 
     @Inject
     AutoServerConfig autoServerConfig;
+
+    @Inject
+    NpcUtil npcUtil;
 
     @Inject
     private ScriptOverlay overlay;
@@ -151,14 +155,38 @@ public class AutoServer extends Plugin {
                 outputStream.close();
                 return;
             }
-            System.out.println("handling request!");
+            /*System.out.println("handling request!");
             System.out.println(text);
-            System.out.println("======================");
+            System.out.println("======================");*/
             final JsonObject jsonObject = new JsonParser().parse(text).getAsJsonObject();
             if (jsonObject.get("varBit") != null) {
                 try {
                     invokeAndWait(() -> {
                         gip.varBit = client.getVarbitValue(jsonObject.get("varBit").getAsInt());
+                        return null;
+                    });
+                } catch (Exception e) {
+                    System.out.println("parsing error");
+                    System.out.println(e);
+                }
+            }
+
+            if (jsonObject.get("varBits") != null) {
+                try {
+                    invokeAndWait(() -> {
+                        JsonArray test = jsonObject.get("varBits").getAsJsonArray();
+                        HashMap<String, Integer> varBits = new HashMap<>();
+                        for (JsonElement elem : test) {
+                            try {
+                                String varb = elem.toString().replace("\"", "");
+                                varBits.put(varb, client.getVarbitValue(Integer.parseInt(varb)));
+
+                            } catch (Exception e) {
+                                System.out.println("Failed to find tile data for varbits: ");
+                                System.out.println(elem);
+                            }
+                        }
+                        gip.varBits = varBits;
                         return null;
                     });
                 } catch (Exception e) {
@@ -218,6 +246,17 @@ public class AutoServer extends Plugin {
             }
 
             if (
+                    jsonObject.get("shopInv") != null &&
+                            jsonObject.get("shopInv").getAsBoolean()
+            ) {
+                Inventory inventory = new Inventory();
+                invokeAndWait(() -> {
+                    gip.shopInv = inventory.getShopInventory(client);
+                    return null;
+                });
+            }
+
+            if (
                     jsonObject.get("equipment") != null &&
                             (Boolean) jsonObject.get("equipment").getAsBoolean()
             ) {
@@ -251,9 +290,9 @@ public class AutoServer extends Plugin {
                         System.out.println(elem);
                     }
                 }
-                NPCs npcUtil = new NPCs();
+                NPCs npcHelper = new NPCs(npcUtil);
                 invokeAndWait(() -> {
-                    gip.npcs = npcUtil.getNPCsByName(client, npcsToFind);
+                    gip.npcs = npcHelper.getNPCsByName(client, npcsToFind);
                     return null;
                 });
             }
@@ -291,9 +330,9 @@ public class AutoServer extends Plugin {
                         System.out.println(elem);
                     }
                 }
-                NPCs npcUtil = new NPCs();
+                NPCs npcHelper = new NPCs(npcUtil);
                 invokeAndWait(() -> {
-                    gip.npcs = npcUtil.getNPCsByID(client, npcsToFind);
+                    gip.npcs = npcHelper.getNPCsByID(client, npcsToFind);
                     return null;
                 });
             }
@@ -605,6 +644,16 @@ public class AutoServer extends Plugin {
             }
 
             if (
+                    jsonObject.get("detailedInteracting") != null && jsonObject.get("detailedInteracting").getAsBoolean()
+            ) {
+                Player pu = new Player();
+                invokeAndWait(() -> {
+                    gip.detailedInteracting = pu.getInteractingWithDetailed(client);
+                    return null;
+                });
+            }
+
+            if (
                     jsonObject.get("isFishing") != null && jsonObject.get("isFishing").getAsBoolean()
             ) {
                 Player pu = new Player();
@@ -667,26 +716,6 @@ public class AutoServer extends Plugin {
                 JsonArray s = jsonObject.get("decorativeObjects").getAsJsonArray();
                 invokeAndWait(() -> {
                     gip.decorativeObjects = go.findDecorativeObjects(client, s);
-                    return null;
-                });
-            }
-
-            if (jsonObject.get("npcsToKill") != null) {
-                JsonArray test = jsonObject.get("npcsToKill").getAsJsonArray();
-                HashSet<String> npcsToFind = new HashSet<>();
-                for (JsonElement elem : test) {
-                    try {
-                        String tileHash = elem.toString().replace("\"", "");
-                        npcsToFind.add(tileHash);
-
-                    } catch (Exception e) {
-                        System.out.println("Failed to find tile data for npc: ");
-                        System.out.println(elem);
-                    }
-                }
-                NPCs npcUtil = new NPCs();
-                invokeAndWait(() -> {
-                    gip.npcs = npcUtil.getNPCsByToKill(client, npcsToFind);
                     return null;
                 });
             }
