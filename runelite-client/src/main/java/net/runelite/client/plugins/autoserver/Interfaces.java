@@ -265,10 +265,17 @@ public class Interfaces {
         ArrayList<ArrayList<String>> options = new ArrayList<>();
         final MenuEntry[] menuEntries = client.getMenu().getMenuEntries();
         for(MenuEntry mu : menuEntries) {
+            int id = mu.getWidget() != null ? mu.getWidget().getId() : -1;
+            int id1 = mu.getItemId();
+            int id2 = mu.getNpc() != null ? mu.getNpc().getId() : -1;
+
             ArrayList<String> opts = new ArrayList<>();
             opts.add(mu.getOption());
             opts.add(String.valueOf(mu.getIdentifier()));
             opts.add(mu.getTarget());
+            opts.add(Integer.toString(id));
+            opts.add(Integer.toString(id1));
+            opts.add(Integer.toString(id2));
             options.add(opts);
         }
         return new RightClickMenuV2(
