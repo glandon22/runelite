@@ -1,5 +1,7 @@
 package net.runelite.client.plugins.autoserver;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.Point;
@@ -42,16 +44,25 @@ public class NPCs {
     Interfaces i = new Interfaces();
     Utilities u = new Utilities();
 
-    public ArrayList<NpcPacket> getNPCsByName(Client client, HashSet<String> npcsToFind) {
+    public ArrayList<NpcPacket> getNPCsByName(Client client, JsonArray input) {
+        HashSet<String> npcsToFind = new HashSet<>();
+        for (JsonElement elem : input) {
+            String tileHash = elem.toString().replace("\"", "");
+            npcsToFind.add(tileHash);
+        }
         Interfaces.CanvasData canvasData = i.getCanvasData(client);
         List<NPC> npcs = client.getNpcs();
         ArrayList<NpcPacket> alnp = new ArrayList<>();
         for (NPC npc : npcs) {
-            System.out.println("dd");
-            System.out.println(npcUtil);
             if (npcUtil.isDying(npc)) continue;
             String n = npc.getName();
-            if ((n != null && npcsToFind.contains(npc.getName().toUpperCase(Locale.ROOT))) || npcsToFind.isEmpty()) {
+            String npcID = Integer.toString(npc.getId());
+            if (n != null && (
+                    npcsToFind.contains(npcID) ||
+                            npcsToFind.contains(n) ||
+                            npcsToFind.isEmpty()
+            )
+            ) {
                 Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
                 Utilities u = new Utilities();
@@ -72,7 +83,7 @@ public class NPCs {
                             npc.getWorldLocation().getY(),
                             npc.getOverheadText(),
                             npc.getComposition().getId(),
-                            npc.isInteracting() ? npc.getInteracting().getName() : null,
+                            npc.isInteracting() && npc.getInteracting() != null ? npc.getInteracting().getName() : null,
                             npc.getCombatLevel(),
                             npcComposition != null ? npcComposition.getSize() : 1,
                             npc.getOrientation(),
@@ -92,7 +103,13 @@ public class NPCs {
         ArrayList<NpcPacket> alnp = new ArrayList<>();
         for (NPC npc : npcs) {
             String n = npc.getName();
-            if (n != null && (npcsToFind.contains(Integer.toString(npc.getId())) || npcsToFind.contains(Integer.toString(npc.getComposition().getId())))) {
+            String npcID = Integer.toString(npc.getId());
+            if (n != null && (
+                    npcsToFind.contains(npcID) ||
+                    npcsToFind.contains(n) ||
+                            npcsToFind.isEmpty()
+                )
+            ) {
                 Shape poly = npc.getConvexHull();
                 if (poly == null) {continue;}
                 Point center = u.findCenterPoint(poly, canvasData.getXOffset(), canvasData.getYOffset());

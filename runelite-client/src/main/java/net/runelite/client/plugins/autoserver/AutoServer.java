@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.Value;
 import net.runelite.api.*;
 import net.runelite.api.coords.LocalPoint;
-import net.runelite.api.coords.WorldArea;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.RuneLiteProperties;
 import net.runelite.client.callback.ClientThread;
@@ -103,7 +102,7 @@ public class AutoServer extends Plugin {
         {
             AtomicReference<T> ref = new AtomicReference<>();
             Semaphore semaphore = new Semaphore(0);
-            clientThread.invokeLater(() -> {
+            clientThread.invoke(() -> {
                 try
                 {
 
@@ -292,27 +291,15 @@ public class AutoServer extends Plugin {
                 }
                 NPCs npcHelper = new NPCs(npcUtil);
                 invokeAndWait(() -> {
-                    gip.npcs = npcHelper.getNPCsByName(client, npcsToFind);
+                    gip.npcs = npcHelper.getNPCsByName(client, jsonObject.get("npcs").getAsJsonArray());
                     return null;
                 });
             }
 
             if (jsonObject.get("varPlayer") != null) {
-                JsonArray test = jsonObject.get("varPlayer").getAsJsonArray();
-                HashSet<String> npcsToFind = new HashSet<>();
-                for (JsonElement elem : test) {
-                    try {
-                        String tileHash = elem.toString().replace("\"", "");
-                        npcsToFind.add(tileHash);
-
-                    } catch (Exception e) {
-                        System.out.println("Failed to find tile data for npc: ");
-                        System.out.println(elem);
-                    }
-                }
                 Player p = new Player();
                 invokeAndWait(() -> {
-                    gip.varPlayer = p.varPlayer(client, npcsToFind);
+                    gip.varPlayer = p.varPlayer(client, jsonObject.get("varPlayer").getAsJsonArray());
                     return null;
                 });
             }
@@ -944,6 +931,64 @@ public class AutoServer extends Plugin {
         }
     }
 
+    private class MyHttpHandlerV2 implements HttpHandler {
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            String requestParamValue = null;
+            try {
+                handleResponse(httpExchange,httpExchange.getRequestBody());
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private void handleResponse(HttpExchange httpExchange, InputStream reqBody) throws IOException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+            OutputStream outputStream = httpExchange.getResponseBody();
+            byte[] bytes = IOUtils.toByteArray(reqBody);
+            String text = new String(bytes, CHARSET);
+            JsonObject jsonObject = null;
+            try {
+                jsonObject = new JsonParser().parse(text).getAsJsonObject();
+            } catch (Exception e) {
+                String resText = "Exception while trying to parse request body.";
+                httpExchange.sendResponseHeaders(400, resText.length());
+
+                outputStream.write(resText.getBytes());
+                outputStream.flush();
+                outputStream.close();
+                return;
+            }
+            ReqHandler rq = new ReqHandler();
+            try {
+                JsonObject finalJsonObject = jsonObject;
+                invokeAndWait(() -> {
+                    GameInfoPacket gip = rq.processFields(client, finalJsonObject, npcUtil);
+                    Headers headers = httpExchange.getResponseHeaders();
+                    // Tell my downstream consumer we are sending JSON back
+                    headers.set(HEADER_CONTENT_TYPE, String.format("application/json; charset=%s", CHARSET));
+
+                    // Convert my game data object into a JSON string for down stream consumption
+                    Gson gson = new Gson();
+                    String responseBody = gson.toJson(gip);
+                    byte[] rawResponseBody = responseBody.getBytes(CHARSET);
+                    httpExchange.sendResponseHeaders(200, rawResponseBody.length);
+                    outputStream.write(rawResponseBody);
+                    outputStream.flush();
+                    outputStream.close();
+                    return null;
+                });
+            } catch (Exception e) {
+                System.out.println("Error while handling a v3 request.");
+                System.out.println(e);
+                String resText = "Exception while trying to parse request body.";
+                httpExchange.sendResponseHeaders(400, resText.length());
+                outputStream.write(resText.getBytes());
+                outputStream.flush();
+                outputStream.close();
+            }
+        }
+    }
+
     @Override
     protected void startUp() throws Exception
     {
@@ -951,7 +996,8 @@ public class AutoServer extends Plugin {
         System.out.println("starting server on port: " + port);
         server = HttpServer.create(new InetSocketAddress("localhost", port), 0);
         ThreadPoolExecutor threadPoolExecutor = (ThreadPoolExecutor) Executors.newFixedThreadPool(10);
-        server.createContext("/osrs", new  MyHttpHandler());
+        server.createContext("/osrs", new MyHttpHandler());
+        server.createContext("/osrs/v2", new MyHttpHandlerV2());
         server.setExecutor(threadPoolExecutor);
         server.start();
         overlayManager.add(overlay);

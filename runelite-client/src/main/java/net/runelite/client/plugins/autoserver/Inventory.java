@@ -161,4 +161,19 @@ public class Inventory {
         }
         return null;
     }
+
+    public List<Integer> getEquipment(Client client) {
+        List<Integer> inv = new ArrayList<>();
+        ItemContainer ic = client.getItemContainer(InventoryID.EQUIPMENT);
+        if (ic != null) {
+            Item[] items = ic.getItems();
+            for (int i = 0; i < items.length; i++) {
+                Item item = items[i];
+                if (item != null && item.getId() > 0) {
+                    inv.add(item.getId());
+                }
+            }
+        }
+        return inv;
+    }
 }

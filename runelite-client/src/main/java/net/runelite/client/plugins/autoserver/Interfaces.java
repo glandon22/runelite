@@ -6,15 +6,11 @@ import lombok.Value;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.MenuEntry;
-import net.runelite.api.coords.WorldPoint;
-import net.runelite.api.widgets.ComponentID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetInfo;
-import net.runelite.api.widgets.WidgetItem;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -312,20 +308,36 @@ public class Interfaces {
         int xOffset = (int) c.getParent().getLocationOnScreen().getX();
         int yOffset = (int) c.getParent().getLocationOnScreen().getY();
         Rectangle r = c.getBounds();
-        double xMin = c.getLocationOnScreen().getX() + xOffset;
+        double xMin = c.getLocationOnScreen().getX();
         double xMax = xMin + r.getWidth() - xOffset;
         // Account for the runelite title bar
-        double yMin = c.getLocationOnScreen().getY() + yOffset;
+        double yMin = c.getLocationOnScreen().getY();
         double yMax = yMin + r.getHeight() - yOffset;
         return new CanvasData(
                 (int) xMin,
-                (int) xMax,
+                (int) xMax + xOffset,
                 (int) yMin,
-                (int) yMax,
+                (int) yMax + yOffset,
                 xOffset,
                 yOffset,
                 (int) r.getHeight(),
                 (int) r.getWidth()
         );
+    }
+
+    public HashMap<String, Integer> getVarbits(Client client, JsonArray varbits) {
+        HashMap<String, Integer> varBits = new HashMap<>();
+        for (JsonElement elem : varbits) {
+            try {
+                String varb = elem.toString().replace("\"", "");
+                varBits.put(varb, client.getVarbitValue(Integer.parseInt(varb)));
+
+            } catch (Exception e) {
+                System.out.println("Failed to find tile data for varbits: ");
+                System.out.println(elem);
+            }
+        }
+
+        return varBits;
     }
 }

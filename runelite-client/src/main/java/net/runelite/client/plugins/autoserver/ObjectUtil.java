@@ -732,7 +732,8 @@ public class ObjectUtil {
         return res;
     }
 
-    public HashMap<String, ArrayList<ObjectAndGroundItemData>> getAllObjects(Client client, JsonObject itemsToFind) {
+    public HashMap<String, ArrayList<ObjectAndGroundItemData>> getAllObjects(Client client, JsonObject jsonObject) {
+        JsonObject itemsToFind = jsonObject.get("allObjects").getAsJsonObject();
         HashMap<String, ArrayList<Integer>> parsedQuery = allObjectQueryParser(itemsToFind);
         Interfaces.CanvasData canvas = interfaceHelper.getCanvasData(client);
         ArrayList<ObjectAndGroundItemData> gameObjectData = new ArrayList<>();

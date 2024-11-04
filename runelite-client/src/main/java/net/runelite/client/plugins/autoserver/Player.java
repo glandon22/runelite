@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import lombok.Value;
 import net.runelite.api.*;
+import net.runelite.api.coords.LocalPoint;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.client.plugins.autolode.Pickaxe;
 
@@ -110,10 +111,15 @@ public class Player {
         return activePrayers;
     }
 
-    public HashMap<String, String> varPlayer(Client client, HashSet<String> varps) {
+    public HashMap<String, String> varPlayer(Client client, JsonArray varps) {
+        HashSet<String> varpsToFind = new HashSet<>();
+        for (JsonElement elem : varps) {
+            String varp = elem.toString().replace("\"", "");
+            varpsToFind.add(varp);
+        }
         HashMap<String, String> output = new HashMap<>();
 
-        for (String varp : varps) {
+        for (String varp : varpsToFind) {
 
             Integer value = client.getVarpValue(Integer.parseInt(varp));
             output.put(varp, String.valueOf(value));
@@ -145,5 +151,21 @@ public class Player {
         }
 
         return OtherPlayerData;
+    }
+
+    public Utilities.PointData getDest(Client client) {
+        LocalPoint lp = client.getLocalDestinationLocation();
+        if (lp == null) {
+            return null;
+        }
+
+        else {
+            WorldPoint wp = WorldPoint.fromLocal(client, lp);
+            Utilities.PointData pd = new Utilities.PointData();
+            pd.x = wp.getX();
+            pd.y = wp.getY();
+            pd.z = wp.getPlane();
+            return pd;
+        }
     }
 }
