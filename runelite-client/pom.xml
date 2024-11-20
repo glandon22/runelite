@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>net.runelite</groupId>
 		<artifactId>runelite-parent</artifactId>
-		<version>1.10.41</version>
+		<version>1.10.44</version>
 	</parent>
 
 	<artifactId>client</artifactId>
@@ -441,6 +441,7 @@
 						<configuration>
 							<scriptDirectory>src/main/scripts</scriptDirectory>
 							<outputDirectory>${project.build.outputDirectory}/runelite</outputDirectory>
+							<componentsFile>../runelite-api/src/main/interfaces/interfaces.toml</componentsFile>
 						</configuration>
 					</execution>
 					<execution>
