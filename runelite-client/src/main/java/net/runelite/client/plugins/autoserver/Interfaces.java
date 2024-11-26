@@ -316,7 +316,7 @@ public class Interfaces {
         return new CanvasData(
                 (int) xMin,
                 (int) xMax + xOffset,
-                (int) yMin,
+                (int) yMin + 5,
                 (int) yMax + yOffset,
                 xOffset,
                 yOffset,

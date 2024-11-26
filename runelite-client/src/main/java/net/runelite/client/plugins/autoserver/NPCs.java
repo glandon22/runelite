@@ -59,7 +59,7 @@ public class NPCs {
             String npcID = Integer.toString(npc.getId());
             if (n != null && (
                     npcsToFind.contains(npcID) ||
-                            npcsToFind.contains(n) ||
+                            npcsToFind.contains(n.toUpperCase(Locale.ROOT)) ||
                             npcsToFind.isEmpty()
             )
             ) {
@@ -106,7 +106,7 @@ public class NPCs {
             String npcID = Integer.toString(npc.getId());
             if (n != null && (
                     npcsToFind.contains(npcID) ||
-                    npcsToFind.contains(n) ||
+                    npcsToFind.contains(n.toUpperCase(Locale.ROOT)) ||
                             npcsToFind.isEmpty()
                 )
             ) {
