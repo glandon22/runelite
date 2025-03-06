@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Abex
+ * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,74 +22,23 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.rs;
+package net.runelite.client.plugins.interfacestyles;
 
-import java.io.FilterInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import lombok.Getter;
-import lombok.Setter;
+import static org.junit.Assert.*;
+import org.junit.Test;
 
-class TeeInputStream extends FilterInputStream
+public class HealthbarOverrideTest
 {
-	@Getter
-	@Setter
-	private OutputStream out;
-
-	TeeInputStream(InputStream in)
+	@Test
+	public void testResources() throws IOException
 	{
-		super(in);
-	}
-
-	@Override
-	public int read(byte[] b, int off, int len) throws IOException
-	{
-		int thisRead = super.read(b, off, len);
-
-		if (thisRead > 0)
+		for (HealthbarOverride override : HealthbarOverride.values())
 		{
-			out.write(b, off, thisRead);
-		}
-
-		return thisRead;
-	}
-
-	@Override
-	public int read() throws IOException
-	{
-		int val = super.read();
-		if (val != -1)
-		{
-			out.write(val);
-		}
-		return val;
-	}
-
-	@Override
-	public long skip(long n) throws IOException
-	{
-		byte[] buf = new byte[(int) Math.min(n, 0x4000)];
-		long total = 0;
-		while (n > 0)
-		{
-			int read = (int) Math.min(n, buf.length);
-
-			read = read(buf, 0, read);
-			if (read == -1)
+			try (var in = getClass().getResourceAsStream(override.getFileName()))
 			{
-				break;
+				assertNotNull(override.getFileName(), in);
 			}
-
-			total += read;
-			n -= read;
 		}
-		return total;
-	}
-
-	@Override
-	public boolean markSupported()
-	{
-		return false;
 	}
 }

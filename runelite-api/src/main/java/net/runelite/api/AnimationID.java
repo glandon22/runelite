@@ -109,6 +109,14 @@ public final class AnimationID
 	public static final int HUNTER_LAY_MANIACAL_MONKEY_BOULDER_TRAP = 7259; // setting up maniacal monkey boulder trap
 	public static final int HUNTER_CHECK_BIRD_SNARE = 5207;
 	public static final int HERBLORE_MAKE_TAR = 5249;
+	public static final int FLETCHING_ATTACH_STOCK_TO_BRONZE_LIMBS = 4436;
+	public static final int FLETCHING_ATTACH_STOCK_TO_BLURITE_LIMBS = 4437;
+	public static final int FLETCHING_ATTACH_STOCK_TO_IRON_LIMBS = 4438;
+	public static final int FLETCHING_ATTACH_STOCK_TO_STEEL_LIMBS = 4439;
+	public static final int FLETCHING_ATTACH_STOCK_TO_MITHRIL_LIMBS = 4440;
+	public static final int FLETCHING_ATTACH_STOCK_TO_ADAMANTITE_LIMBS = 4441;
+	public static final int FLETCHING_ATTACH_STOCK_TO_RUNITE_LIMBS = 4442;
+	public static final int FLETCHING_ATTACH_STOCK_TO_DRAGON_LIMBS = 7860;
 	public static final int FLETCHING_STRING_NORMAL_SHORTBOW = 6678;
 	public static final int FLETCHING_STRING_NORMAL_LONGBOW = 6684;
 	public static final int FLETCHING_STRING_OAK_SHORTBOW = 6679;
@@ -307,6 +315,7 @@ public final class AnimationID
 	public static final int TZTOK_JAD_RANGE_ATTACK = 2652;
 	public static final int CYCLOPS_ATTACK = 4652;
 	public static final int HELLHOUND_DEFENCE = 6566;
+	public static final int DUCK_BOBBING = 6818;
 
 	// Farming
 	public static final int FARMING_HARVEST_FRUIT_TREE = 2280;
@@ -352,6 +361,7 @@ public final class AnimationID
 
 	// POH Animations
 	public static final int INCENSE_BURNER = 3687;
+	public static final int PORTAL_NEXUS_SPIN = 367;
 
 	// Wyrms
 	public static final int WYRM_IDLE_DORMANT = 8266;
@@ -374,4 +384,8 @@ public final class AnimationID
 	public static final int GIANTS_FOUNDRY_WATER_WHEEL_SPINNING = 9450;
 
 	public static final int HUEYCOATL_DEATH = 11679;
+
+	public static final int SLAYER_TOWER_WATER_BUCKET_DRIP = 3558;
+
+	public static final int KEY_MASTER_IDLE = 4519;
 }

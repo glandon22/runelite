@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Tomas Slusny <slusnucky@gmail.com>
+ * Copyright (c) 2025 Abex
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,16 +22,35 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package net.runelite.client.plugins.xptracker;
+package net.runelite.client.plugins.runecraft;
 
-import lombok.Data;
+import java.util.Arrays;
+import java.util.Random;
+import org.junit.Ignore;
+import org.junit.Test;
 
-@Data
-class XpAction
+public class EssencePouchOverlayTest
 {
-	private int actions = 0;
-	private int actionsSinceReset = 0;
-	private boolean actionsHistoryInitialized = false;
-	private int[] actionExps = new int[10];
-	private int actionExpIndex = 0;
+	@Test
+	@Ignore
+	public void empiricalPercentile()
+	{
+		int[] trials = new int[10000];
+
+		var random = new Random(1234);
+
+		for (int i = 1; i <= 300; i++)
+		{
+			for (int j = 0; j < trials.length; j++)
+			{
+				trials[j] += random.nextInt(4);
+			}
+
+			Arrays.sort(trials);
+
+			int pct = trials[trials.length * 99 / 100];
+			System.out.println(pct + "\t" + i);
+		}
+
+	}
 }
