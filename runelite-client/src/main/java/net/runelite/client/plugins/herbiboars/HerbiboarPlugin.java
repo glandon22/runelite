@@ -27,25 +27,20 @@ package net.runelite.client.plugins.herbiboars;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.inject.Provides;
-
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.inject.Inject;
 import lombok.Getter;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import net.runelite.api.Client;
 import net.runelite.api.GameState;
 import net.runelite.api.MenuAction;
-import static net.runelite.api.ObjectID.DRIFTWOOD_30523;
-import static net.runelite.api.ObjectID.MUSHROOM_30520;
-import static net.runelite.api.ObjectID.ROCK_30519;
-import static net.runelite.api.ObjectID.ROCK_30521;
-import static net.runelite.api.ObjectID.ROCK_30522;
 import net.runelite.api.TileObject;
-import net.runelite.api.Varbits;
 import net.runelite.api.coords.WorldPoint;
 import net.runelite.api.events.GameObjectDespawned;
 import net.runelite.api.events.GameObjectSpawned;
@@ -54,6 +49,8 @@ import net.runelite.api.events.GroundObjectDespawned;
 import net.runelite.api.events.GroundObjectSpawned;
 import net.runelite.api.events.MenuOptionClicked;
 import net.runelite.api.events.VarbitChanged;
+import net.runelite.api.gameval.ObjectID;
+import net.runelite.api.gameval.VarbitID;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.eventbus.Subscribe;
@@ -85,11 +82,11 @@ public class HerbiboarPlugin extends Plugin
 	);
 
 	private static final Set<Integer> START_OBJECT_IDS = ImmutableSet.of(
-		ROCK_30519,
-		MUSHROOM_30520,
-		ROCK_30521,
-		ROCK_30522,
-		DRIFTWOOD_30523
+		ObjectID.HUNTING_TRAIL_SPAWN_FOSSIL1,
+		ObjectID.HUNTING_TRAIL_SPAWN_FOSSIL2,
+		ObjectID.HUNTING_TRAIL_SPAWN_FOSSIL3,
+		ObjectID.HUNTING_TRAIL_SPAWN_FOSSIL4,
+		ObjectID.HUNTING_TRAIL_SPAWN_FOSSIL5
 	);
 
 	private static final List<Integer> HERBIBOAR_REGIONS = ImmutableList.of(
@@ -139,7 +136,6 @@ public class HerbiboarPlugin extends Plugin
 	 */
 	private final List<HerbiboarSearchSpot> currentPath = Lists.newArrayList();
 
-	public boolean finished;
 	private boolean inHerbiboarArea;
 	private TrailToSpot nextTrail;
 	private HerbiboarSearchSpot.Group currentGroup;
@@ -148,24 +144,6 @@ public class HerbiboarPlugin extends Plugin
 	private boolean started;
 	private WorldPoint startPoint;
 	private HerbiboarStart startSpot;
-
-	@Value
-	public static class EnhancedObjData
-	{
-		int x;
-		int y;
-		int id;
-		int x_coord;
-		int y_coord;
-	}
-
-	public HashMap<String, Integer> getNextStop() {
-		return overlay.stop;
-	}
-
-	public boolean hasFinished() {
-		return finished;
-	}
 
 	@Provides
 	HerbiboarConfig provideConfig(ConfigManager configManager)
@@ -237,12 +215,12 @@ public class HerbiboarPlugin extends Plugin
 			}
 		}
 
-		finishId = client.getVarbitValue(Varbits.HB_FINISH);
+		finishId = client.getVarbitValue(VarbitID.HUNTING_TRAIL_ENDS_FOSSIL);
 
 		// The started varbit doesn't get set until the first spot of the rotation has been searched
 		// so we need to use the current group as an indicator of the rotation being started
-		started = client.getVarbitValue(Varbits.HB_STARTED) > 0 || currentGroup != null;
-		finished = !pathActive && started;
+		started = client.getVarbitValue(VarbitID.HUNTING_TRAILS_USED_FOSSIL) > 0 || currentGroup != null;
+		boolean finished = !pathActive && started;
 
 		if (!wasStarted && started)
 		{
@@ -252,10 +230,6 @@ public class HerbiboarPlugin extends Plugin
 		if (finished)
 		{
 			resetTrailData();
-		}
-		Iterator<Integer> namesIterator = shownTrails.iterator();
-		while(namesIterator.hasNext()) {
-			System.out.println(namesIterator.next());
 		}
 	}
 
@@ -287,7 +261,6 @@ public class HerbiboarPlugin extends Plugin
 		started = false;
 		startPoint = null;
 		startSpot = null;
-		overlay.stop = null;
 	}
 
 	private void clearCache()

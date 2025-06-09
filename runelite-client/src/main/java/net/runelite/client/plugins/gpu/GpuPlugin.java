@@ -593,6 +593,10 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 				return "#define THREAD_COUNT " + threadCount + "\n" +
 					"#define FACES_PER_THREAD " + facesPerThread + "\n";
 			}
+			if ("texture_config".equals(key))
+			{
+				return "#define TEXTURE_COUNT " + TextureManager.TEXTURE_COUNT + "\n";
+			}
 			return null;
 		});
 		template.addInclude(GpuPlugin.class);
@@ -1135,10 +1139,14 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		final int height = bufferProvider.getHeight();
 
 		GL43C.glBindBuffer(GL43C.GL_PIXEL_UNPACK_BUFFER, interfacePbo);
-		GL43C.glMapBuffer(GL43C.GL_PIXEL_UNPACK_BUFFER, GL43C.GL_WRITE_ONLY)
-			.asIntBuffer()
-			.put(pixels, 0, width * height);
-		GL43C.glUnmapBuffer(GL43C.GL_PIXEL_UNPACK_BUFFER);
+		ByteBuffer interfaceBuf = GL43C.glMapBuffer(GL43C.GL_PIXEL_UNPACK_BUFFER, GL43C.GL_WRITE_ONLY);
+		if (interfaceBuf != null)
+		{
+			interfaceBuf
+				.asIntBuffer()
+				.put(pixels, 0, width * height);
+			GL43C.glUnmapBuffer(GL43C.GL_PIXEL_UNPACK_BUFFER);
+		}
 		GL43C.glBindTexture(GL43C.GL_TEXTURE_2D, interfaceTexture);
 		GL43C.glTexSubImage2D(GL43C.GL_TEXTURE_2D, 0, 0, 0, width, height, GL43C.GL_BGRA, GL43C.GL_UNSIGNED_INT_8_8_8_8_REV, 0);
 		GL43C.glBindBuffer(GL43C.GL_PIXEL_UNPACK_BUFFER, 0);
@@ -1372,7 +1380,21 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 				return;
 			}
 
-			throw ex;
+			log.error("error swapping buffers", ex);
+
+			// try to stop the plugin
+			SwingUtilities.invokeLater(() ->
+			{
+				try
+				{
+					pluginManager.stopPlugin(this);
+				}
+				catch (PluginInstantiationException ex2)
+				{
+					log.error("error stopping plugin", ex2);
+				}
+			});
+			return;
 		}
 
 		drawManager.processDrawComplete(this::screenshot);
@@ -1494,6 +1516,15 @@ public class GpuPlugin extends Plugin implements DrawCallbacks
 		{
 			// Avoid drawing the last frame's buffer during LOADING after LOGIN_SCREEN
 			targetBufferOffset = 0;
+		}
+		if (gameStateChanged.getGameState() == GameState.STARTING)
+		{
+			if (textureArrayId != -1)
+			{
+				textureManager.freeTextureArray(textureArrayId);
+			}
+			textureArrayId = -1;
+			lastAnisotropicFilteringLevel = -1;
 		}
 	}
 

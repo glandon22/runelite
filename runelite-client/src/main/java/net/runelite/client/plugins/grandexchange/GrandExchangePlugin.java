@@ -69,7 +69,6 @@ import net.runelite.api.MenuAction;
 import net.runelite.api.MenuEntry;
 import net.runelite.api.ScriptID;
 import net.runelite.api.VarClientStr;
-import net.runelite.api.VarPlayer;
 import net.runelite.api.events.ChatMessage;
 import net.runelite.api.events.FocusChanged;
 import net.runelite.api.events.GameStateChanged;
@@ -78,8 +77,8 @@ import net.runelite.api.events.GrandExchangeSearched;
 import net.runelite.api.events.MenuEntryAdded;
 import net.runelite.api.events.ScriptCallbackEvent;
 import net.runelite.api.events.ScriptPostFired;
-import net.runelite.api.widgets.ComponentID;
-import net.runelite.api.widgets.InterfaceID;
+import net.runelite.api.gameval.InterfaceID;
+import net.runelite.api.gameval.VarPlayerID;
 import net.runelite.api.widgets.Widget;
 import net.runelite.api.widgets.WidgetUtil;
 import net.runelite.client.Notifier;
@@ -93,6 +92,7 @@ import net.runelite.client.events.ConfigChanged;
 import net.runelite.client.events.SessionClose;
 import net.runelite.client.events.SessionOpen;
 import net.runelite.client.game.ItemManager;
+import net.runelite.client.game.ItemStats;
 import net.runelite.client.input.KeyManager;
 import net.runelite.client.input.MouseManager;
 import net.runelite.client.plugins.Plugin;
@@ -106,7 +106,6 @@ import net.runelite.client.util.OSType;
 import net.runelite.client.util.QuantityFormatter;
 import net.runelite.client.util.Text;
 import net.runelite.http.api.ge.GrandExchangeTrade;
-import net.runelite.http.api.item.ItemStats;
 import net.runelite.http.api.worlds.WorldType;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
@@ -609,16 +608,16 @@ public class GrandExchangePlugin extends Plugin
 
 		switch (groupId)
 		{
-			case InterfaceID.BANK:
+			case InterfaceID.BANKMAIN:
 				// Don't show for view tabs and such
-				if (widgetId != ComponentID.BANK_ITEM_CONTAINER)
+				if (widgetId != InterfaceID.Bankmain.ITEMS)
 				{
 					break;
 				}
 			case InterfaceID.INVENTORY:
-			case InterfaceID.BANK_INVENTORY:
-			case InterfaceID.GRAND_EXCHANGE_INVENTORY:
-			case InterfaceID.SHOP_INVENTORY:
+			case InterfaceID.BANKSIDE:
+			case InterfaceID.GE_OFFERS_SIDE:
+			case InterfaceID.SHOPSIDE:
 				menuEntry.setOption(SEARCH_GRAND_EXCHANGE);
 				menuEntry.setType(MenuAction.RUNELITE);
 		}
@@ -652,7 +651,7 @@ public class GrandExchangePlugin extends Plugin
 
 		String underlineTag = "<u=" + ColorUtil.colorToHexCode(FUZZY_HIGHLIGHT_COLOR) + ">";
 
-		Widget results = client.getWidget(ComponentID.CHATBOX_GE_SEARCH_RESULTS);
+		Widget results = client.getWidget(InterfaceID.Chatbox.MES_LAYER_SCROLLCONTENTS);
 		Widget[] children = results.getDynamicChildren();
 		int resultCount = children.length / 3;
 
@@ -853,12 +852,12 @@ public class GrandExchangePlugin extends Plugin
 
 	private String setExamineText(String examine, String fee, boolean buy)
 	{
-		final int itemId = client.getVarpValue(VarPlayer.CURRENT_GE_ITEM);
+		final int itemId = client.getVarpValue(VarPlayerID.TRADINGPOST_SEARCH);
 		StringBuilder sb = new StringBuilder();
 
 		if (buy && config.enableGELimits())
 		{
-			final ItemStats itemStats = itemManager.getItemStats(itemId, false);
+			final ItemStats itemStats = itemManager.getItemStats(itemId);
 
 			// If we have item buy limit, append it
 			if (itemStats != null && itemStats.getGeLimit() > 0)
