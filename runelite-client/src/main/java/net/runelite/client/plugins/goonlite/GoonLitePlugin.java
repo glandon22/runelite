@@ -42,7 +42,6 @@ import java.awt.image.BufferedImage;
 
 @PluginDescriptor(
 	name = "GoonLite",
-	loadWhenOutdated = true,
 	hidden = true // prevent users from disabling
 )
 public class GoonLitePlugin extends Plugin

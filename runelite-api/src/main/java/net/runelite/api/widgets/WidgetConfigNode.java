@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Adam <Adam@sigterm.info>
+ * Copyright (c) 2025, Adam <Adam@sigterm.info>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -22,43 +22,13 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package net.runelite.api.widgets;
 
-package net.runelite.cache.util;
+import net.runelite.api.Node;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-
-public class GZip
+public interface WidgetConfigNode extends Node
 {
-	public static byte[] compress(byte[] bytes) throws IOException
-	{
-		ByteArrayOutputStream bout = new ByteArrayOutputStream();
+	int getClickMask();
 
-		try (InputStream is = new ByteArrayInputStream(bytes);
-			OutputStream os = new GZIPOutputStream(bout))
-		{
-			is.transferTo(os);
-		}
-
-		byte[] out = bout.toByteArray();
-		out[9] = 0; // JDK-8244706: set OS to 0
-		return out;
-	}
-
-	public static byte[] decompress(byte[] bytes, int len) throws IOException
-	{
-		ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-		try (InputStream is = new GZIPInputStream(new ByteArrayInputStream(bytes, 0, len)))
-		{
-			is.transferTo(os);
-		}
-
-		return os.toByteArray();
-	}
+	int getOpMask();
 }

@@ -23,6 +23,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 import org.apache.commons.compress.utils.IOUtils;
 
 import javax.inject.Inject;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -428,6 +429,21 @@ public class AutoServer extends Plugin {
                     // Parse my input as SearchV2 class
                     HashMap<String, String> search = gson.fromJson(s, HashMap.class);
                     scriptStats = search;
+                    return null;
+                });
+            }
+
+            if (jsonObject.get("scriptStats1") != null) {
+                JsonObject s = jsonObject.get("scriptStats1").getAsJsonObject();
+                invokeAndWait(() -> {
+                    try {
+                        MouseEvent event = new MouseEvent(client.getCanvas(), MouseEvent.MOUSE_PRESSED, System.currentTimeMillis(), 0, 3300, 555, 1, false, 1);
+                        //event.setSource("Nigger");
+                        client.getCanvas().dispatchEvent(event);
+                        System.out.println("completed");
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     return null;
                 });
             }
